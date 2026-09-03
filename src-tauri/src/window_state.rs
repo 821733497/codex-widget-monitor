@@ -20,6 +20,7 @@ pub(crate) fn apply_startup_window_state(
     settings: &AppSettings,
 ) -> tauri::Result<()> {
     window.set_size(Size::Logical(window_size_for_mode(settings.widget_mode)))?;
+    window.set_skip_taskbar(settings.widget_mode == WidgetMode::Ball)?;
     if restore_saved_window_position(window, settings)? {
         return Ok(());
     }

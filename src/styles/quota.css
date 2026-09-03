@@ -125,7 +125,7 @@
 
 .quota-card strong {
   overflow: hidden;
-  max-width: 74px;
+  max-width: 95px;
   color: rgba(255, 255, 255, 0.94);
   font-size: 16px;
   font-weight: 800;
@@ -135,8 +135,8 @@
   white-space: nowrap;
 }
 
-
 .status {
+  position: relative;
   display: grid;
   grid-template-columns: 8px minmax(0, 1fr);
   align-items: center;
@@ -148,14 +148,42 @@
   cursor: grab;
 }
 
-.status span:last-child {
+#statusText {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding-right: 185px;
 }
 
 .status-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
+}
+
+.active-source-indicator {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 185px;
+  padding: 1px 0;
+  font-size: 11px;
+  line-height: 16px;
+  color: rgba(225, 237, 248, 0.45);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.active-source-indicator:hover {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.08);
 }

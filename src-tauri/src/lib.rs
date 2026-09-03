@@ -15,7 +15,8 @@ use app_state::AppState;
 use autostart::reconcile_auto_start;
 use commands::{
     close_app, get_always_on_top, get_quota, get_reset_credit_expiries, get_settings, hide_window,
-    open_codex, save_settings, set_always_on_top, write_frontend_log,
+    open_codex, save_settings, set_always_on_top, set_skip_taskbar, switch_active_target,
+    test_sub2api_connection, write_frontend_log,
 };
 use dock::set_dock_icon_hidden;
 use logging::LogLevel;
@@ -107,12 +108,15 @@ pub fn run() {
             get_quota,
             get_reset_credit_expiries,
             hide_window,
+            set_skip_taskbar,
             close_app,
             get_always_on_top,
             set_always_on_top,
             open_codex,
             get_settings,
             save_settings,
+            switch_active_target,
+            test_sub2api_connection,
             write_frontend_log
         ])
         .run(tauri::generate_context!())

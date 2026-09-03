@@ -1,5 +1,3 @@
-import { version as packageVersion } from "../../package.json";
-
 export const DEFAULT_SETTINGS = {
   codexCliPath: "",
   updateProxy: "",
@@ -16,121 +14,123 @@ export const DEFAULT_SETTINGS = {
   widgetMode: "panel",
   panelPosition: null,
   ballPosition: null,
-  ballDock: null
+  ballDock: null,
+  sites: [],
+  activeTarget: { type: "official" },
 };
 
-export const APP_VERSION_LABEL = packageVersion ? `v${String(packageVersion).trim()}` : "";
+export const APP_VERSION_LABEL = "";
 export const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 export const WIDGET_MODES = {
   PANEL: "panel",
-  BALL: "ball"
+  BALL: "ball",
 };
 export const THEMES = {
   default: {
     label: {
       zh: "默认主题",
-      en: "Default"
-    }
+      en: "Default",
+    },
   },
   basic1: {
     label: {
       zh: "基础主题 1",
-      en: "Basic theme 1"
-    }
+      en: "Basic theme 1",
+    },
   },
   basic2: {
     label: {
       zh: "基础主题 2",
-      en: "Basic theme 2"
-    }
+      en: "Basic theme 2",
+    },
   },
   basic3: {
     label: {
       zh: "基础主题 3",
-      en: "Basic theme 3"
-    }
-  }
+      en: "Basic theme 3",
+    },
+  },
 };
 
 export const METER_WINDOWS = {
   primary: {
     label: {
       zh: "5小时窗口",
-      en: "5h window"
-    }
+      en: "5h window",
+    },
   },
   secondary: {
     label: {
       zh: "周窗口",
-      en: "Weekly window"
-    }
-  }
+      en: "Weekly window",
+    },
+  },
 };
 
 export const DATA_BAR_CONTENTS = {
   fiveHour: {
     label: {
       zh: "5小时窗口",
-      en: "5h window"
-    }
+      en: "5h window",
+    },
   },
   weekly: {
     label: {
       zh: "周窗口",
-      en: "Weekly window"
-    }
+      en: "Weekly window",
+    },
   },
   resetCredits: {
     label: {
       zh: "重置次数",
-      en: "Reset credits"
-    }
+      en: "Reset credits",
+    },
   },
   quotaEstimate: {
     label: {
       zh: "额度估算",
-      en: "Quota estimate"
-    }
-  }
+      en: "Quota estimate",
+    },
+  },
 };
 
 export const LOG_LEVELS = {
   off: {
     label: {
       zh: "关闭",
-      en: "Off"
-    }
+      en: "Off",
+    },
   },
   error: {
     label: {
       zh: "错误",
-      en: "Error"
-    }
+      en: "Error",
+    },
   },
   warn: {
     label: {
       zh: "警告",
-      en: "Warn"
-    }
+      en: "Warn",
+    },
   },
   info: {
     label: {
       zh: "信息",
-      en: "Info"
-    }
+      en: "Info",
+    },
   },
   debug: {
     label: {
       zh: "调试",
-      en: "Debug"
-    }
+      en: "Debug",
+    },
   },
   trace: {
     label: {
       zh: "跟踪",
-      en: "Trace"
-    }
-  }
+      en: "Trace",
+    },
+  },
 };
 
 export const PANEL_SIZE = { width: 390, height: 236 };
@@ -214,7 +214,8 @@ export const i18n = {
     autoStart: "开机自启",
     autoStartHint: "登录系统后自动启动本应用，仅对当前用户生效。",
     hideDockIcon: "隐藏 Dock 图标",
-    hideDockIconHint: "仅 macOS。开启后隐藏 Dock 图标，仅保留菜单栏图标作为入口。",
+    hideDockIconHint:
+      "仅 macOS。开启后隐藏 Dock 图标，仅保留菜单栏图标作为入口。",
     updateProxyHint: "用于 GitHub 自动更新和 ChatGPT 额度过期时间接口。",
     save: "保存",
     cancel: "取消",
@@ -223,7 +224,8 @@ export const i18n = {
     updateProxyPlaceholder: "http://127.0.0.1:7890",
     onboardingMode: "切换悬浮球",
     onboardingModeTitle: "切换悬浮球",
-    onboardingModeDescription: "在完整面板和悬浮球之间切换，按使用场景选择显示方式。",
+    onboardingModeDescription:
+      "在完整面板和悬浮球之间切换，按使用场景选择显示方式。",
     onboardingSettings: "打开设置，配置主题、语言等",
     onboardingSettingsTitle: "打开设置",
     onboardingSettingsDescription: "配置主题、语言等个性化选项，打造专属体验。",
@@ -236,7 +238,26 @@ export const i18n = {
     onboardingClose: "关闭引导",
     onboardingPrev: "上一步",
     onboardingNext: "下一步",
-    onboardingDone: "完成"
+    onboardingDone: "完成",
+    tabBasic: "基础设置",
+    tabSources: "中转站",
+    officialSource: "官方 Codex CLI",
+    addSite: "添加中转站点",
+    editSite: "编辑站点",
+    deleteSite: "删除站点",
+    siteName: "站点名称",
+    siteBaseUrl: "Base URL",
+    addKey: "添加 Key",
+    editKey: "编辑 Key",
+    deleteKey: "删除 Key",
+    keyName: "备注名称",
+    apiKey: "API Key",
+    testConnection: "测试连接",
+    testingConnection: "测试中...",
+    switchSource: "切换数据源",
+    noSitesHint: "尚未添加中转站点，点击下方按钮添加",
+    confirmDeleteSite: "确定要删除该站点及其包含的所有 Key 吗？",
+    confirmDeleteKey: "确定要删除该 Key 吗？",
   },
   en: {
     brandName: "Codex Quota",
@@ -305,12 +326,16 @@ export const i18n = {
     dataBar3: "Data bar 3",
     logLevel: "Log level",
     autoUpdate: "Auto update",
-    autoUpdateHint: "Updates depend on GitHub. Configure a proxy if the network cannot reach it.",
+    autoUpdateHint:
+      "Updates depend on GitHub. Configure a proxy if the network cannot reach it.",
     autoStart: "Start at login",
-    autoStartHint: "Launch this app automatically after signing in. Current user only.",
+    autoStartHint:
+      "Launch this app automatically after signing in. Current user only.",
     hideDockIcon: "Hide Dock icon",
-    hideDockIconHint: "macOS only. Hide the Dock icon and keep the menu bar icon as the app entry point.",
-    updateProxyHint: "Used for GitHub updates and the ChatGPT quota expiry API.",
+    hideDockIconHint:
+      "macOS only. Hide the Dock icon and keep the menu bar icon as the app entry point.",
+    updateProxyHint:
+      "Used for GitHub updates and the ChatGPT quota expiry API.",
     save: "Save",
     cancel: "Cancel",
     settingsSaved: "Settings saved",
@@ -318,19 +343,43 @@ export const i18n = {
     updateProxyPlaceholder: "http://127.0.0.1:7890",
     onboardingMode: "Switch to floating ball",
     onboardingModeTitle: "Switch to floating ball",
-    onboardingModeDescription: "Switch between full panel and floating ball for different workflows.",
+    onboardingModeDescription:
+      "Switch between full panel and floating ball for different workflows.",
     onboardingSettings: "Open settings for theme, language, and more",
     onboardingSettingsTitle: "Open settings",
-    onboardingSettingsDescription: "Configure theme, language, and other personal preferences.",
+    onboardingSettingsDescription:
+      "Configure theme, language, and other personal preferences.",
     onboardingRefresh: "Refresh quota manually",
     onboardingRefreshTitle: "Refresh quota manually",
-    onboardingRefreshDescription: "Read Codex CLI quota again and get the latest status.",
+    onboardingRefreshDescription:
+      "Read Codex CLI quota again and get the latest status.",
     onboardingUpdate: "Click version to check updates",
     onboardingUpdateTitle: "Check for updates",
-    onboardingUpdateDescription: "Click the version to check for new releases and stay current.",
+    onboardingUpdateDescription:
+      "Click the version to check for new releases and stay current.",
     onboardingClose: "Close guide",
     onboardingPrev: "Previous",
     onboardingNext: "Next",
-    onboardingDone: "Done"
-  }
+    onboardingDone: "Done",
+    tabBasic: "General",
+    tabSources: "Relay Sites",
+    officialSource: "Official Codex CLI",
+    addSite: "Add Provider",
+    editSite: "Edit Provider",
+    deleteSite: "Delete Provider",
+    siteName: "Provider Name",
+    siteBaseUrl: "Base URL",
+    addKey: "Add Key",
+    editKey: "Edit Key",
+    deleteKey: "Delete Key",
+    keyName: "Remark Name",
+    apiKey: "API Key",
+    testConnection: "Test",
+    testingConnection: "Testing...",
+    switchSource: "Switch source",
+    noSitesHint: "No custom providers yet. Click button below to add.",
+    confirmDeleteSite:
+      "Are you sure you want to delete this provider and all its keys?",
+    confirmDeleteKey: "Are you sure you want to delete this key?",
+  },
 };

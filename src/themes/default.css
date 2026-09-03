@@ -1,13 +1,21 @@
 body[data-theme="default"] {
-  --default-accent: #22F37D;
+  --default-accent: #22f37d;
   --default-accent-deep: #05b864;
   --default-accent-rgb: 34, 243, 125;
   --default-panel-text: #ffffff;
   --default-muted-text: rgba(195, 218, 238, 0.75);
   --default-faint-text: rgba(160, 190, 218, 0.55);
   --widget-surface-background:
-    radial-gradient(ellipse 260px 150px at 15% 10%, rgba(45, 95, 135, 0.22), transparent 70%),
-    radial-gradient(ellipse 200px 120px at 85% 90%, rgba(10, 45, 60, 0.25), transparent 65%),
+    radial-gradient(
+      ellipse 260px 150px at 15% 10%,
+      rgba(45, 95, 135, 0.22),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 200px 120px at 85% 90%,
+      rgba(10, 45, 60, 0.25),
+      transparent 65%
+    ),
     linear-gradient(145deg, #111e2b 0%, #0a131c 55%, #050b11 100%);
   --widget-surface-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
@@ -15,7 +23,7 @@ body[data-theme="default"] {
     inset 0 -20px 40px rgba(0, 0, 0, 0.45);
   --widget-surface-backdrop: blur(36px) saturate(1.4);
   --meter-primary-color: #ffffff;
-  --default-signature-green: #22F37D;
+  --default-signature-green: #22f37d;
   --default-signature-rgb: 34, 243, 125;
   --settings-accent-color: var(--default-accent);
   --settings-accent-soft: rgba(var(--default-accent-rgb), 0.18);
@@ -64,8 +72,11 @@ body[data-theme="default"] .widget::before {
   pointer-events: none;
   border-radius: 15px;
   content: "";
-  background:
-    radial-gradient(ellipse 200px 100px at 80% 0%, rgba(120, 180, 230, 0.12), transparent 70%);
+  background: radial-gradient(
+    ellipse 200px 100px at 80% 0%,
+    rgba(120, 180, 230, 0.12),
+    transparent 70%
+  );
 }
 
 body[data-theme="default"] .widget::after {
@@ -113,7 +124,9 @@ body[data-theme="default"] .traffic-light {
   box-shadow:
     0 0 10px rgba(var(--default-accent-rgb), 0.8),
     0 0 20px rgba(var(--default-accent-rgb), 0.35);
-  transition: background 300ms ease, box-shadow 300ms ease;
+  transition:
+    background 300ms ease,
+    box-shadow 300ms ease;
 }
 
 body[data-theme="default"] .brand-copy {
@@ -295,9 +308,21 @@ body[data-theme="default"] .default-meter-sphere {
   pointer-events: none;
   border-radius: 50%;
   background:
-    radial-gradient(circle 1.2px at 28% 25%, rgba(255, 255, 255, 0.65) 0%, transparent 100%),
-    radial-gradient(circle 1px at 70% 32%, rgba(255, 255, 255, 0.55) 0%, transparent 100%),
-    radial-gradient(circle 1.5px at 45% 42%, rgba(255, 255, 255, 0.45) 0%, transparent 100%);
+    radial-gradient(
+      circle 1.2px at 28% 25%,
+      rgba(255, 255, 255, 0.65) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 1px at 70% 32%,
+      rgba(255, 255, 255, 0.55) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 1.5px at 45% 42%,
+      rgba(255, 255, 255, 0.45) 0%,
+      transparent 100%
+    );
   box-shadow: none;
 }
 
@@ -336,10 +361,26 @@ body[data-theme="default"] .default-meter-particles {
   pointer-events: none;
   border-radius: 50%;
   background:
-    radial-gradient(circle 1.5px at 32% 65%, rgba(255, 255, 255, 0.65) 0%, transparent 100%),
-    radial-gradient(circle 1px at 70% 72%, rgba(255, 255, 255, 0.55) 0%, transparent 100%),
-    radial-gradient(circle 1.8px at 48% 82%, rgba(255, 255, 255, 0.45) 0%, transparent 100%),
-    radial-gradient(circle 1.2px at 62% 58%, rgba(255, 255, 255, 0.55) 0%, transparent 100%);
+    radial-gradient(
+      circle 1.5px at 32% 65%,
+      rgba(255, 255, 255, 0.65) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 1px at 70% 72%,
+      rgba(255, 255, 255, 0.55) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 1.8px at 48% 82%,
+      rgba(255, 255, 255, 0.45) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 1.2px at 62% 58%,
+      rgba(255, 255, 255, 0.55) 0%,
+      transparent 100%
+    );
   opacity: 0.85;
 }
 
@@ -476,7 +517,9 @@ body[data-theme="default"] .quota-card {
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
     0 3px 8px rgba(0, 4, 10, 0.3);
   backdrop-filter: blur(16px);
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 body[data-theme="default"] .quota-card:hover {
@@ -550,7 +593,7 @@ body[data-theme="default"] .quota-subtext .quota-sub-value {
 
 /* 右侧大号数值 */
 body[data-theme="default"] .quota-card strong {
-  max-width: 80px;
+  max-width: 95px;
   color: #ffffff;
   font-size: 20px;
   font-weight: 850;
@@ -704,7 +747,9 @@ body[data-theme="default"] .default-meter[data-mode="ball"] {
   margin: 0 !important;
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-body {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-body {
   position: absolute !important;
   inset: 0 !important;
   width: 88px !important;
@@ -712,22 +757,40 @@ body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-body 
   border-radius: 50% !important;
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-sphere {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-sphere {
   background:
-    radial-gradient(circle 1.2px at 28% 25%, rgba(255, 255, 255, 0.65) 0%, transparent 100%),
-    radial-gradient(circle 1px at 70% 32%, rgba(255, 255, 255, 0.55) 0%, transparent 100%),
-    radial-gradient(circle 1.5px at 45% 42%, rgba(255, 255, 255, 0.45) 0%, transparent 100%),
+    radial-gradient(
+      circle 1.2px at 28% 25%,
+      rgba(255, 255, 255, 0.65) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 1px at 70% 32%,
+      rgba(255, 255, 255, 0.55) 0%,
+      transparent 100%
+    ),
+    radial-gradient(
+      circle 1.5px at 45% 42%,
+      rgba(255, 255, 255, 0.45) 0%,
+      transparent 100%
+    ),
     linear-gradient(145deg, #111e2b 0%, #0a131c 55%, #050b11 100%);
   box-shadow:
     inset 0 1px 2px rgba(255, 255, 255, 0.18),
     inset 0 -1px 2px rgba(0, 0, 0, 0.35);
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-glow {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-glow {
   display: none;
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-shine {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-shine {
   inset: 3px;
   background:
     radial-gradient(
@@ -746,21 +809,29 @@ body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-shine
   filter: blur(0.8px);
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-shine::before {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-shine::before {
   display: none;
 }
 
 /* 88×88 悬浮球矢量流体微波等比动画 */
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-wave-one-group {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-wave-one-group {
   animation: default-fluid-wave-one-ball 6s linear infinite;
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-wave-two-group {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-wave-two-group {
   animation: default-fluid-wave-two-ball 8.5s linear infinite;
 }
 
 /* 88×88 悬浮球右下边缘对角月牙反光弧（同心同曲率，紧贴右下角外壳边缘） */
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-bottom-shine {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-bottom-shine {
   position: absolute;
   inset: 2.5px;
   border-radius: 50%;
@@ -790,29 +861,43 @@ body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-rim {
     0 0 8px rgba(var(--default-signature-rgb), 0.15);
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-copy strong {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-copy
+  strong {
   font-size: 28px !important;
   line-height: 30px !important;
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"] .default-meter-copy span {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]
+  .default-meter-copy
+  span {
   font-size: 11px !important;
   line-height: 13px !important;
 }
 
 /* 贴边吸附条 (Dock Bar) 效果 - 完美复现设计图吸附态 */
-body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="right"] .default-meter-body {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"][data-dock="right"]
+  .default-meter-body {
   -webkit-clip-path: inset(0 0 0 0 round 44px 0 0 44px);
   clip-path: inset(0 0 0 0 round 44px 0 0 44px);
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="left"] .default-meter-body {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"][data-dock="left"]
+  .default-meter-body {
   -webkit-clip-path: inset(0 0 0 0 round 0 44px 44px 0);
   clip-path: inset(0 0 0 0 round 0 44px 44px 0);
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="right"] .default-meter-dock-bar,
-body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="left"] .default-meter-dock-bar {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"][data-dock="right"]
+  .default-meter-dock-bar,
+body[data-theme="default"]
+  .default-meter[data-mode="ball"][data-dock="left"]
+  .default-meter-dock-bar {
   position: absolute;
   top: 6px;
   bottom: 6px;
@@ -820,40 +905,59 @@ body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="left"] .d
   display: block;
   width: 3.5px;
   border-radius: 4px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(180, 220, 245, 0.6) 40%, rgba(255, 255, 255, 0.95));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95),
+    rgba(180, 220, 245, 0.6) 40%,
+    rgba(255, 255, 255, 0.95)
+  );
   box-shadow:
     0 0 6px rgba(255, 255, 255, 0.8),
     0 0 12px rgba(180, 220, 250, 0.5);
 }
 
 /* 右贴边 */
-body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="right"] .default-meter-dock-bar {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"][data-dock="right"]
+  .default-meter-dock-bar {
   right: 0;
 }
 
 /* 左贴边 */
-body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="left"] .default-meter-dock-bar {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"][data-dock="left"]
+  .default-meter-dock-bar {
   left: 0;
 }
 
 /* 吸附态文字字号适度缩小与偏移微调，保证数字与百分号均完整清晰可见 */
-body[data-theme="default"] .default-meter[data-mode="ball"]:not([data-dock="none"]) .default-meter-copy strong {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]:not([data-dock="none"])
+  .default-meter-copy
+  strong {
   font-size: 17px !important;
   line-height: 19px !important;
   letter-spacing: -0.3px;
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"]:not([data-dock="none"]) .default-meter-copy span {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"]:not([data-dock="none"])
+  .default-meter-copy
+  span {
   font-size: 9px !important;
   line-height: 10px !important;
 }
 
 /* 吸附时文字微移到可视半球 */
-body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="right"] .default-meter-copy {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"][data-dock="right"]
+  .default-meter-copy {
   transform: translateX(-20px);
 }
 
-body[data-theme="default"] .default-meter[data-mode="ball"][data-dock="left"] .default-meter-copy {
+body[data-theme="default"]
+  .default-meter[data-mode="ball"][data-dock="left"]
+  .default-meter-copy {
   transform: translateX(20px);
 }
 

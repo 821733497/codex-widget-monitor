@@ -29,8 +29,50 @@ export function normalizeSettings(settings) {
     widgetMode,
     panelPosition: normalizeWindowPosition(settings?.panelPosition),
     ballPosition: normalizeWindowPosition(settings?.ballPosition),
-    ballDock: normalizeBallDock(settings?.ballDock)
+    ballDock: normalizeBallDock(settings?.ballDock),
+    sites: normalizeSites(settings?.sites),
+    activeTarget: normalizeActiveTarget(settings?.activeTarget, settings?.sites)
   };
+}
+
+export function normalizeSites(sites) {
+  if (!Array.isArray(sites)) return [];
+  return sites
+    .filter((s) => s && typeof s === "object")
+    .map((site) => ({
+      id: String(site.id || "").trim(),
+      name: String(site.name || "").trim(),
+      baseUrl: String(site.baseUrl || "").trim(),
+      keys: Array.isArray(site.keys)
+        ? site.keys
+            .filter((k) => k && typeof k === "object")
+            .map((k) => ({
+              id: String(k.id || "").trim(),
+              name: String(k.name || "").trim(),
+              key: String(k.key || "").trim()
+            }))
+            .filter((k) => k.id && k.key)
+        : []
+    }))
+    .filter((s) => s.id && s.baseUrl);
+}
+
+export function normalizeActiveTarget(activeTarget, sites = []) {
+  if (!activeTarget || typeof activeTarget !== "object") {
+    return { type: "official" };
+  }
+  if (activeTarget.type === "siteKey" && activeTarget.siteId && activeTarget.keyId) {
+    const site = sites.find((s) => s.id === activeTarget.siteId);
+    const key = site?.keys?.find((k) => k.id === activeTarget.keyId);
+    if (site && key) {
+      return {
+        type: "siteKey",
+        siteId: activeTarget.siteId,
+        keyId: activeTarget.keyId
+      };
+    }
+  }
+  return { type: "official" };
 }
 
 export function normalizeWindowPosition(position) {

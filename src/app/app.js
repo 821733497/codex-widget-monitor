@@ -10,6 +10,7 @@ import { createSettingsPersistence } from "./settings-persistence.js";
 import { listenRuntimeEvent } from "./startup.js";
 import { applyNormalizedSettings as applyStateSettings, createAppState, renderLocale, renderTheme } from "./state.js";
 import { createTauriService } from "./tauri-service.js";
+import { createSourcePickerController } from "./source-picker-controller.js";
 import { createTooltipController } from "./tooltip-controller.js";
 import { createUpdateController } from "./update-controller.js";
 import { createWindowController } from "./window-controller.js";
@@ -129,22 +130,35 @@ export function createApp(dependencies = {}) {
     clearPanelClick: windowController.clearPanelClick
   });
 
+  const sourcePickerController = (factories.createSourcePickerController || createSourcePickerController)({
+    els,
+    state,
+    service,
+    render: () => render(),
+    refreshQuota: quotaController.refreshQuota,
+    setWidgetMode: windowController.setWidgetMode,
+    openSettings: settingsController.openSettingsPanel,
+    closeApp: windowController.closeApp,
+    getLocale: () => renderLocale(state)
+  });
+
   const renderer = (factories.createRenderer || createRenderer)({
     els,
     state,
     getLocale: () => renderLocale(state),
     getTheme: () => renderTheme(state),
     onVersionClick: triggerManualUpdateCheck,
-    settingsView: settingsController
+    settingsView: settingsController,
+    sourcePickerView: sourcePickerController
   });
   render = renderer.render;
 
   function bindEvents() {
     windowController.bindEvents();
     settingsController.bindEvents();
+    sourcePickerController.bindEvents();
     onboardingController.bindEvents();
     tooltipController.bindEvents();
-    document.addEventListener("contextmenu", (event) => event.preventDefault());
     els.pinBtn.addEventListener("click", toggleAlwaysOnTop);
     els.refreshBtn.addEventListener("click", () => quotaController.refreshQuota());
   }

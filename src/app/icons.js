@@ -8,9 +8,10 @@ import {
   Pin,
   PinOff,
   RefreshCw,
+  Server,
   Settings,
   WalletCards,
-  X
+  X,
 } from "lucide";
 
 const RESET_CREDIT_ICON = [
@@ -24,7 +25,7 @@ const RESET_CREDIT_ICON = [
     stroke: "currentColor",
     "stroke-width": "2",
     "stroke-linecap": "round",
-    "stroke-linejoin": "round"
+    "stroke-linejoin": "round",
   },
   [
     ["path", { d: "M4.7 14.6a7.8 7.8 0 0 1 13.1-6.9" }],
@@ -32,8 +33,8 @@ const RESET_CREDIT_ICON = [
     ["path", { d: "M19.3 9.4a7.8 7.8 0 0 1-13.1 6.9" }],
     ["path", { d: "M6 19.4v-3.2h3.2" }],
     ["path", { d: "M12 8.4l1 2.2 2.2 1-2.2 1-1 2.2-1-2.2-2.2-1 2.2-1z" }],
-    ["path", { d: "M5.6 8.4h.01" }]
-  ]
+    ["path", { d: "M5.6 8.4h.01" }],
+  ],
 ];
 
 const ACTION_ICONS = {
@@ -46,13 +47,15 @@ const ACTION_ICONS = {
   pin: Pin,
   "pin-off": PinOff,
   "refresh-cw": RefreshCw,
+  server: Server,
   settings: Settings,
   "wallet-cards": WalletCards,
-  x: X
+  x: X,
 };
 
 export function initializeActionIcons(els, logger) {
   [
+    [els.sourcePickerBtn, "server"],
     [els.modeBtn, "circle-dot"],
     [els.settingsBtn, "settings"],
     [els.pinBtn, "pin"],
@@ -61,7 +64,7 @@ export function initializeActionIcons(els, logger) {
     [els.closeBtn, "x"],
     [els.settingsCloseBtn, "x"],
     [els.chooseCodexBtn, "folder-open"],
-    [els.statusIcon, "refresh-cw"]
+    [els.statusIcon, "refresh-cw"],
   ].forEach(([button, iconName]) => {
     setActionButtonIcon(button, iconName, logger);
   });
@@ -99,8 +102,8 @@ export function createActionIcon(iconName, logger) {
       ...attrs,
       "aria-hidden": "true",
       "data-lucide": iconName,
-      class: `lucide lucide-${iconName}`
+      class: `lucide lucide-${iconName}`,
     },
-    children
+    children,
   ]);
 }

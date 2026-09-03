@@ -6,7 +6,7 @@ import {
   isBallAtInternalWorkAreaEdge,
   positionBelongsToWorkArea,
   resolveSafeBallDock,
-  workAreaForBallPosition
+  workAreaForBallPosition,
 } from "./geometry.js";
 import { createBallController } from "./window/ball-controller.js";
 import { createPanelController } from "./window/panel-controller.js";
@@ -21,7 +21,7 @@ export function createWindowController({
   service,
   render,
   persistSettings,
-  logger
+  logger,
 }) {
   let requestedWidgetMode = null;
   let widgetModeTransition = null;
@@ -48,7 +48,7 @@ export function createWindowController({
     service,
     persistSettings,
     showError: setWindowError,
-    logWindowError
+    logWindowError,
   });
 
   const ballController = createBallController({
@@ -58,7 +58,7 @@ export function createWindowController({
     render,
     setWidgetMode,
     positionController,
-    logWindowError
+    logWindowError,
   });
 
   const panelController = createPanelController({
@@ -66,7 +66,7 @@ export function createWindowController({
     service,
     setWidgetMode,
     startBallDrag: ballController.startBallDrag,
-    logWindowError
+    logWindowError,
   });
 
   function bindEvents() {
@@ -75,7 +75,9 @@ export function createWindowController({
     els.widget.addEventListener("pointerup", ballController.finishBallDrag);
     els.widget.addEventListener("pointercancel", ballController.finishBallDrag);
     els.widget.addEventListener("keydown", handleWidgetKeyDown);
-    els.modeBtn.addEventListener("click", () => setWidgetMode(WIDGET_MODES.BALL));
+    els.modeBtn.addEventListener("click", () =>
+      setWidgetMode(WIDGET_MODES.BALL),
+    );
     els.minimizeBtn.addEventListener("click", hideWindow);
     els.closeBtn.addEventListener("click", closeApp);
   }
@@ -124,14 +126,21 @@ export function createWindowController({
       const targetPosition = keepPosition
         ? normalizeRequiredPosition(await service.window.outerPosition())
         : savedPositionForMode(state.widgetMode, settings);
-      const result = await applyWindowForMode(state.widgetMode, settings, targetPosition);
+      const result = await applyWindowForMode(
+        state.widgetMode,
+        settings,
+        targetPosition,
+      );
 
       if (shouldPersistAppliedBallResult(state.widgetMode, settings, result)) {
-        await persistSettings((currentSettings) => ({
-          ...currentSettings,
-          ballPosition: result.position,
-          ballDock: result.ballDock
-        }), { syncDraft: !state.settingsOpen });
+        await persistSettings(
+          (currentSettings) => ({
+            ...currentSettings,
+            ballPosition: result.position,
+            ballDock: result.ballDock,
+          }),
+          { syncDraft: !state.settingsOpen },
+        );
       }
       clearWindowError();
       render();
@@ -173,39 +182,65 @@ export function createWindowController({
 
     try {
       if (service.isAvailable()) {
-        previousPosition = normalizeRequiredPosition(await service.window.outerPosition());
+        previousPosition = normalizeRequiredPosition(
+          await service.window.outerPosition(),
+        );
       }
       const settingsWithPreviousPosition = mergePositionForMode(
         previousSettings,
         previousMode,
         previousPosition,
-        previousDock
+        previousDock,
       );
-      const targetPosition = savedPositionForMode(targetMode, settingsWithPreviousPosition);
+      const targetPosition = savedPositionForMode(
+        targetMode,
+        settingsWithPreviousPosition,
+      );
       const result = service.isAvailable()
-        ? await applyWindowForMode(targetMode, settingsWithPreviousPosition, targetPosition)
-        : { mode: targetMode, position: targetPosition, ballDock: null, persistPosition: false };
+        ? await applyWindowForMode(
+            targetMode,
+            settingsWithPreviousPosition,
+            targetPosition,
+          )
+        : {
+            mode: targetMode,
+            position: targetPosition,
+            ballDock: null,
+            persistPosition: false,
+          };
 
       // 原生切换期间若收到更新意图，恢复旧窗口，不提交过期模式。
       if (requestedWidgetMode !== targetMode) {
-        await rollbackWindowMode(previousMode, settingsWithPreviousPosition, previousPosition);
+        await rollbackWindowMode(
+          previousMode,
+          settingsWithPreviousPosition,
+          previousPosition,
+        );
         return true;
       }
 
-      await persistSettings((currentSettings) => buildCommittedModeSettings({
-        currentSettings,
-        previousMode,
-        previousPosition,
-        previousDock,
-        targetMode,
-        result
-      }), { syncDraft: true });
+      await persistSettings(
+        (currentSettings) =>
+          buildCommittedModeSettings({
+            currentSettings,
+            previousMode,
+            previousPosition,
+            previousDock,
+            targetMode,
+            result,
+          }),
+        { syncDraft: true },
+      );
       clearWindowError();
       render();
       return true;
     } catch (error) {
       logWindowError("切换窗口模式失败", error);
-      await rollbackWindowMode(previousMode, previousSettings, previousPosition);
+      await rollbackWindowMode(
+        previousMode,
+        previousSettings,
+        previousPosition,
+      );
       setWindowError(error);
       return false;
     }
@@ -227,14 +262,20 @@ export function createWindowController({
     return applyPanelWindow(targetPosition);
   }
 
-  async function applyBallWindow(targetPosition = null, settings = state.settings) {
+  async function applyBallWindow(
+    targetPosition = null,
+    settings = state.settings,
+  ) {
+    if (service.commands?.setSkipTaskbar) {
+      await service.commands.setSkipTaskbar(true);
+    }
     await service.window.setSize({ width: BALL_SIZE, height: BALL_SIZE });
 
     const size = await service.window.outerSize();
     const monitors = await service.window.availableMonitors();
     const area = targetPosition
-      ? workAreaForBallPosition(targetPosition, size, monitors)
-        || await workAreaForTargetPosition(targetPosition, size)
+      ? workAreaForBallPosition(targetPosition, size, monitors) ||
+        (await workAreaForTargetPosition(targetPosition, size))
       : await workAreaForTargetPosition(targetPosition, size);
     if (!area) throw new Error("无法获取悬浮球所在工作区。");
 
@@ -245,20 +286,25 @@ export function createWindowController({
           mode: WIDGET_MODES.BALL,
           position: targetPosition,
           ballDock: null,
-          persistPosition: true
+          persistPosition: true,
         };
       }
 
       const dock = settings.ballDock
         ? resolveSafeBallDock(targetPosition, size, area, monitors)
         : null;
-      const nextPosition = clampBallPositionToWorkArea(targetPosition, size, area, dock);
+      const nextPosition = clampBallPositionToWorkArea(
+        targetPosition,
+        size,
+        area,
+        dock,
+      );
       await service.window.setPosition(nextPosition);
       return {
         mode: WIDGET_MODES.BALL,
         position: nextPosition,
         ballDock: dock,
-        persistPosition: true
+        persistPosition: true,
       };
     }
 
@@ -268,11 +314,14 @@ export function createWindowController({
       mode: WIDGET_MODES.BALL,
       position: nextPosition,
       ballDock: null,
-      persistPosition: false
+      persistPosition: false,
     };
   }
 
   async function applyPanelWindow(targetPosition = null) {
+    if (service.commands?.setSkipTaskbar) {
+      await service.commands.setSkipTaskbar(false);
+    }
     await service.window.setSize(PANEL_SIZE);
 
     const size = await service.window.outerSize();
@@ -287,18 +336,24 @@ export function createWindowController({
       mode: WIDGET_MODES.PANEL,
       position: nextPosition,
       ballDock: null,
-      persistPosition: Boolean(targetPosition)
+      persistPosition: Boolean(targetPosition),
     };
   }
 
   function handleWidgetKeyDown(event) {
-    if (state.widgetMode !== WIDGET_MODES.BALL || (event.key !== "Enter" && event.key !== " ")) return;
+    if (
+      state.widgetMode !== WIDGET_MODES.BALL ||
+      (event.key !== "Enter" && event.key !== " ")
+    )
+      return;
     event.preventDefault();
     return setWidgetMode(WIDGET_MODES.PANEL);
   }
 
   function savedPositionForMode(mode, settings) {
-    return mode === WIDGET_MODES.BALL ? settings.ballPosition : settings.panelPosition;
+    return mode === WIDGET_MODES.BALL
+      ? settings.ballPosition
+      : settings.panelPosition;
   }
 
   function sameWindowPosition(first, second) {
@@ -306,9 +361,12 @@ export function createWindowController({
   }
 
   function shouldPersistAppliedBallResult(mode, settings, result) {
-    return mode === WIDGET_MODES.BALL
-      && result.persistPosition
-      && (result.ballDock !== settings.ballDock || !sameWindowPosition(result.position, settings.ballPosition));
+    return (
+      mode === WIDGET_MODES.BALL &&
+      result.persistPosition &&
+      (result.ballDock !== settings.ballDock ||
+        !sameWindowPosition(result.position, settings.ballPosition))
+    );
   }
 
   function mergePositionForMode(settings, mode, position, ballDock) {
@@ -325,9 +383,14 @@ export function createWindowController({
     previousPosition,
     previousDock,
     targetMode,
-    result
+    result,
   }) {
-    const nextSettings = mergePositionForMode(currentSettings, previousMode, previousPosition, previousDock);
+    const nextSettings = mergePositionForMode(
+      currentSettings,
+      previousMode,
+      previousPosition,
+      previousDock,
+    );
     nextSettings.widgetMode = targetMode;
     if (targetMode === WIDGET_MODES.BALL) {
       nextSettings.ballDock = result.ballDock;
@@ -361,7 +424,9 @@ export function createWindowController({
   async function workAreaForTargetPosition(position, size) {
     if (position) {
       const monitors = await service.window.availableMonitors();
-      const matched = monitors.find((monitor) => positionBelongsToWorkArea(position, size, monitor.workArea));
+      const matched = monitors.find((monitor) =>
+        positionBelongsToWorkArea(position, size, monitor.workArea),
+      );
       if (matched) return matched.workArea;
     }
 
@@ -377,7 +442,7 @@ export function createWindowController({
     readCurrentWindowPosition: positionController.readCurrentWindowPosition,
     registerWindowMoveSave: positionController.registerWindowMoveSave,
     saveCurrentWindowPosition: positionController.saveCurrentWindowPosition,
-    setWidgetMode
+    setWidgetMode,
   };
 }
 
