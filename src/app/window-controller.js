@@ -1,4 +1,9 @@
-import { BALL_SIZE, PANEL_SIZE, WIDGET_MODES } from "./constants.js";
+import {
+  PANEL_SIZE,
+  resolveBallSize,
+  SETTINGS_PANEL_SIZE,
+  WIDGET_MODES,
+} from "./constants.js";
 import {
   clampBallPositionToWorkArea,
   clampPositionToWorkArea,
@@ -78,8 +83,8 @@ export function createWindowController({
     els.modeBtn.addEventListener("click", () =>
       setWidgetMode(WIDGET_MODES.BALL),
     );
-    els.minimizeBtn.addEventListener("click", hideWindow);
-    els.closeBtn.addEventListener("click", closeApp);
+    els.minimizeBtn?.addEventListener("click", hideWindow);
+    els.closeBtn.addEventListener("click", hideWindow);
   }
 
   async function hideWindow() {
@@ -269,7 +274,11 @@ export function createWindowController({
     if (service.commands?.setSkipTaskbar) {
       await service.commands.setSkipTaskbar(true);
     }
-    await service.window.setSize({ width: BALL_SIZE, height: BALL_SIZE });
+    const currentBallSize = resolveBallSize(settings?.ballSize);
+    await service.window.setSize({
+      width: currentBallSize,
+      height: currentBallSize,
+    });
 
     const size = await service.window.outerSize();
     const monitors = await service.window.availableMonitors();
@@ -434,10 +443,87 @@ export function createWindowController({
     return monitor?.workArea || null;
   }
 
+  let preSettingsPosition = null;
+  let appliedSettingsPosition = null;
+
+  async function adjustWindowForSettings(isOpen) {
+    if (!service?.isAvailable?.() || state.widgetMode !== WIDGET_MODES.PANEL)
+      return;
+
+    try {
+      const targetSize = isOpen ? SETTINGS_PANEL_SIZE : PANEL_SIZE;
+      const currentPos = await service.window?.outerPosition?.();
+
+      if (isOpen && currentPos) {
+        preSettingsPosition = { ...currentPos };
+      }
+
+      await service.window?.setSize?.(targetSize);
+
+      const currentSize = await service.window?.outerSize?.();
+      if (currentSize) {
+        let candidatePos = currentPos;
+        const area = await workAreaForTargetPosition(currentPos, currentSize);
+
+        if (area) {
+          if (isOpen && currentPos) {
+            const centerX = currentPos.x + PANEL_SIZE.width / 2;
+            const areaCenterX = area.position.x + area.size.width / 2;
+            const deltaWidth = SETTINGS_PANEL_SIZE.width - PANEL_SIZE.width;
+            // 如果窗口在屏幕右半侧，优先向左侧展开，保持右侧边缘视觉稳定
+            if (centerX > areaCenterX) {
+              candidatePos = {
+                x: currentPos.x - deltaWidth,
+                y: currentPos.y,
+              };
+            }
+          } else if (!isOpen) {
+            // 如果用户在打开设置期间主动拖动了窗口，则以当前拖动位置为准，不强行复原旧位置
+            const userDragged =
+              appliedSettingsPosition &&
+              currentPos &&
+              (Math.abs(currentPos.x - appliedSettingsPosition.x) > 10 ||
+                Math.abs(currentPos.y - appliedSettingsPosition.y) > 10);
+
+            if (!userDragged && preSettingsPosition) {
+              candidatePos = preSettingsPosition;
+            } else {
+              candidatePos = currentPos;
+            }
+            preSettingsPosition = null;
+            appliedSettingsPosition = null;
+          }
+
+          if (candidatePos) {
+            const clamped = clampPositionToWorkArea(
+              candidatePos,
+              currentSize,
+              area,
+            );
+            if (
+              !currentPos ||
+              clamped.x !== currentPos.x ||
+              clamped.y !== currentPos.y
+            ) {
+              await service.window?.setPosition?.(clamped);
+            }
+            if (isOpen) {
+              appliedSettingsPosition = { ...clamped };
+            }
+          }
+        }
+      }
+    } catch (error) {
+      logWindowError("调整设置窗口尺寸失败", error);
+    }
+  }
+
   return {
+    adjustWindowForSettings,
     applyWidgetModeWindow,
     bindEvents,
     clearPanelClick: panelController.clearPanelClick,
+    closeApp,
     mergeWindowPosition: positionController.mergeWindowPosition,
     readCurrentWindowPosition: positionController.readCurrentWindowPosition,
     registerWindowMoveSave: positionController.registerWindowMoveSave,

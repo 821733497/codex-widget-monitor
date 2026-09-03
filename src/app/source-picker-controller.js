@@ -12,7 +12,7 @@ export function createSourcePickerController({
   let isMenuOpen = false;
 
   function bindEvents() {
-    els.sourcePickerBtn?.addEventListener("click", togglePanelMenu);
+    els.sourcePickerBtn?.addEventListener("click", cycleToNextSource);
     els.activeSourceIndicator?.addEventListener("click", togglePanelMenu);
     document.addEventListener("click", handleDocumentClick);
     document.addEventListener("contextmenu", handleContextMenu);
@@ -21,7 +21,6 @@ export function createSourcePickerController({
   function handleDocumentClick(event) {
     if (!isMenuOpen) return;
     if (
-      els.sourcePickerBtn?.contains(event.target) ||
       els.activeSourceIndicator?.contains(event.target) ||
       els.sourcePickerMenu?.contains(event.target)
     ) {
@@ -30,30 +29,39 @@ export function createSourcePickerController({
     closePanelMenu();
   }
 
-  let ballToastTimer = null;
-  function showBallToast(text) {
+  let switchToastTimer = null;
+  function showSwitchToast(text) {
     if (!els.widget) return;
     const existing = els.widget.querySelector(".ball-switch-toast");
     if (existing) existing.remove();
-    if (ballToastTimer) clearTimeout(ballToastTimer);
+    if (switchToastTimer) clearTimeout(switchToastTimer);
 
     const toast = document.createElement("div");
     toast.className = "ball-switch-toast";
     toast.textContent = text;
     els.widget.append(toast);
 
-    ballToastTimer = setTimeout(() => {
+    switchToastTimer = setTimeout(() => {
       toast.remove();
-      ballToastTimer = null;
+      switchToastTimer = null;
     }, 1200);
   }
 
-  async function handleContextMenu(event) {
-    event.preventDefault();
-    if (state.widgetMode !== WIDGET_MODES.BALL) return;
+  async function cycleToNextSource(event) {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    if (isMenuOpen) {
+      closePanelMenu();
+    }
 
     const items = buildSourceItems();
-    if (!items || items.length <= 1) return;
+    if (!items || items.length <= 1) {
+      const locale = getLocale ? getLocale() : "zh";
+      showSwitchToast(
+        locale === "en" ? "Only 1 source configured" : "暂无更多数据源",
+      );
+      return;
+    }
 
     let currentIndex = items.findIndex((item) => item.active);
     if (currentIndex < 0) currentIndex = 0;
@@ -61,7 +69,16 @@ export function createSourcePickerController({
     const nextItem = items[nextIndex];
 
     await switchSource(nextItem.target);
-    showBallToast(nextItem.label);
+    const toastLabel = nextItem.group
+      ? `${nextItem.group} · ${nextItem.label}`
+      : nextItem.label;
+    showSwitchToast(toastLabel);
+  }
+
+  async function handleContextMenu(event) {
+    event.preventDefault();
+    if (state.widgetMode !== WIDGET_MODES.BALL) return;
+    await cycleToNextSource(event);
   }
 
   function togglePanelMenu(event) {
@@ -157,6 +174,9 @@ export function createSourcePickerController({
     if (!els.sourcePickerMenu) return;
     els.sourcePickerMenu.replaceChildren();
 
+    const scrollList = document.createElement("div");
+    scrollList.className = "source-picker-list";
+
     const items = buildSourceItems();
     let currentGroup = null;
 
@@ -166,23 +186,28 @@ export function createSourcePickerController({
         const groupEl = document.createElement("div");
         groupEl.className = "menu-group-title";
         groupEl.textContent = currentGroup;
-        els.sourcePickerMenu.append(groupEl);
+        groupEl.title = currentGroup;
+        scrollList.append(groupEl);
       }
 
       const btn = document.createElement("button");
       btn.type = "button";
       btn.setAttribute("data-no-drag", "");
       btn.className = `menu-item ${item.active ? "active" : ""}`;
+      btn.title = item.group ? `${item.group} · ${item.label}` : item.label;
       btn.innerHTML = `
-        <span>${escapeHtml(item.label)}</span>
+        <span class="menu-item-text">${escapeHtml(item.label)}</span>
         ${item.active ? `<span class="menu-item-check">✓</span>` : ""}
       `;
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         switchSource(item.target);
       });
-      els.sourcePickerMenu.append(btn);
+      scrollList.append(btn);
     });
+
+    const footer = document.createElement("div");
+    footer.className = "source-picker-footer";
 
     const locale = getLocale ? getLocale() : "zh";
     const divider = document.createElement("div");
@@ -190,8 +215,7 @@ export function createSourcePickerController({
     const manageBtn = document.createElement("button");
     manageBtn.type = "button";
     manageBtn.setAttribute("data-no-drag", "");
-    manageBtn.className = "menu-item";
-    manageBtn.style.color = "rgba(255, 255, 255, 0.65)";
+    manageBtn.className = "menu-item menu-item-manage";
     manageBtn.textContent =
       locale === "en" ? "⚙ Manage Relay Sites..." : "⚙ 管理中转站...";
     manageBtn.addEventListener("click", (e) => {
@@ -199,7 +223,9 @@ export function createSourcePickerController({
       closePanelMenu();
       if (openSettings) openSettings("sources");
     });
-    els.sourcePickerMenu.append(divider, manageBtn);
+    footer.append(divider, manageBtn);
+
+    els.sourcePickerMenu.append(scrollList, footer);
   }
 
   function updatePickerLabel() {
@@ -217,7 +243,7 @@ export function createSourcePickerController({
     }
 
     if (els.sourcePickerBtn) {
-      const tip = `${locale === "en" ? "Relay / Source" : "中转站 / 数据源"} (${displayName})`;
+      const tip = `${locale === "en" ? "Next Source" : "切换下一个数据源"} (${displayName})`;
       els.sourcePickerBtn.dataset.tooltip = tip;
       els.sourcePickerBtn.setAttribute("aria-label", tip);
     }

@@ -32,6 +32,8 @@ pub enum ThemeMode {
     Basic1,
     Basic2,
     Basic3,
+    Holo,
+    Pyro,
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -64,6 +66,14 @@ pub enum WidgetMode {
 pub enum BallDock {
     Left,
     Right,
+}
+
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum BallSize {
+    #[default]
+    Medium,
+    Small,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -148,6 +158,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub ball_dock: Option<BallDock>,
     #[serde(default)]
+    pub ball_size: BallSize,
+    #[serde(default)]
     pub sites: Vec<SiteConfig>,
     #[serde(default)]
     pub active_target: ActiveTarget,
@@ -173,6 +185,7 @@ impl Default for AppSettings {
             panel_position: None,
             ball_position: None,
             ball_dock: None,
+            ball_size: BallSize::default(),
             sites: Vec::new(),
             active_target: ActiveTarget::default(),
         }

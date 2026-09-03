@@ -15,6 +15,7 @@ export const DEFAULT_SETTINGS = {
   panelPosition: null,
   ballPosition: null,
   ballDock: null,
+  ballSize: "medium",
   sites: [],
   activeTarget: { type: "official" },
 };
@@ -28,26 +29,14 @@ export const WIDGET_MODES = {
 export const THEMES = {
   default: {
     label: {
-      zh: "默认主题",
-      en: "Default",
+      zh: "全息 3D 核心",
+      en: "Holo 3D Core",
     },
   },
-  basic1: {
+  pyro: {
     label: {
-      zh: "基础主题 1",
-      en: "Basic theme 1",
-    },
-  },
-  basic2: {
-    label: {
-      zh: "基础主题 2",
-      en: "Basic theme 2",
-    },
-  },
-  basic3: {
-    label: {
-      zh: "基础主题 3",
-      en: "Basic theme 3",
+      zh: "烈焰熔核",
+      en: "Pyro Core",
     },
   },
 };
@@ -63,6 +52,21 @@ export const METER_WINDOWS = {
     label: {
       zh: "周窗口",
       en: "Weekly window",
+    },
+  },
+};
+
+export const BALL_SIZE_OPTIONS = {
+  medium: {
+    label: {
+      zh: "默认 (88px)",
+      en: "Default (88px)",
+    },
+  },
+  small: {
+    label: {
+      zh: "小 (64px)",
+      en: "Small (64px)",
     },
   },
 };
@@ -134,6 +138,14 @@ export const LOG_LEVELS = {
 };
 
 export const PANEL_SIZE = { width: 390, height: 236 };
+export const SETTINGS_PANEL_SIZE = { width: 800, height: 500 };
+export const BALL_SIZES = {
+  medium: 88,
+  small: 64,
+};
+export function resolveBallSize(sizeKey) {
+  return BALL_SIZES[sizeKey] || BALL_SIZES.medium;
+}
 export const BALL_SIZE = 88;
 export const SNAP_DISTANCE = 24;
 export const CLICK_DELAY_MS = 220;
@@ -179,11 +191,14 @@ export const i18n = {
     pin: "置顶",
     unpin: "取消置顶",
     refresh: "刷新数据",
+    themeSwitch: "切换主题",
     hide: "隐藏",
     exit: "退出",
+    hideToTray: "隐藏到托盘",
     ballMode: "悬浮球",
     panelMode: "完整面板",
     ballRestoreHint: "双击返回面板",
+    ballRestoreHintSmall: "双击展开",
     unavailable: "未读取到额度数据",
     openCodex: "打开 Codex CLI",
     checkingUpdate: "正在检查更新...",
@@ -205,6 +220,9 @@ export const i18n = {
     theme: "主题",
     language: "语言",
     meterWindow: "仪表窗口",
+    ballSize: "悬浮球大小",
+    ballSizeDefault: "默认 (88px)",
+    ballSizeSmall: "小 (64px)",
     dataBar1: "数据栏 1",
     dataBar2: "数据栏 2",
     dataBar3: "数据栏 3",
@@ -295,11 +313,14 @@ export const i18n = {
     pin: "Pin",
     unpin: "Unpin",
     refresh: "Refresh Data",
+    themeSwitch: "Switch theme",
     hide: "Hide",
     exit: "Exit",
+    hideToTray: "Hide to tray",
     ballMode: "Floating ball",
     panelMode: "Full panel",
     ballRestoreHint: "Double-click to restore panel",
+    ballRestoreHintSmall: "Double-click",
     unavailable: "No quota data",
     openCodex: "Open Codex CLI",
     checkingUpdate: "Checking for updates...",
@@ -321,6 +342,9 @@ export const i18n = {
     theme: "Theme",
     language: "Language",
     meterWindow: "Meter window",
+    ballSize: "Ball size",
+    ballSizeDefault: "Default (88px)",
+    ballSizeSmall: "Small (64px)",
     dataBar1: "Data bar 1",
     dataBar2: "Data bar 2",
     dataBar3: "Data bar 3",

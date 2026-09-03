@@ -1,4 +1,5 @@
 import {
+  BALL_SIZE_OPTIONS,
   DATA_BAR_CONTENTS,
   DEFAULT_SETTINGS,
   LOG_LEVELS,
@@ -10,6 +11,7 @@ import { createDialogFocusManager } from "./dialog-focus.js";
 import { detectMacOS } from "./platform.js";
 import { syncSettingsDraftFromSettings } from "./state.js";
 import {
+  normalizeBallSize,
   normalizeDataBarContent,
   normalizeDataBars,
   normalizeInputValue,
@@ -35,6 +37,7 @@ export function createSettingsController({
   scheduleUpdateChecks,
   logger,
   clearPanelClick,
+  adjustWindowForSettings,
   isMacOS = detectMacOS(),
 }) {
   const customSelects = createCustomSelectController({
@@ -51,6 +54,7 @@ export function createSettingsController({
     themeSelect: selectSettingsTheme,
     localeSelect: selectSettingsLocale,
     meterWindowSelect: selectMeterWindow,
+    ballSizeSelect: selectBallSize,
     dataBar1Select: (value) => selectDataBar(0, value),
     dataBar2Select: (value) => selectDataBar(1, value),
     dataBar3Select: (value) => selectDataBar(2, value),
@@ -66,6 +70,11 @@ export function createSettingsController({
       select: els.meterWindowSelect,
       registry: METER_WINDOWS,
       currentValue: () => normalizeMeterWindow(state.settingsDraft.meterWindow),
+    },
+    {
+      select: els.ballSizeSelect,
+      registry: BALL_SIZE_OPTIONS,
+      currentValue: () => normalizeBallSize(state.settingsDraft.ballSize),
     },
     ...els.dataBarSelects.map((select, index) => ({
       select,
@@ -86,12 +95,18 @@ export function createSettingsController({
     focusManager.bindEvents();
     els.settingsBtn.addEventListener("click", openSettingsPanel);
     els.settingsCloseBtn.addEventListener("click", closeSettingsPanel);
-    els.cancelSettingsBtn.addEventListener("click", closeSettingsPanel);
-    els.saveSettingsBtn.addEventListener("click", saveSettings);
+    els.cancelSettingsBtn?.addEventListener("click", closeSettingsPanel);
+    els.saveSettingsBtn?.addEventListener("click", saveSettings);
     els.chooseCodexBtn.addEventListener("click", chooseCodexPath);
     els.autoUpdateSwitch.addEventListener("change", syncAutoUpdateDraft);
     els.autoStartSwitch.addEventListener("change", syncAutoStartDraft);
     els.hideDockIconSwitch.addEventListener("change", syncHideDockIconDraft);
+    els.refreshIntervalInput?.addEventListener("change", syncRefreshInterval);
+    els.refreshIntervalInput?.addEventListener("blur", syncRefreshInterval);
+    els.updateProxyInput?.addEventListener("change", syncUpdateProxy);
+    els.updateProxyInput?.addEventListener("blur", syncUpdateProxy);
+    els.codexPathInput?.addEventListener("change", syncCodexPath);
+    els.codexPathInput?.addEventListener("blur", syncCodexPath);
     els.tabBasicBtn?.addEventListener("click", () => switchTab("basic"));
     els.tabSourcesBtn?.addEventListener("click", () => switchTab("sources"));
     customSelects.bindEvents();
@@ -141,9 +156,40 @@ export function createSettingsController({
     fillSettingsForm();
     render();
     focusManager.activate();
+    adjustWindowForSettings?.(true);
+  }
+
+  function syncInputsOnClose() {
+    if (!els.refreshIntervalInput) return;
+    const refreshVal = Number.parseInt(els.refreshIntervalInput.value, 10);
+    const normalizedRefresh = Number.isFinite(refreshVal)
+      ? refreshVal
+      : DEFAULT_SETTINGS.refreshIntervalMinutes;
+    const normalizedProxy = normalizeInputValue(els.updateProxyInput?.value);
+    const normalizedPath = normalizeInputValue(els.codexPathInput?.value);
+
+    let changed = false;
+    if (state.settingsDraft.refreshIntervalMinutes !== normalizedRefresh) {
+      state.settingsDraft.refreshIntervalMinutes = normalizedRefresh;
+      changed = true;
+    }
+    if (state.settingsDraft.updateProxy !== normalizedProxy) {
+      state.settingsDraft.updateProxy = normalizedProxy;
+      changed = true;
+    }
+    if (state.settingsDraft.codexCliPath !== normalizedPath) {
+      state.settingsDraft.codexCliPath = normalizedPath;
+      changed = true;
+    }
+    if (changed) {
+      saveSettings();
+    }
   }
 
   function closeSettingsPanel() {
+    if (state.settingsOpen) {
+      syncInputsOnClose();
+    }
     state.settingsOpen = false;
     editingSite = null;
     editingKey = null;
@@ -151,6 +197,7 @@ export function createSettingsController({
     customSelects.close();
     render();
     focusManager.deactivate();
+    adjustWindowForSettings?.(false);
   }
 
   function fillSettingsForm() {
@@ -192,20 +239,27 @@ export function createSettingsController({
     els.themeLabel.textContent = text.theme;
     els.languageLabel.textContent = text.language;
     els.meterWindowLabel.textContent = text.meterWindow;
+    if (els.ballSizeLabel) els.ballSizeLabel.textContent = text.ballSize;
     els.dataBarLabels.forEach((label, index) => {
       label.textContent = text[`dataBar${index + 1}`];
     });
     els.logLevelLabel.textContent = text.logLevel;
     els.codexPathInput.placeholder = text.codexPathPlaceholder;
     els.updateProxyInput.placeholder = text.updateProxyPlaceholder;
-    els.cancelSettingsBtn.textContent = text.cancel;
+    if (els.cancelSettingsBtn) {
+      els.cancelSettingsBtn.textContent = text.cancel;
+    }
   }
 
   function renderSettingsSaveState(text) {
-    els.saveSettingsText.textContent = state.savingSettings
-      ? text.loading
-      : text.save;
-    els.saveSettingsBtn.disabled = state.savingSettings;
+    if (els.saveSettingsText) {
+      els.saveSettingsText.textContent = state.savingSettings
+        ? text.loading
+        : text.save;
+    }
+    if (els.saveSettingsBtn) {
+      els.saveSettingsBtn.disabled = state.savingSettings;
+    }
     els.settingsError.textContent = state.errors.settings;
     els.settingsError.hidden = !state.errors.settings;
   }
@@ -230,36 +284,91 @@ export function createSettingsController({
   function syncAutoUpdateDraft() {
     state.settingsDraft.autoUpdateEnabled = els.autoUpdateSwitch.checked;
     render();
+    saveSettings();
   }
 
   function syncAutoStartDraft() {
     state.settingsDraft.autoStartEnabled = els.autoStartSwitch.checked;
     render();
+    saveSettings();
   }
 
   function syncHideDockIconDraft() {
     state.settingsDraft.hideDockIcon = els.hideDockIconSwitch.checked;
     render();
+    saveSettings();
+  }
+
+  function syncRefreshInterval() {
+    if (!els.refreshIntervalInput) return;
+    const val = Number.parseInt(els.refreshIntervalInput.value, 10);
+    const normalized = Number.isFinite(val)
+      ? val
+      : DEFAULT_SETTINGS.refreshIntervalMinutes;
+    if (
+      state.settingsDraft.refreshIntervalMinutes === normalized &&
+      state.settings.refreshIntervalMinutes === normalized
+    ) {
+      return;
+    }
+    state.settingsDraft.refreshIntervalMinutes = normalized;
+    saveSettings();
+  }
+
+  function syncUpdateProxy() {
+    if (!els.updateProxyInput) return;
+    const normalized = normalizeInputValue(els.updateProxyInput.value);
+    if (
+      state.settingsDraft.updateProxy === normalized &&
+      state.settings.updateProxy === normalized
+    ) {
+      return;
+    }
+    state.settingsDraft.updateProxy = normalized;
+    saveSettings();
+  }
+
+  function syncCodexPath() {
+    if (!els.codexPathInput) return;
+    const normalized = normalizeInputValue(els.codexPathInput.value);
+    if (
+      state.settingsDraft.codexCliPath === normalized &&
+      state.settings.codexCliPath === normalized
+    ) {
+      return;
+    }
+    state.settingsDraft.codexCliPath = normalized;
+    saveSettings();
   }
 
   function selectSettingsLocale(locale) {
     state.settingsDraft.locale = locale === "en" ? "en" : "zh";
     render();
+    saveSettings();
   }
 
   function selectSettingsTheme(theme) {
     state.settingsDraft.theme = normalizeTheme(theme);
     render();
+    saveSettings();
   }
 
   function selectLogLevel(logLevel) {
     state.settingsDraft.logLevel = normalizeLogLevel(logLevel);
     render();
+    saveSettings();
   }
 
   function selectMeterWindow(meterWindow) {
     state.settingsDraft.meterWindow = normalizeMeterWindow(meterWindow);
     render();
+    saveSettings();
+  }
+
+  function selectBallSize(ballSize) {
+    state.settingsDraft.ballSize = normalizeBallSize(ballSize);
+    render();
+    saveSettings();
   }
 
   function selectDataBar(index, content) {
@@ -273,6 +382,7 @@ export function createSettingsController({
     dataBars[index] = normalized;
     state.settingsDraft.dataBars = dataBars;
     render();
+    saveSettings();
   }
 
   async function chooseCodexPath() {
@@ -283,6 +393,8 @@ export function createSettingsController({
       if (typeof selected === "string") {
         els.codexPathInput.value = selected;
         state.settingsDraft.codexCliPath = selected;
+        render();
+        saveSettings();
       }
     } catch (error) {
       logger.error("选择 Codex CLI 路径失败", error, "frontend.settings");
@@ -291,37 +403,43 @@ export function createSettingsController({
     }
   }
 
+  let pendingSave = false;
+
   async function saveSettings() {
-    if (state.savingSettings) return;
+    if (state.savingSettings) {
+      pendingSave = true;
+      return;
+    }
 
     state.savingSettings = true;
     render();
 
     try {
-      const draftSettings = collectSettingsDraft();
-      const currentPosition = await readCurrentWindowPosition();
-      await persistSettings(
-        (currentSettings) =>
-          mergeWindowPosition(
-            {
-              ...currentSettings,
-              ...draftSettings,
-              // 位置字段只由本次读取结果覆盖，保留队列中刚写入的另一种窗口位置。
-              panelPosition: currentSettings.panelPosition,
-              ballPosition: currentSettings.ballPosition,
-              ballDock: currentSettings.ballDock,
-            },
-            currentPosition,
-          ),
-        { syncDraft: false },
-      );
-      state.settingsOpen = false;
-      state.errors.settings = "";
-      setUpdateStatus({ type: "saved" });
-      scheduleAutoRefresh();
-      refreshQuota();
-      scheduleUpdateChecks();
-      focusManager.deactivate();
+      do {
+        pendingSave = false;
+        const draftSettings = collectSettingsDraft();
+        const currentPosition = await readCurrentWindowPosition();
+        await persistSettings(
+          (currentSettings) =>
+            mergeWindowPosition(
+              {
+                ...currentSettings,
+                ...draftSettings,
+                // 位置字段只由本次读取结果覆盖，保留队列中刚写入的另一种窗口位置。
+                panelPosition: currentSettings.panelPosition,
+                ballPosition: currentSettings.ballPosition,
+                ballDock: currentSettings.ballDock,
+              },
+              currentPosition,
+            ),
+          { syncDraft: true },
+        );
+        state.errors.settings = "";
+        setUpdateStatus({ type: "saved" });
+        scheduleAutoRefresh();
+        refreshQuota();
+        scheduleUpdateChecks();
+      } while (pendingSave);
     } catch (error) {
       logger.error("保存设置失败", error, "frontend.settings");
       state.errors.settings = normalizeError(error);
@@ -342,11 +460,17 @@ export function createSettingsController({
       refreshIntervalMinutes: Number.isFinite(refreshIntervalMinutes)
         ? refreshIntervalMinutes
         : DEFAULT_SETTINGS.refreshIntervalMinutes,
-      locale: els.localeSelect.value === "en" ? "en" : "zh",
-      theme: normalizeTheme(els.themeSelect.value),
-      meterWindow: normalizeMeterWindow(els.meterWindowSelect.value),
+      locale:
+        state.settingsDraft.locale ||
+        (els.localeSelect.value === "en" ? "en" : "zh"),
+      theme: normalizeTheme(state.settingsDraft.theme || els.themeSelect.value),
+      meterWindow: normalizeMeterWindow(
+        state.settingsDraft.meterWindow || els.meterWindowSelect.value,
+      ),
       dataBars: normalizeDataBars(state.settingsDraft.dataBars),
-      logLevel: normalizeLogLevel(els.logLevelSelect.value),
+      logLevel: normalizeLogLevel(
+        state.settingsDraft.logLevel || els.logLevelSelect.value,
+      ),
       autoUpdateEnabled: els.autoUpdateSwitch.checked,
       autoStartEnabled: els.autoStartSwitch.checked,
       hideDockIcon: els.hideDockIconSwitch.checked,
@@ -355,6 +479,9 @@ export function createSettingsController({
       panelPosition: state.settings.panelPosition,
       ballPosition: state.settings.ballPosition,
       ballDock: state.settings.ballDock,
+      ballSize: normalizeBallSize(
+        state.settingsDraft.ballSize || els.ballSizeSelect?.value,
+      ),
       sites: state.settingsDraft.sites || [],
       activeTarget: state.settingsDraft.activeTarget || { type: "official" },
     };
@@ -417,6 +544,7 @@ export function createSettingsController({
       useOfficialBtn.addEventListener("click", () => {
         state.settingsDraft.activeTarget = { type: "official" };
         render();
+        saveSettings();
       });
       officialActions.append(useOfficialBtn);
     }
@@ -487,6 +615,7 @@ export function createSettingsController({
           (s) => s.id !== site.id,
         );
         render();
+        saveSettings();
       }
     });
 
@@ -542,6 +671,7 @@ export function createSettingsController({
             keyId: key.id,
           };
           render();
+          saveSettings();
         });
       }
 
@@ -593,6 +723,7 @@ export function createSettingsController({
         if (window.confirm(text.confirmDeleteKey || "确定删除该 Key 吗？")) {
           site.keys = (site.keys || []).filter((k) => k.id !== key.id);
           render();
+          saveSettings();
         }
       });
 
@@ -699,6 +830,7 @@ export function createSettingsController({
       state.settingsDraft.sites = sites;
       editingSite = null;
       render();
+      saveSettings();
     });
 
     btnRow.append(cancelBtn, saveBtn);
@@ -772,6 +904,7 @@ export function createSettingsController({
       }
       editingKey = null;
       render();
+      saveSettings();
     });
 
     btnRow.append(cancelBtn, saveBtn);

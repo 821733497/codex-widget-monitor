@@ -1,10 +1,22 @@
-import { PANEL_DOUBLE_CLICK_DISTANCE, PANEL_DOUBLE_CLICK_MS, WIDGET_MODES } from "../constants.js";
+import {
+  PANEL_DOUBLE_CLICK_DISTANCE,
+  PANEL_DOUBLE_CLICK_MS,
+  WIDGET_MODES,
+} from "../constants.js";
 
-export function createPanelController({ state, service, setWidgetMode, startBallDrag, logWindowError }) {
+export function createPanelController({
+  state,
+  service,
+  setWidgetMode,
+  startBallDrag,
+  logWindowError,
+}) {
   async function startWindowDrag(event) {
     const noDragTarget =
-      event.target instanceof Element
-        ? event.target.closest("button, a, input, textarea, select, [data-no-drag]")
+      typeof event.target?.closest === "function"
+        ? event.target.closest(
+            "button, a, input, textarea, select, [data-no-drag]",
+          )
         : null;
 
     if (event.button !== 0 || noDragTarget) {
@@ -18,7 +30,7 @@ export function createPanelController({ state, service, setWidgetMode, startBall
       return;
     }
 
-    if (isPanelDoubleClick(event)) {
+    if (!state.settingsOpen && isPanelDoubleClick(event)) {
       clearPanelClick();
       event.preventDefault();
       await setWidgetMode(WIDGET_MODES.BALL);
@@ -41,7 +53,7 @@ export function createPanelController({ state, service, setWidgetMode, startBall
     state.panelClick = {
       at: Date.now(),
       screenX: event.screenX,
-      screenY: event.screenY
+      screenY: event.screenY,
     };
   }
 
@@ -50,8 +62,14 @@ export function createPanelController({ state, service, setWidgetMode, startBall
     if (!previous) return false;
 
     const elapsed = Date.now() - previous.at;
-    const distance = Math.hypot(event.screenX - previous.screenX, event.screenY - previous.screenY);
-    return elapsed <= PANEL_DOUBLE_CLICK_MS && distance <= PANEL_DOUBLE_CLICK_DISTANCE;
+    const distance = Math.hypot(
+      event.screenX - previous.screenX,
+      event.screenY - previous.screenY,
+    );
+    return (
+      elapsed <= PANEL_DOUBLE_CLICK_MS &&
+      distance <= PANEL_DOUBLE_CLICK_DISTANCE
+    );
   }
 
   function clearPanelClick() {
@@ -60,6 +78,6 @@ export function createPanelController({ state, service, setWidgetMode, startBall
 
   return {
     clearPanelClick,
-    startWindowDrag
+    startWindowDrag,
   };
 }

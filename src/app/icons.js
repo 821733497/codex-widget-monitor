@@ -5,6 +5,7 @@ import {
   createElement as createLucideElement,
   FolderOpen,
   Minus,
+  Palette,
   Pin,
   PinOff,
   RefreshCw,
@@ -44,6 +45,7 @@ const ACTION_ICONS = {
   "reset-credit": RESET_CREDIT_ICON,
   "folder-open": FolderOpen,
   minus: Minus,
+  palette: Palette,
   pin: Pin,
   "pin-off": PinOff,
   "refresh-cw": RefreshCw,
@@ -55,18 +57,21 @@ const ACTION_ICONS = {
 
 export function initializeActionIcons(els, logger) {
   [
-    [els.sourcePickerBtn, "server"],
     [els.modeBtn, "circle-dot"],
     [els.settingsBtn, "settings"],
     [els.pinBtn, "pin"],
     [els.refreshBtn, "refresh-cw"],
+    [els.themeSwitchBtn, "palette"],
+    [els.sourcePickerBtn, "server"],
     [els.minimizeBtn, "minus"],
     [els.closeBtn, "x"],
     [els.settingsCloseBtn, "x"],
     [els.chooseCodexBtn, "folder-open"],
     [els.statusIcon, "refresh-cw"],
   ].forEach(([button, iconName]) => {
-    setActionButtonIcon(button, iconName, logger);
+    if (button) {
+      setActionButtonIcon(button, iconName, logger);
+    }
   });
 }
 

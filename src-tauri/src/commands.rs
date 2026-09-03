@@ -103,9 +103,7 @@ pub(crate) fn hide_window(window: WebviewWindow) -> Result<(), String> {
 
 #[tauri::command]
 pub(crate) fn set_skip_taskbar(window: WebviewWindow, skip: bool) -> Result<bool, String> {
-    window
-        .set_skip_taskbar(skip)
-        .map_err(|error| error.to_string())?;
+    let _ = window.set_skip_taskbar(skip);
     Ok(skip)
 }
 

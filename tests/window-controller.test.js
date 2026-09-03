@@ -43,6 +43,15 @@ describe("窗口模式事务", () => {
     expect(fixture.state.errors.window).toBe("");
   });
 
+  it("小尺寸配置下切换悬浮球模式使用 64x64", async () => {
+    const fixture = createFixture();
+    fixture.state.settings.ballSize = "small";
+
+    await fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
+
+    expect(fixture.native.size).toEqual({ width: 64, height: 64 });
+  });
+
   it("忙碌期间相同意图合并且保持原生操作串行", async () => {
     const firstSizeWrite = deferred();
     let activeWrites = 0;
@@ -162,6 +171,37 @@ describe("窗口模式事务", () => {
     expect(preventDefault).toHaveBeenCalledOnce();
     expect(fixture.state.widgetMode).toBe(WIDGET_MODES.PANEL);
     expect(fixture.persistSettings).toHaveBeenCalledOnce();
+  });
+
+  it("打开设置调整为 SETTINGS_PANEL_SIZE 并在关闭后恢复 PANEL_SIZE", async () => {
+    const fixture = createFixture();
+    await fixture.controller.adjustWindowForSettings(true);
+    expect(fixture.native.size).toEqual({ width: 800, height: 500 });
+
+    await fixture.controller.adjustWindowForSettings(false);
+    expect(fixture.native.size).toEqual({ width: 390, height: 236 });
+  });
+
+  it("设置面板打开时双击不切换小组件模式", async () => {
+    const fixture = createFixture();
+    fixture.state.settingsOpen = true;
+    fixture.controller.bindEvents();
+
+    await fixture.els.widget.emit("pointerdown", {
+      button: 0,
+      screenX: 100,
+      screenY: 100,
+      preventDefault: vi.fn(),
+    });
+    vi.advanceTimersByTime(50);
+    await fixture.els.widget.emit("pointerdown", {
+      button: 0,
+      screenX: 102,
+      screenY: 101,
+      preventDefault: vi.fn(),
+    });
+
+    expect(fixture.state.widgetMode).toBe(WIDGET_MODES.PANEL);
   });
 });
 

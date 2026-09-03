@@ -1,4 +1,2 @@
-@import "./themes/default.css";
-@import "./themes/basic1.css";
-@import "./themes/basic2.css";
-@import "./themes/basic3.css";
+@import "./themes/holo.css";
+@import "./themes/pyro.css";

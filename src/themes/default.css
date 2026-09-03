@@ -961,6 +961,34 @@ body[data-theme="default"]
   transform: translateX(20px);
 }
 
+body[data-theme="default"][data-ball-size="small"]
+  .default-meter[data-mode="ball"][data-dock="right"]
+  .default-meter-copy {
+  transform: translateX(-15px);
+}
+
+body[data-theme="default"][data-ball-size="small"]
+  .default-meter[data-mode="ball"][data-dock="left"]
+  .default-meter-copy {
+  transform: translateX(15px);
+}
+
+body[data-theme="default"][data-ball-size="small"]
+  .default-meter[data-mode="ball"]:not([data-dock="none"])
+  .default-meter-copy
+  strong {
+  font-size: 12px !important;
+  line-height: 14px !important;
+}
+
+body[data-theme="default"][data-ball-size="small"]
+  .default-meter[data-mode="ball"]:not([data-dock="none"])
+  .default-meter-copy
+  span {
+  font-size: 8px !important;
+  line-height: 9px !important;
+}
+
 /* =========================================================
    动效与微交互
    ========================================================= */

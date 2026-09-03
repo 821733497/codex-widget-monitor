@@ -101,6 +101,7 @@ export function createRenderer({
     setDatasetValue(els.body, "state", mainState);
     setDatasetValue(els.body, "widgetMode", state.widgetMode);
     setDatasetValue(els.body, "ballDock", state.ballDock || "none");
+    setDatasetValue(els.body, "ballSize", state.settings.ballSize || "medium");
     setDatasetValue(els.body, "theme", activeTheme);
   }
 
@@ -124,8 +125,17 @@ export function createRenderer({
       state.alwaysOnTop,
     );
     updateActionButton(els.refreshBtn, "refresh-cw", text.refresh);
-    updateActionButton(els.minimizeBtn, "minus", text.hide);
-    updateActionButton(els.closeBtn, "x", text.exit);
+    if (els.themeSwitchBtn) {
+      updateActionButton(
+        els.themeSwitchBtn,
+        "palette",
+        text.themeSwitch || "切换主题",
+      );
+    }
+    if (els.minimizeBtn) {
+      updateActionButton(els.minimizeBtn, "minus", text.hide);
+    }
+    updateActionButton(els.closeBtn, "x", text.hideToTray || text.hide);
     updateActionButton(els.settingsCloseBtn, "x", text.close);
     updateActionButton(els.chooseCodexBtn, "folder-open", text.chooseCodex);
   }
@@ -177,6 +187,7 @@ export function createRenderer({
       label: text.remaining,
       mode: state.widgetMode,
       dock: state.ballDock || "none",
+      ballSize: state.settings.ballSize || "medium",
     });
   }
 
@@ -311,9 +322,13 @@ export function createRenderer({
 
   function renderWidgetHint(text) {
     if (state.widgetMode === WIDGET_MODES.BALL) {
-      setTooltip(els.widget, text.ballRestoreHint);
+      const hint =
+        state.settings.ballSize === "small"
+          ? text.ballRestoreHintSmall || text.ballRestoreHint
+          : text.ballRestoreHint;
+      setTooltip(els.widget, hint);
       removeAttribute(els.widget, "title");
-      setAttribute(els.widget, "aria-label", text.ballRestoreHint);
+      setAttribute(els.widget, "aria-label", hint);
       setAttribute(els.widget, "role", "button");
       setAttribute(els.widget, "tabindex", "0");
       return;

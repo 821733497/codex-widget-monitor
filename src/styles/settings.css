@@ -1,23 +1,37 @@
+.widget:has(.settings-panel:not([hidden])) {
+  width: 800px;
+  height: 500px;
+}
+
+.widget:has(.settings-panel:not([hidden])) > :not(.settings-panel) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .settings-panel {
   position: absolute;
   inset: 0;
-  z-index: 8;
+  z-index: 20;
   display: grid;
-  grid-template-rows: 30px minmax(0, 1fr) 34px;
+  grid-template-rows: 30px minmax(0, 1fr) auto;
   gap: 7px;
   padding: 12px;
   border-radius: 16px;
-  background: var(--settings-panel-background);
-  backdrop-filter: blur(26px) saturate(1.18);
-  cursor: default;
+  background: #0c121e;
+  backdrop-filter: blur(28px) saturate(1.2);
+  cursor: grab;
+}
+
+.settings-panel:active {
+  cursor: grabbing;
 }
 
 .settings-panel[hidden] {
   display: none;
 }
 
-.settings-panel,
-.settings-panel * {
+.settings-scroll,
+.settings-scroll * {
   cursor: default;
 }
 
@@ -40,6 +54,11 @@
   justify-content: space-between;
   min-width: 0;
   gap: 8px;
+  cursor: grab;
+}
+
+.settings-head:active {
+  cursor: grabbing;
 }
 
 .settings-head strong {
@@ -347,8 +366,10 @@
   appearance: none;
   color: rgba(255, 255, 255, 0.94);
   background:
-    linear-gradient(45deg, transparent 50%, rgba(244, 249, 255, 0.78) 50%) right 12px center / 5px 5px no-repeat,
-    linear-gradient(135deg, rgba(244, 249, 255, 0.78) 50%, transparent 50%) right 7px center / 5px 5px no-repeat,
+    linear-gradient(45deg, transparent 50%, rgba(244, 249, 255, 0.78) 50%) right
+      12px center / 5px 5px no-repeat,
+    linear-gradient(135deg, rgba(244, 249, 255, 0.78) 50%, transparent 50%)
+      right 7px center / 5px 5px no-repeat,
     rgba(255, 255, 255, 0.1);
   cursor: pointer;
 }
@@ -541,8 +562,14 @@
 }
 
 .settings-actions {
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 8px;
+  min-height: 0;
+}
+
+.settings-actions:empty,
+.settings-actions:has(.settings-error[hidden]) {
+  display: none;
 }
 
 .settings-error {

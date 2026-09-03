@@ -9,6 +9,7 @@ export function createElements() {
     settingsBtn: document.getElementById("settingsBtn"),
     pinBtn: document.getElementById("pinBtn"),
     refreshBtn: document.getElementById("refreshBtn"),
+    themeSwitchBtn: document.getElementById("themeSwitchBtn"),
     minimizeBtn: document.getElementById("minimizeBtn"),
     closeBtn: document.getElementById("closeBtn"),
     meterHost: document.getElementById("meterHost"),
@@ -53,6 +54,8 @@ export function createElements() {
     localeSelect: document.getElementById("localeSelect"),
     meterWindowLabel: document.getElementById("meterWindowLabel"),
     meterWindowSelect: document.getElementById("meterWindowSelect"),
+    ballSizeLabel: document.getElementById("ballSizeLabel"),
+    ballSizeSelect: document.getElementById("ballSizeSelect"),
     dataBarLabels: [
       document.getElementById("dataBar1Label"),
       document.getElementById("dataBar2Label"),

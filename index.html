@@ -21,16 +21,6 @@
         </div>
         <div class="window-actions">
           <button
-            id="sourcePickerBtn"
-            class="icon-button"
-            type="button"
-            data-no-drag
-            data-tooltip="切换中转站/数据源"
-            aria-label="切换中转站/数据源"
-          >
-            <i data-lucide="server"></i>
-          </button>
-          <button
             id="modeBtn"
             class="icon-button"
             type="button"
@@ -67,20 +57,30 @@
             <i data-lucide="refresh-cw"></i>
           </button>
           <button
-            id="minimizeBtn"
+            id="themeSwitchBtn"
             class="icon-button"
             type="button"
-            data-tooltip="隐藏"
-            aria-label="隐藏"
+            data-tooltip="切换主题"
+            aria-label="切换主题"
           >
-            <i data-lucide="minus"></i>
+            <i data-lucide="palette"></i>
+          </button>
+          <button
+            id="sourcePickerBtn"
+            class="icon-button"
+            type="button"
+            data-no-drag
+            data-tooltip="切换下一个数据源"
+            aria-label="切换下一个数据源"
+          >
+            <i data-lucide="server"></i>
           </button>
           <button
             id="closeBtn"
             class="icon-button danger"
             type="button"
-            data-tooltip="退出"
-            aria-label="退出"
+            data-tooltip="隐藏到托盘"
+            aria-label="隐藏到托盘"
           >
             <i data-lucide="x"></i>
           </button>
@@ -194,7 +194,6 @@
       <section
         id="settingsPanel"
         class="settings-panel"
-        data-no-drag
         hidden
         role="dialog"
         aria-modal="true"
@@ -295,6 +294,31 @@
                 type="button"
                 data-no-drag
                 aria-labelledby="meterWindowLabel"
+              >
+                <span class="custom-select-value"></span>
+                <span class="custom-select-arrow" aria-hidden="true"></span>
+              </button>
+              <div class="custom-select-menu" data-no-drag></div>
+            </div>
+          </div>
+
+          <div class="settings-field">
+            <span id="ballSizeLabel">悬浮球大小</span>
+            <div class="custom-select-shell" data-no-drag>
+              <select
+                id="ballSizeSelect"
+                class="settings-input settings-select"
+                data-no-drag
+                aria-labelledby="ballSizeLabel"
+              >
+                <option value="medium">默认 (88px)</option>
+                <option value="small">小 (64px)</option>
+              </select>
+              <button
+                class="custom-select-trigger"
+                type="button"
+                data-no-drag
+                aria-labelledby="ballSizeLabel"
               >
                 <span class="custom-select-value"></span>
                 <span class="custom-select-arrow" aria-hidden="true"></span>
@@ -515,22 +539,6 @@
             aria-live="assertive"
             hidden
           ></p>
-          <button
-            id="cancelSettingsBtn"
-            class="secondary-button"
-            type="button"
-            data-no-drag
-          >
-            取消
-          </button>
-          <button
-            id="saveSettingsBtn"
-            class="primary-button"
-            type="button"
-            data-no-drag
-          >
-            <span id="saveSettingsText">保存</span>
-          </button>
         </div>
       </section>
       <div

@@ -1,0 +1,456 @@
+:is(body[data-theme="holo"], body[data-theme="default"]) {
+  --holo-cyan: #38bdf8;
+  --holo-sky: #0284c7;
+  --holo-accent: #38bdf8;
+  --holo-accent-deep: #0369a1;
+  --holo-accent-rgb: 56, 189, 248;
+  --holo-panel: rgba(8, 14, 26, 0.94);
+  --holo-card: rgba(14, 25, 45, 0.62);
+  --holo-card-strong: rgba(18, 33, 58, 0.78);
+  --holo-line: rgba(56, 189, 248, 0.2);
+  --holo-text: rgba(240, 249, 255, 0.96);
+  --holo-muted: rgba(186, 230, 253, 0.7);
+  --holo-faint: rgba(125, 211, 252, 0.45);
+  --settings-accent-color: var(--holo-accent);
+  --settings-accent-soft: rgba(var(--holo-accent-rgb), 0.2);
+  --settings-text-color: var(--holo-text);
+  --settings-muted-color: var(--holo-muted);
+  --widget-surface-background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(56, 189, 248, 0.18),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 80% 85%,
+      rgba(14, 165, 233, 0.14),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(15, 26, 46, 0.95),
+      rgba(8, 14, 26, 0.98) 60%,
+      rgba(4, 7, 14, 1)
+    );
+  --widget-surface-shadow:
+    inset 0 0 0 1px rgba(56, 189, 248, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.4), 0 0 24px rgba(56, 189, 248, 0.12);
+  --widget-surface-backdrop: blur(28px) saturate(1.35);
+  --meter-primary-color: #ffffff;
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"])[data-state="low"] {
+  --holo-accent: #f59e0b;
+  --holo-accent-deep: #b45309;
+  --holo-accent-rgb: 245, 158, 11;
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"])[data-state="critical"],
+:is(body[data-theme="holo"], body[data-theme="default"])[data-state="empty"],
+:is(body[data-theme="holo"], body[data-theme="default"])[data-state="error"] {
+  --holo-accent: #ef4444;
+  --holo-accent-deep: #b91c1c;
+  --holo-accent-rgb: 239, 68, 68;
+}
+
+/* 标题栏与文字 */
+:is(body[data-theme="holo"], body[data-theme="default"]) .titlebar h1 {
+  color: var(--holo-text);
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"]) .titlebar p {
+  color: var(--holo-accent);
+}
+
+/* 卡片样式 */
+:is(body[data-theme="holo"], body[data-theme="default"]) .quota-card {
+  background: var(--holo-card);
+  border: 1px solid var(--holo-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 12px rgba(0, 5, 15, 0.35);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"]) .quota-card:hover {
+  background: var(--holo-card-strong);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"]) .quota-card strong {
+  max-width: 95px;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 850;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"])
+  .quota-card
+  .quota-icon {
+  color: var(--holo-accent);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"])
+  .quota-card
+  .quota-copy
+  span {
+  color: var(--holo-text);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"])
+  .quota-card
+  .quota-subtext {
+  color: var(--holo-muted);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"])
+  .quota-card
+  .quota-sub-value {
+  color: var(--holo-accent);
+}
+
+/* 状态栏 */
+:is(body[data-theme="holo"], body[data-theme="default"]) .status {
+  border-top: 1px solid rgba(56, 189, 248, 0.15);
+  color: var(--holo-muted);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"]) .status-dot {
+  background: var(--holo-accent);
+  box-shadow: 0 0 8px var(--holo-accent);
+}
+
+/* =========================================================
+   悬浮球模式下的全局穿透重置（彻底消除黑底盘、外圈线条与正方形切边）
+   ========================================================= */
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .widget,
+:is(body[data-theme="holo"], body[data-theme="default"])
+  .widget[data-widget-mode="ball"] {
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: var(--ball-size, 88px) !important;
+  height: var(--ball-size, 88px) !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  overflow: hidden !important;
+  -webkit-mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+  mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+}
+
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .widget::before,
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .widget::after,
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .titlebar,
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .quota-panel,
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .status,
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .settings-panel {
+  display: none !important;
+}
+
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .content {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  cursor: grab;
+}
+
+:is(
+    body[data-theme="holo"],
+    body[data-theme="default"]
+  )[data-widget-mode="ball"]
+  .meter-host {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* =========================================================
+   3D 全息能量核心专属样式 (Holo Meter - 无边框纯能量力场光球)
+   ========================================================= */
+.holo-meter {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+/* 外围全息环境光晕（仅在面板模式下展示，悬浮球模式隐藏防矩形切边） */
+.holo-meter-glow {
+  position: absolute;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(56, 189, 248, 0.4) 0%,
+    rgba(56, 189, 248, 0.12) 50%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+  animation: holoGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes holoGlowPulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+/* 核心圆球容器（高透水晶力场，无黑塑料底，靠通透发光勾勒体积） */
+.holo-sphere-container {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 24px rgba(56, 189, 248, 0.5),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(3, 105, 161, 0.4);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(56, 189, 248, 0.12) 0%,
+    rgba(14, 165, 233, 0.2) 65%,
+    rgba(3, 105, 161, 0.35) 100%
+  );
+}
+
+.holo-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* 顶部 3D 水晶微弯弧光（自然显露球体曲率） */
+.holo-glass-reflect {
+  position: absolute;
+  top: 3px;
+  left: 15%;
+  width: 70%;
+  height: 42%;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 255, 255, 0.18) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(0.5px);
+}
+
+.holo-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.holo-percent {
+  font-family: ui-monospace, "SF Pro Display", "SF Mono", monospace;
+  font-size: 27px;
+  font-weight: 850;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow:
+    0 0 16px rgba(56, 189, 248, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.holo-label {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(224, 242, 254, 0.92);
+  letter-spacing: 1px;
+  text-shadow:
+    0 0 10px rgba(56, 189, 248, 0.7),
+    0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* =========================================================
+   悬浮球模式适配 (88px - 纯净正圆，绝无矩形切边)
+   ========================================================= */
+.holo-meter[data-mode="ball"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.holo-meter[data-mode="ball"] .holo-meter-glow {
+  display: none !important;
+}
+
+.holo-meter[data-mode="ball"] .holo-sphere-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset 0 0 20px rgba(56, 189, 248, 0.5),
+    inset 0 1.5px 4px rgba(255, 255, 255, 0.45),
+    inset 0 -10px 20px rgba(3, 105, 161, 0.35) !important;
+}
+
+.holo-meter[data-mode="ball"] .holo-percent {
+  font-size: 20px;
+}
+
+.holo-meter[data-mode="ball"] .holo-label {
+  font-size: 10px;
+}
+
+body[data-ball-size="small"] .holo-meter[data-mode="ball"] .holo-percent {
+  font-size: 15px !important;
+}
+
+body[data-ball-size="small"] .holo-meter[data-mode="ball"] .holo-label {
+  font-size: 9px !important;
+}
+
+/* 吸附态文字偏移到可见半球 */
+.holo-meter[data-mode="ball"][data-dock="right"] .holo-content {
+  transform: translateX(-18px);
+}
+
+.holo-meter[data-mode="ball"][data-dock="left"] .holo-content {
+  transform: translateX(18px);
+}
+
+.holo-meter[data-mode="ball"]:not([data-dock="none"]) .holo-percent {
+  font-size: 16px !important;
+}
+
+.holo-meter[data-mode="ball"]:not([data-dock="none"]) .holo-label {
+  font-size: 9px !important;
+}
+
+/* 小球吸附态适配 (64px) */
+body[data-ball-size="small"]
+  .holo-meter[data-mode="ball"][data-dock="right"]
+  .holo-content {
+  transform: translateX(-15px);
+}
+
+body[data-ball-size="small"]
+  .holo-meter[data-mode="ball"][data-dock="left"]
+  .holo-content {
+  transform: translateX(15px);
+}
+
+body[data-ball-size="small"]
+  .holo-meter[data-mode="ball"]:not([data-dock="none"])
+  .holo-percent {
+  font-size: 12px !important;
+  letter-spacing: -0.5px;
+}
+
+body[data-ball-size="small"]
+  .holo-meter[data-mode="ball"]:not([data-dock="none"])
+  .holo-label {
+  font-size: 8px !important;
+}
+
+/* =========================================================
+   低电量警戒样式 (纯熔岩力场红光，无死板线条)
+   ========================================================= */
+.holo-meter[data-level="low"] .holo-meter-glow {
+  background: radial-gradient(
+    circle,
+    rgba(239, 68, 68, 0.45) 0%,
+    rgba(239, 68, 68, 0.15) 50%,
+    transparent 72%
+  );
+}
+
+.holo-meter[data-level="low"] .holo-sphere-container {
+  box-shadow:
+    inset 0 0 24px rgba(239, 68, 68, 0.55),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(185, 28, 28, 0.45),
+    0 0 28px rgba(239, 68, 68, 0.4);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(239, 68, 68, 0.15) 0%,
+    rgba(220, 38, 38, 0.25) 65%,
+    rgba(153, 27, 27, 0.4) 100%
+  );
+}
+
+.holo-meter[data-level="low"] .holo-percent {
+  text-shadow:
+    0 0 18px rgba(239, 68, 68, 0.98),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.holo-meter[data-level="low"] .holo-label {
+  color: rgba(254, 226, 226, 0.95);
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+}
