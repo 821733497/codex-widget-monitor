@@ -13,4 +13,5 @@ pnpm-debug.log*
 *.pfx
 *.p12
 certs/
+portable/*.exe
 %SystemDrive%/*
