@@ -36,6 +36,8 @@ The upstream panel, floating ball, edge docking, themes, refresh, and desktop se
 
 ## Screenshots
 
+The tables show the currently available theme examples; add more screenshots as new themes are introduced without changing this description.
+
 ### Fork feature pages
 
 <table>
@@ -45,7 +47,7 @@ The upstream panel, floating ball, edge docking, themes, refresh, and desktop se
   </tr>
 </table>
 
-### Usage panels in both themes
+### Usage panels across themes
 
 <table>
   <tr>
@@ -54,7 +56,7 @@ The upstream panel, floating ball, edge docking, themes, refresh, and desktop se
   </tr>
 </table>
 
-### Floating balls in both themes
+### Floating balls across themes
 
 <table>
   <tr>
