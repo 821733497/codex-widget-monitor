@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const REPO_RELEASE_BASE = "https://github.com/359956085/codex-widget/releases/download";
+const REPO_RELEASE_BASE = "https://github.com/821733497/codex-widget-monitor/releases/download";
 const repoRoot = path.resolve(import.meta.dirname, "..");
 const args = parseArgs(process.argv.slice(2));
 const releaseDir = path.resolve(repoRoot, args.releaseDir ?? "src-tauri/target/release/github-release");
