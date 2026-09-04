@@ -61,7 +61,6 @@ export function createWindowController({
     state,
     service,
     render,
-    setWidgetMode,
     positionController,
     logWindowError,
   });
@@ -179,7 +178,6 @@ export function createWindowController({
     const previousDock = state.ballDock;
     let previousPosition = null;
 
-    ballController.clearBallClickTimer();
     positionController.clearPositionSaveTimer();
     state.ballPress = null;
     state.ballDrag = null;

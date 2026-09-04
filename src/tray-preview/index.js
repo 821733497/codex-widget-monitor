@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
+import { IPC_EVENTS } from "../app/constants.js";
 
 const elements = {
   container: document.getElementById("trayPreviewApp"),
@@ -62,30 +63,30 @@ function updatePreview(data) {
 let isPinned = false;
 
 function init() {
-  listen("quota:tray-preview-update", (event) => {
+  listen(IPC_EVENTS.TRAY_PREVIEW_UPDATE, (event) => {
     updatePreview(event.payload);
   });
 
-  listen("tray-preview:mode-changed", (event) => {
+  listen(IPC_EVENTS.TRAY_PREVIEW_MODE_CHANGED, (event) => {
     isPinned = Boolean(event.payload);
   });
 
   // 主动通知主窗口补发当前最新数据
-  emit("tray-preview:ready").catch(() => {});
+  emit(IPC_EVENTS.TRAY_PREVIEW_READY).catch(() => {});
 
   // 窗口可见或获得焦点时再次请求数据
   window.addEventListener("focus", () => {
-    emit("tray-preview:ready").catch(() => {});
+    emit(IPC_EVENTS.TRAY_PREVIEW_READY).catch(() => {});
   });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") {
-      emit("tray-preview:ready").catch(() => {});
+      emit(IPC_EVENTS.TRAY_PREVIEW_READY).catch(() => {});
     }
   });
 
   // 鼠标移入概览窗口：避免从托盘移动到卡片间隙触发误关闭
   window.addEventListener("mouseenter", () => {
-    emit("tray-preview:keep-open").catch(() => {});
+    emit(IPC_EVENTS.TRAY_PREVIEW_KEEP_OPEN).catch(() => {});
   });
 
   // 鼠标移出：只有在非固定（Hover Peek）状态下才自动收起

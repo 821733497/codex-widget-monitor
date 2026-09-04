@@ -157,19 +157,6 @@ pub(crate) fn hide_tray_preview(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub(crate) async fn update_tray_source(
-    app: AppHandle,
-    state: State<'_, AppState>,
-    source_name: String,
-) -> Result<(), String> {
-    {
-        let mut guard = state.active_source.lock().await;
-        *guard = source_name;
-    }
-    crate::tray::rebuild_tray_menu(&app).map_err(|e| e.to_string())
-}
-
-#[tauri::command]
 pub(crate) fn get_always_on_top(state: State<'_, AppState>) -> bool {
     state.always_on_top.load(Ordering::SeqCst)
 }

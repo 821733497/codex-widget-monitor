@@ -1,4 +1,5 @@
-import { WIDGET_MODES } from "./constants.js";
+import { IPC_EVENTS, WIDGET_MODES } from "./constants.js";
+import { resolveActiveSourceName } from "./settings-model.js";
 
 export function createContextMenuController({
   state,
@@ -22,21 +23,11 @@ export function createContextMenuController({
 
     if (service.isAvailable() && service.events?.listen && !isListening) {
       isListening = true;
-      service.events.listen("quick-menu:action", handleQuickMenuAction);
+      service.events.listen(
+        IPC_EVENTS.QUICK_MENU_ACTION,
+        handleQuickMenuAction,
+      );
     }
-  }
-
-  function getCurrentSourceName() {
-    const activeTarget = state.settings?.activeTarget || { type: "official" };
-    if (activeTarget.type === "siteKey") {
-      const sites = state.settings?.sites || [];
-      const site = sites.find((s) => s.id === activeTarget.siteId);
-      const key = site?.keys?.find((k) => k.id === activeTarget.keyId);
-      if (key) {
-        return key.name || site?.name || "中转站";
-      }
-    }
-    return "官方";
   }
 
   function syncQuickMenuData() {
@@ -45,11 +36,13 @@ export function createContextMenuController({
       ? sourcePickerController.buildSourceItems()
       : [];
     service.events
-      .emit("quick-menu:sync", {
+      .emit(IPC_EVENTS.QUICK_MENU_SYNC, {
         sources,
         activeTarget: state.settings?.activeTarget,
         theme: state.settings?.theme,
-        sourceName: getCurrentSourceName(),
+        sourceName: resolveActiveSourceName(state.settings, {
+          format: "short",
+        }),
       })
       .catch(() => {});
   }

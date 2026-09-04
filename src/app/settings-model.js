@@ -168,3 +168,33 @@ export function normalizeInputValue(value) {
   const text = value.trim();
   return text ? text : null;
 }
+
+export function resolveActiveSourceName(
+  settings,
+  { format = "full", locale = "zh" } = {},
+) {
+  const activeTarget = settings?.activeTarget || { type: "official" };
+  const isOfficial = !activeTarget || activeTarget.type === "official";
+
+  if (isOfficial) {
+    if (format === "short") {
+      return locale === "en" ? "Official" : "官方";
+    }
+    return locale === "en" ? "Official Codex CLI" : "官方 Codex CLI";
+  }
+
+  if (activeTarget.type === "siteKey") {
+    const sites = settings?.sites || [];
+    const site = sites.find((s) => s.id === activeTarget.siteId);
+    const key = site?.keys?.find((k) => k.id === activeTarget.keyId);
+    const siteName = site?.name || (locale === "en" ? "Relay" : "中转站");
+    const keyName = key?.name || "Key";
+
+    if (format === "short") {
+      return key?.name || siteName;
+    }
+    return `${siteName} · ${keyName}`;
+  }
+
+  return locale === "en" ? "Official" : "官方";
+}

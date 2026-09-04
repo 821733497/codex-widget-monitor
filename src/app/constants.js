@@ -26,6 +26,15 @@ export const WIDGET_MODES = {
   PANEL: "panel",
   BALL: "ball",
 };
+export const IPC_EVENTS = {
+  QUICK_MENU_ACTION: "quick-menu:action",
+  QUICK_MENU_SYNC: "quick-menu:sync",
+  TRAY_PREVIEW_UPDATE: "quota:tray-preview-update",
+  TRAY_PREVIEW_READY: "tray-preview:ready",
+  TRAY_PREVIEW_MODE_CHANGED: "tray-preview:mode-changed",
+  TRAY_PREVIEW_KEEP_OPEN: "tray-preview:keep-open",
+  ALWAYS_ON_TOP_CHANGED: "window:always-on-top-changed",
+};
 export const THEMES = {
   default: {
     label: {

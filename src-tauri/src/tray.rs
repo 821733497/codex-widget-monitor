@@ -7,7 +7,6 @@ use tauri::{AppHandle, Emitter, Manager};
 
 use crate::app_state::AppState;
 use crate::logging::LogLevel;
-use crate::MAIN_WINDOW_LABEL;
 
 const TRAY_ID: &str = "main-tray";
 pub(crate) const TRAY_PREVIEW_LABEL: &str = "tray-preview";
@@ -234,10 +233,6 @@ pub(crate) fn create_tray(app: &AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 
-pub(crate) fn rebuild_tray_menu(_app: &AppHandle) -> tauri::Result<()> {
-    Ok(())
-}
-
 pub(crate) fn show_quick_menu_at_rect(app: &AppHandle, rect: tauri::Rect) {
     let Some(window) = app.get_webview_window(QUICK_MENU_LABEL) else {
         return;
@@ -312,9 +307,6 @@ pub(crate) fn set_always_on_top_authoritative(
     let state = app.state::<AppState>();
     state.always_on_top.store(value, Ordering::SeqCst);
 
-    if let Err(error) = rebuild_tray_menu(app) {
-        log_tray_error(app, "刷新托盘菜单失败", &error);
-    }
     if let Err(error) = app.emit("window:always-on-top-changed", value) {
         log_tray_error(app, "发送置顶状态事件失败", &error);
     }

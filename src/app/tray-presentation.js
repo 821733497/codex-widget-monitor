@@ -1,4 +1,6 @@
+import { IPC_EVENTS } from "./constants.js";
 import { selectedMeterWindow } from "./formatters.js";
+import { resolveActiveSourceName } from "./settings-model.js";
 
 const CANVAS_SIZE = 64;
 
@@ -216,17 +218,9 @@ export function createTrayPresentationManager({ service, state, logger }) {
     try {
       const quota = state.quota;
       const activeSettings = state.settings || {};
-      const activeTarget = activeSettings.activeTarget || { type: "official" };
-
-      let sourceName = "官方 Codex CLI";
-      if (activeTarget.type === "siteKey") {
-        const sites = activeSettings.sites || [];
-        const site = sites.find((s) => s.id === activeTarget.siteId);
-        const key = site?.keys?.find((k) => k.id === activeTarget.keyId);
-        if (key) {
-          sourceName = `${site?.name || "中转站"} · ${key.name || "Key"}`;
-        }
-      }
+      const sourceName = resolveActiveSourceName(activeSettings, {
+        format: "full",
+      });
 
       const percent = resolveCurrentQuotaPercent();
 
@@ -265,12 +259,7 @@ export function createTrayPresentationManager({ service, state, logger }) {
           : new Date().toLocaleTimeString(),
       };
 
-      await service.events.emit("quota:tray-preview-update", previewData);
-
-      // 同步当前数据源名称给 Rust，用于托盘右键菜单动态标签（独立容错，不阻断主流程）
-      if (service.commands?.updateTraySource) {
-        service.commands.updateTraySource(sourceName).catch(() => {});
-      }
+      await service.events.emit(IPC_EVENTS.TRAY_PREVIEW_UPDATE, previewData);
     } catch (error) {
       logger?.error("分发托盘预览数据失败", error, "frontend.tray");
     }

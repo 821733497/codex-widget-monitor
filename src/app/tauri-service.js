@@ -31,8 +31,6 @@ export function createTauriService() {
         invoke("test_sub2api_connection", { baseUrl, apiKey }),
       updateTrayIcon: (rgba, width, height) =>
         invoke("update_tray_icon", { rgba, width, height }),
-      updateTraySource: (sourceName) =>
-        invoke("update_tray_source", { sourceName }),
       writeFrontendLog: (level, message, context) =>
         invoke("write_frontend_log", { level, message, context }),
     },

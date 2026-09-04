@@ -8,6 +8,7 @@ import {
   normalizeInputValue,
   normalizeSettings,
   normalizeWindowPosition,
+  resolveActiveSourceName,
   resolveDataBars,
 } from "../src/app/settings-model.js";
 
@@ -98,5 +99,47 @@ describe("设置标准化", () => {
     expect(normalizeBallSize("invalid")).toBe("medium");
     expect(normalizeSettings({ ballSize: "small" }).ballSize).toBe("small");
     expect(normalizeSettings({ ballSize: "large" }).ballSize).toBe("medium");
+  });
+
+  it("正确解析数据源名称（官方与自定义站点Key）", () => {
+    // 官方默认
+    expect(resolveActiveSourceName({})).toBe("官方 Codex CLI");
+    expect(resolveActiveSourceName({}, { format: "short" })).toBe("官方");
+    expect(resolveActiveSourceName({}, { locale: "en" })).toBe(
+      "Official Codex CLI",
+    );
+    expect(resolveActiveSourceName({}, { format: "short", locale: "en" })).toBe(
+      "Official",
+    );
+
+    // 中转站站点与Key
+    const customSettings = {
+      activeTarget: { type: "siteKey", siteId: "site-1", keyId: "key-1" },
+      sites: [
+        {
+          id: "site-1",
+          name: "DeepSeek",
+          keys: [{ id: "key-1", name: "MainKey" }],
+        },
+      ],
+    };
+    expect(resolveActiveSourceName(customSettings)).toBe("DeepSeek · MainKey");
+    expect(resolveActiveSourceName(customSettings, { format: "short" })).toBe(
+      "MainKey",
+    );
+
+    // 缺少 Key 时的回退
+    const fallbackSettings = {
+      activeTarget: {
+        type: "siteKey",
+        siteId: "site-1",
+        keyId: "non-existent",
+      },
+      sites: [{ id: "site-1", name: "DeepSeek", keys: [] }],
+    };
+    expect(resolveActiveSourceName(fallbackSettings)).toBe("DeepSeek · Key");
+    expect(resolveActiveSourceName(fallbackSettings, { format: "short" })).toBe(
+      "DeepSeek",
+    );
   });
 });

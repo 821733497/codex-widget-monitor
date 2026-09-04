@@ -27,7 +27,7 @@ describe("界面渲染", () => {
       getLocale: () => locale,
       getTheme: () => state.settings.theme,
       onVersionClick: vi.fn(),
-      settingsView: { renderSettingsPanel: vi.fn() }
+      settingsView: { renderSettingsPanel: vi.fn() },
     });
   });
 
@@ -82,7 +82,7 @@ describe("界面渲染", () => {
     state.settings.meterWindow = "primary";
     state.quota = {
       primary: null,
-      secondary: { remainingPercent: 97, windowDurationMins: 10080 }
+      secondary: { remainingPercent: 97, windowDurationMins: 10080 },
     };
 
     renderer.render();
@@ -105,11 +105,19 @@ describe("界面渲染", () => {
 
     state.quota.planType = "pro";
     renderer.render();
-    expect(dataBarOrder(els)).toEqual(["quotaEstimate", "weekly", "resetCredits"]);
+    expect(dataBarOrder(els)).toEqual([
+      "quotaEstimate",
+      "weekly",
+      "resetCredits",
+    ]);
 
     delete state.quota.planType;
     renderer.render();
-    expect(dataBarOrder(els)).toEqual(["quotaEstimate", "weekly", "resetCredits"]);
+    expect(dataBarOrder(els)).toEqual([
+      "quotaEstimate",
+      "weekly",
+      "resetCredits",
+    ]);
   });
 
   it("用户布局覆盖套餐默认并允许重复数据栏", () => {
@@ -143,16 +151,24 @@ describe("界面渲染", () => {
       primary: null,
       secondary: { remainingPercent: 97, windowDurationMins: 10080 },
       resetCredits: null,
-      quotaEstimate: null
+      quotaEstimate: null,
     };
 
     renderer.render();
 
-    expect(dataBarOrder(els)).toEqual(["fiveHour", "resetCredits", "quotaEstimate"]);
+    expect(dataBarOrder(els)).toEqual([
+      "fiveHour",
+      "resetCredits",
+      "quotaEstimate",
+    ]);
     expect(els.dataBarCards[0].querySelector("strong").textContent).toBe("--");
     expect(els.dataBarCards[1].querySelector("strong").textContent).toBe("--");
-    expect(els.dataBarCards[2].querySelectorAll("strong")[0].textContent).toBe("--");
-    expect(els.dataBarCards[2].querySelectorAll("strong")[1].textContent).toBe("--");
+    expect(els.dataBarCards[2].querySelectorAll("strong")[0].textContent).toBe(
+      "--",
+    );
+    expect(els.dataBarCards[2].querySelectorAll("strong")[1].textContent).toBe(
+      "--",
+    );
   });
 
   it("栏位离开额度估算后清理焦点和提示语义", () => {
@@ -178,9 +194,15 @@ describe("界面渲染", () => {
     renderer.render();
     const estimateCard = els.dataBarCards[0];
 
-    expect(estimateCard.querySelector(".estimate-title").textContent).toBe("额度估算");
-    expect(estimateCard.querySelectorAll(".estimate-value")[0].textContent).toBe("$105");
-    expect(estimateCard.querySelectorAll(".estimate-value")[1].textContent).toBe("--");
+    expect(estimateCard.querySelector(".estimate-title").textContent).toBe(
+      "额度估算",
+    );
+    expect(
+      estimateCard.querySelectorAll(".estimate-value")[0].textContent,
+    ).toBe("$105");
+    expect(
+      estimateCard.querySelectorAll(".estimate-value")[1].textContent,
+    ).toBe("--");
     expect(estimateCard.dataset.tooltip).toContain("样本或跨度不足");
     expect(estimateCard.dataset.tooltip).toContain("疑似跨设备区间 2");
     expect(estimateCard.dataset.tooltip).toContain("疑似跨设备区间 4");
@@ -190,21 +212,28 @@ describe("界面渲染", () => {
   });
 
   it("冷启动时额度估算保持占位符并提示正在获取", () => {
-    state.settings.dataBars = ["quotaEstimate", "quotaEstimate", "quotaEstimate"];
+    state.settings.dataBars = [
+      "quotaEstimate",
+      "quotaEstimate",
+      "quotaEstimate",
+    ];
     state.loading = true;
 
     renderer.render();
 
     expect(els.statusText.textContent).toBe("正在通过 Codex CLI 读取额度...");
     els.dataBarCards.forEach((estimateCard) => {
-      expect([...estimateCard.querySelectorAll(".estimate-value")].map((element) => element.textContent)).toEqual([
-        "--",
-        "--"
-      ]);
+      expect(
+        [...estimateCard.querySelectorAll(".estimate-value")].map(
+          (element) => element.textContent,
+        ),
+      ).toEqual(["--", "--"]);
       expect(estimateCard.dataset.tooltip).toContain("上周：正在获取数据");
       expect(estimateCard.dataset.tooltip).toContain("本周：正在获取数据");
       expect(estimateCard.dataset.tooltip).not.toContain("无可用本地会话数据");
-      expect(estimateCard.getAttribute("aria-label")).toBe(estimateCard.dataset.tooltip);
+      expect(estimateCard.getAttribute("aria-label")).toBe(
+        estimateCard.dataset.tooltip,
+      );
     });
   });
 
@@ -218,7 +247,9 @@ describe("界面渲染", () => {
     const estimateCard = els.dataBarCards[0];
     expect(estimateCard.dataset.tooltip).toContain("Last: Fetching data");
     expect(estimateCard.dataset.tooltip).toContain("Current: Fetching data");
-    expect(estimateCard.dataset.tooltip).not.toContain("No usable local session data");
+    expect(estimateCard.dataset.tooltip).not.toContain(
+      "No usable local session data",
+    );
   });
 
   it("英文额度估算提示展示疑似跨设备区间", () => {
@@ -227,8 +258,12 @@ describe("界面渲染", () => {
 
     renderer.render();
 
-    expect(els.dataBarCards[0].dataset.tooltip).toContain("Suspected cross-device intervals 2");
-    expect(els.dataBarCards[0].dataset.tooltip).toContain("Suspected cross-device intervals 4");
+    expect(els.dataBarCards[0].dataset.tooltip).toContain(
+      "Suspected cross-device intervals 2",
+    );
+    expect(els.dataBarCards[0].dataset.tooltip).toContain(
+      "Suspected cross-device intervals 4",
+    );
   });
 
   it("后台刷新保留已有估算且不显示获取中", () => {
@@ -238,7 +273,9 @@ describe("界面渲染", () => {
     renderer.render();
 
     const estimateCard = els.dataBarCards[0];
-    expect(estimateCard.querySelectorAll(".estimate-value")[0].textContent).toBe("$105");
+    expect(
+      estimateCard.querySelectorAll(".estimate-value")[0].textContent,
+    ).toBe("$105");
     expect(estimateCard.dataset.tooltip).toContain("样本 39");
     expect(estimateCard.dataset.tooltip).not.toContain("正在获取数据");
   });
@@ -261,21 +298,31 @@ describe("界面渲染", () => {
     renderer.render();
     tooltip = els.dataBarCards[0].dataset.tooltip;
     expect(tooltip).toContain("Last: No usable local session data");
-    expect(tooltip).toContain("Current: Waiting for local usage data in this cycle");
+    expect(tooltip).toContain(
+      "Current: Waiting for local usage data in this cycle",
+    );
   });
 
   it("四套主题都能挂载套餐默认和重复布局", () => {
     const scenarios = [
-      { planType: "plus", dataBars: null, expected: ["fiveHour", "weekly", "quotaEstimate"] },
-      { planType: "business", dataBars: null, expected: ["quotaEstimate", "weekly", "resetCredits"] },
+      {
+        planType: "plus",
+        dataBars: null,
+        expected: ["fiveHour", "weekly", "quotaEstimate"],
+      },
+      {
+        planType: "business",
+        dataBars: null,
+        expected: ["quotaEstimate", "weekly", "resetCredits"],
+      },
       {
         planType: "plus",
         dataBars: ["quotaEstimate", "quotaEstimate", "quotaEstimate"],
-        expected: ["quotaEstimate", "quotaEstimate", "quotaEstimate"]
-      }
+        expected: ["quotaEstimate", "quotaEstimate", "quotaEstimate"],
+      },
     ];
     state.quota = createQuotaFixture();
-    for (const theme of ["default", "basic1", "basic2", "basic3"]) {
+    for (const theme of ["default", "pyro"]) {
       state.settings.theme = theme;
       for (const scenario of scenarios) {
         state.quota.planType = scenario.planType;
@@ -285,8 +332,12 @@ describe("界面渲染", () => {
         expect(document.body.dataset.theme).toBe(theme);
         expect(dataBarOrder(els)).toEqual(scenario.expected);
         document.querySelectorAll(".estimate-card").forEach((estimateCard) => {
-          expect(estimateCard.querySelector('[data-lucide="wallet-cards"]')).not.toBeNull();
-          expect(estimateCard.querySelectorAll(".estimate-value")[0].textContent).toBe("$105");
+          expect(
+            estimateCard.querySelector('[data-lucide="wallet-cards"]'),
+          ).not.toBeNull();
+          expect(
+            estimateCard.querySelectorAll(".estimate-value")[0].textContent,
+          ).toBe("$105");
         });
         expect(els.meterHost.childElementCount).toBeGreaterThan(0);
       }
@@ -319,7 +370,11 @@ function createQuotaFixture(planType = "unknown") {
   return {
     planType,
     primary: { remainingPercent: 88, windowDurationMins: 300 },
-    secondary: { remainingPercent: 97, windowDurationMins: 10080, resetsAt: "2026-08-31T00:38:00Z" },
+    secondary: {
+      remainingPercent: 97,
+      windowDurationMins: 10080,
+      resetsAt: "2026-08-31T00:38:00Z",
+    },
     resetCredits: { availableCount: 1 },
     quotaEstimate: {
       priceTableAsOf: "2026-08-25",
@@ -329,7 +384,7 @@ function createQuotaFixture(planType = "unknown") {
         sampleCount: 39,
         percentSpan: 40,
         unpricedEventCount: 3,
-        suspectedRemoteIntervalCount: 2
+        suspectedRemoteIntervalCount: 2,
       },
       current: {
         status: "collecting",
@@ -337,9 +392,9 @@ function createQuotaFixture(planType = "unknown") {
         sampleCount: 10,
         percentSpan: 10,
         unpricedEventCount: 70,
-        suspectedRemoteIntervalCount: 4
-      }
-    }
+        suspectedRemoteIntervalCount: 4,
+      },
+    },
   };
 }
 

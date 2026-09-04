@@ -17,7 +17,7 @@ use commands::{
     close_app, get_always_on_top, get_quota, get_reset_credit_expiries, get_settings,
     hide_quick_menu, hide_tray_preview, hide_window, open_codex, save_settings,
     set_always_on_top, set_skip_taskbar, show_quick_menu, switch_active_target,
-    test_sub2api_connection, update_tray_icon, update_tray_source, write_frontend_log,
+    test_sub2api_connection, update_tray_icon, write_frontend_log,
 };
 use dock::set_dock_icon_hidden;
 use logging::LogLevel;
@@ -131,7 +131,6 @@ pub fn run() {
             show_quick_menu,
             hide_quick_menu,
             hide_tray_preview,
-            update_tray_source
         ])
         .run(tauri::generate_context!())
         .expect("运行 Tauri 应用失败");

@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
+import { IPC_EVENTS } from "../app/constants.js";
 
 const elements = {
   btnRefreshQuota: document.getElementById("btnRefreshQuota"),
@@ -22,7 +23,7 @@ async function hideMenu() {
 
 async function sendAction(action, payload = null) {
   try {
-    await emit("quick-menu:action", { action, payload });
+    await emit(IPC_EVENTS.QUICK_MENU_ACTION, { action, payload });
   } catch (err) {
     console.error("发送快捷操作失败", err);
   } finally {
@@ -63,7 +64,7 @@ function init() {
   });
 
   // 接收外部同步的主题与数据源信息
-  listen("quick-menu:sync", (event) => {
+  listen(IPC_EVENTS.QUICK_MENU_SYNC, (event) => {
     const { theme, sourceName } = event.payload || {};
     if (theme) {
       document.documentElement.setAttribute("data-theme", theme);

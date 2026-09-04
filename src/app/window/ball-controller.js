@@ -14,7 +14,6 @@ export function createBallController({
   state,
   service,
   render,
-  setWidgetMode: _setWidgetMode,
   positionController,
   logWindowError,
 }) {
@@ -161,7 +160,6 @@ export function createBallController({
 
   function markBallPressMoved(press) {
     press.moved = true;
-    clearBallClickTimer();
     state.ballDock = null;
     render();
   }
@@ -172,12 +170,6 @@ export function createBallController({
     if (state.ballDock) {
       await expandBallFromDock();
     }
-  }
-
-  function clearBallClickTimer() {
-    if (!state.ballClickTimer) return;
-    window.clearTimeout(state.ballClickTimer);
-    state.ballClickTimer = null;
   }
 
   async function snapBallAfterDrag(targetPosition = null) {
@@ -260,7 +252,6 @@ export function createBallController({
   }
 
   return {
-    clearBallClickTimer,
     expandBallFromDock,
     finishBallDrag,
     moveBallDrag,
