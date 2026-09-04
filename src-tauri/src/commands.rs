@@ -35,9 +35,11 @@ pub(crate) async fn get_quota(
                 .await
                 .map_err(|error| {
                     let message = error.to_string();
-                    state
-                        .logger
-                        .write_best_effort(LogLevel::Error, "backend.quota.sub2api", &message);
+                    state.logger.write_best_effort(
+                        LogLevel::Error,
+                        "backend.quota.sub2api",
+                        &message,
+                    );
                     message
                 });
             }

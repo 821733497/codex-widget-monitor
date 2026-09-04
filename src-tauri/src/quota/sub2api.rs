@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use anyhow::{anyhow, Context, Result};
 use chrono::Utc;
-use reqwest::header::{ACCEPT, AUTHORIZATION, HeaderMap, HeaderValue};
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -48,11 +48,7 @@ pub fn resolve_usage_url(base_url: &str) -> String {
     }
 }
 
-async fn do_usage_request(
-    base_url: &str,
-    api_key: &str,
-    proxy: Option<&str>,
-) -> Result<Value> {
+async fn do_usage_request(base_url: &str, api_key: &str, proxy: Option<&str>) -> Result<Value> {
     let client = create_client(proxy)?;
     let url = resolve_usage_url(base_url);
 
@@ -73,20 +69,20 @@ async fn do_usage_request(
         .with_context(|| format!("请求接口失败 ({url})"))?;
 
     let status_code = response.status();
-    if status_code == reqwest::StatusCode::UNAUTHORIZED || status_code == reqwest::StatusCode::FORBIDDEN {
-        return Err(anyhow!("鉴权失败 (HTTP {status_code})：请检查 API Key 是否有效。"));
+    if status_code == reqwest::StatusCode::UNAUTHORIZED
+        || status_code == reqwest::StatusCode::FORBIDDEN
+    {
+        return Err(anyhow!(
+            "鉴权失败 (HTTP {status_code})：请检查 API Key 是否有效。"
+        ));
     }
 
-    let bytes = response
-        .bytes()
-        .await
-        .context("读取响应数据流失败")?;
+    let bytes = response.bytes().await.context("读取响应数据流失败")?;
     if bytes.len() > MAX_RESPONSE_BYTES {
         return Err(anyhow!("响应内容过大，超过安全限制。"));
     }
 
-    let parsed: Value = serde_json::from_slice(&bytes)
-        .context("上游没有返回有效的 JSON 数据")?;
+    let parsed: Value = serde_json::from_slice(&bytes).context("上游没有返回有效的 JSON 数据")?;
 
     if !status_code.is_success() {
         let err_msg = parsed
@@ -101,14 +97,21 @@ async fn do_usage_request(
     // 检查 sub2api 信封格式
     if let Some(code) = parsed.get("code").and_then(Value::as_i64) {
         if code != 0 {
-            let msg = parsed.get("message").and_then(Value::as_str).unwrap_or("接口返回错误代码");
+            let msg = parsed
+                .get("message")
+                .and_then(Value::as_str)
+                .unwrap_or("接口返回错误代码");
             return Err(anyhow!("接口业务错误：{msg}"));
         }
     }
 
     // 提取有效 data 对象
     if let Some(data) = parsed.get("data") {
-        if data.is_object() && (data.get("rate_limits").is_some() || data.get("usage").is_some() || data.get("status").is_some()) {
+        if data.is_object()
+            && (data.get("rate_limits").is_some()
+                || data.get("usage").is_some()
+                || data.get("status").is_some())
+        {
             return Ok(data.clone());
         }
     }
@@ -133,8 +136,12 @@ pub async fn test_connection(
         .and_then(Value::as_array)
         .and_then(|arr| arr.first());
 
-    let limit = rate_limit.and_then(|rl| rl.get("limit")).and_then(Value::as_f64);
-    let used = rate_limit.and_then(|rl| rl.get("used")).and_then(Value::as_f64);
+    let limit = rate_limit
+        .and_then(|rl| rl.get("limit"))
+        .and_then(Value::as_f64);
+    let used = rate_limit
+        .and_then(|rl| rl.get("used"))
+        .and_then(Value::as_f64);
     let remaining = rate_limit
         .and_then(|rl| rl.get("remaining"))
         .and_then(Value::as_f64)

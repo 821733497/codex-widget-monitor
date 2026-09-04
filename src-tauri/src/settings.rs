@@ -101,9 +101,10 @@ pub struct SiteConfig {
     pub keys: Vec<ApiKeyConfig>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum ActiveTarget {
+    #[default]
     Official,
     #[serde(rename_all = "camelCase")]
     SiteKey {
@@ -112,12 +113,6 @@ pub enum ActiveTarget {
         #[serde(alias = "key_id")]
         key_id: String,
     },
-}
-
-impl Default for ActiveTarget {
-    fn default() -> Self {
-        Self::Official
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -316,7 +311,7 @@ fn normalize_loaded_settings(mut settings: AppSettings) -> AppSettings {
     settings
 }
 
-fn normalize_sites_and_target(sites: &mut Vec<SiteConfig>, active_target: &mut ActiveTarget) {
+fn normalize_sites_and_target(sites: &mut [SiteConfig], active_target: &mut ActiveTarget) {
     for site in sites.iter_mut() {
         site.id = site.id.trim().to_string();
         site.name = site.name.trim().to_string();
@@ -328,9 +323,9 @@ fn normalize_sites_and_target(sites: &mut Vec<SiteConfig>, active_target: &mut A
         }
     }
     if let ActiveTarget::SiteKey { site_id, key_id } = active_target {
-        let exists = sites.iter().any(|s| {
-            s.id == *site_id && s.keys.iter().any(|k| k.id == *key_id)
-        });
+        let exists = sites
+            .iter()
+            .any(|s| s.id == *site_id && s.keys.iter().any(|k| k.id == *key_id));
         if !exists {
             *active_target = ActiveTarget::Official;
         }
