@@ -1,6 +1,6 @@
 {
   "name": "codex-quota-widget-rs",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "通过 Codex CLI 读取 Codex 额度的 Rust 版悬浮小组件。",
   "author": "fengshi",
   "license": "MIT",
@@ -12,8 +12,9 @@
     "build:frontend": "vite build",
     "lint": "eslint src scripts tests vite.config.js eslint.config.js",
     "audit": "npm audit --audit-level=high --registry=https://registry.npmjs.org",
+    "audit:ci": "node scripts/npm-audit-ci.mjs",
     "test": "vitest run",
-    "check:frontend": "npm run lint && npm run test && npm run build:frontend && npm run audit",
+    "check:frontend": "npm run lint && npm run test && npm run build:frontend",
     "check:rust": "cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check && cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings && cargo test --locked --manifest-path src-tauri/Cargo.toml",
     "check": "npm run check:frontend && npm run check:rust",
     "ci:install": "npm ci --prefer-offline --no-audit --no-fund",

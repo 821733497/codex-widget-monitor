@@ -31,6 +31,28 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: src-tauri
 
+  npm-audit:
+    name: npm 依赖安全审计
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.0"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: 安装前端依赖
+        run: npm run ci:install
+
+      - name: 审计 npm 依赖
+        run: npm run audit:ci
+
   check:
     name: 检查 ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
