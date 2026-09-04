@@ -57,6 +57,7 @@ export function normalizeSettings(settings) {
     ballPosition: normalizeWindowPosition(settings?.ballPosition),
     ballDock: normalizeBallDock(settings?.ballDock),
     ballSize: normalizeBallSize(settings?.ballSize),
+    ballSnapStyle: normalizeBallSnapStyle(settings?.ballSnapStyle),
     sites: normalizeSites(settings?.sites),
     activeTarget: normalizeActiveTarget(
       settings?.activeTarget,
@@ -126,6 +127,10 @@ export function normalizeBallDock(dock) {
 
 export function normalizeBallSize(ballSize) {
   return ballSize === "medium" ? "medium" : "small";
+}
+
+export function normalizeBallSnapStyle(snapStyle) {
+  return snapStyle === "bar" ? "bar" : "ball";
 }
 
 export function normalizeTheme(theme) {

@@ -1,4 +1,6 @@
-import { SNAP_DISTANCE } from "./constants.js";
+import { BAR_DOCK_VISIBLE_WIDTH, SNAP_DISTANCE } from "./constants.js";
+
+export { BAR_DOCK_VISIBLE_WIDTH };
 
 export function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
@@ -9,15 +11,27 @@ export function workAreaBounds(area) {
     left: area.position.x,
     top: area.position.y,
     right: area.position.x + area.size.width,
-    bottom: area.position.y + area.size.height
+    bottom: area.position.y + area.size.height,
   };
 }
 
 export function clampPositionToWorkArea(position, size, area) {
   const bounds = workAreaBounds(area);
   return {
-    x: Math.round(clamp(position.x, bounds.left, Math.max(bounds.left, bounds.right - size.width))),
-    y: Math.round(clamp(position.y, bounds.top, Math.max(bounds.top, bounds.bottom - size.height)))
+    x: Math.round(
+      clamp(
+        position.x,
+        bounds.left,
+        Math.max(bounds.left, bounds.right - size.width),
+      ),
+    ),
+    y: Math.round(
+      clamp(
+        position.y,
+        bounds.top,
+        Math.max(bounds.top, bounds.bottom - size.height),
+      ),
+    ),
   };
 }
 
@@ -25,7 +39,7 @@ export function defaultTopRightPosition(size, area) {
   const bounds = workAreaBounds(area);
   return {
     x: Math.round(bounds.right - size.width - SNAP_DISTANCE),
-    y: Math.round(bounds.top + SNAP_DISTANCE)
+    y: Math.round(bounds.top + SNAP_DISTANCE),
   };
 }
 
@@ -34,41 +48,70 @@ export function positionBelongsToWorkArea(position, size, area) {
   const bounds = workAreaBounds(area);
   const centerX = position.x + size.width / 2;
   const centerY = position.y + size.height / 2;
-  return centerX >= bounds.left && centerX <= bounds.right && centerY >= bounds.top && centerY <= bounds.bottom;
+  return (
+    centerX >= bounds.left &&
+    centerX <= bounds.right &&
+    centerY >= bounds.top &&
+    centerY <= bounds.bottom
+  );
 }
 
 export function workAreaForBallPosition(position, size, monitors) {
-  if (!position || !Array.isArray(monitors) || monitors.length === 0) return null;
+  if (!position || !Array.isArray(monitors) || monitors.length === 0)
+    return null;
 
   const center = {
     x: position.x + size.width / 2,
-    y: position.y + size.height / 2
+    y: position.y + size.height / 2,
   };
-  const matched = monitors.find((monitor) => pointBelongsToWorkArea(center, monitor.workArea));
+  const matched = monitors.find((monitor) =>
+    pointBelongsToWorkArea(center, monitor.workArea),
+  );
   if (matched) return matched.workArea;
 
-  return monitors
-    .map((monitor) => ({
-      area: monitor.workArea,
-      distance: distanceToWorkArea(center, monitor.workArea)
-    }))
-    .sort((first, second) => first.distance - second.distance)[0]?.area || null;
+  return (
+    monitors
+      .map((monitor) => ({
+        area: monitor.workArea,
+        distance: distanceToWorkArea(center, monitor.workArea),
+      }))
+      .sort((first, second) => first.distance - second.distance)[0]?.area ||
+    null
+  );
 }
 
-export function clampBallPositionToWorkArea(position, size, area, dock = null) {
+export function clampBallPositionToWorkArea(
+  position,
+  size,
+  area,
+  dock = null,
+  snapStyle = "ball",
+) {
   const bounds = workAreaBounds(area);
-  const y = clamp(position.y, bounds.top, Math.max(bounds.top, bounds.bottom - size.height));
-  let x = clamp(position.x, bounds.left, Math.max(bounds.left, bounds.right - size.width));
+  const y = clamp(
+    position.y,
+    bounds.top,
+    Math.max(bounds.top, bounds.bottom - size.height),
+  );
+  let x = clamp(
+    position.x,
+    bounds.left,
+    Math.max(bounds.left, bounds.right - size.width),
+  );
 
   if (dock === "left") {
-    x = bounds.left - Math.round(size.width / 2);
+    const visibleWidth =
+      snapStyle === "bar" ? BAR_DOCK_VISIBLE_WIDTH : Math.round(size.width / 2);
+    x = bounds.left - (size.width - visibleWidth);
   } else if (dock === "right") {
-    x = bounds.right - Math.round(size.width / 2);
+    const visibleWidth =
+      snapStyle === "bar" ? BAR_DOCK_VISIBLE_WIDTH : Math.round(size.width / 2);
+    x = bounds.right - visibleWidth;
   }
 
   return {
     x: Math.round(x),
-    y: Math.round(y)
+    y: Math.round(y),
   };
 }
 
@@ -89,17 +132,40 @@ export function resolveBallDock(position, size, bounds) {
   return null;
 }
 
-export function resolveSafeBallDock(position, size, area, monitors) {
+export function resolveSafeBallDock(
+  position,
+  size,
+  area,
+  monitors,
+  snapStyle = "ball",
+) {
   const bounds = workAreaBounds(area);
   const dock = resolveBallDock(position, size, bounds);
   if (!dock) return null;
 
-  const y = clamp(position.y, bounds.top, Math.max(bounds.top, bounds.bottom - size.height));
-  return edgeHasAdjacentWorkArea(area, dock, monitors, size, y) ? null : dock;
+  const y = clamp(
+    position.y,
+    bounds.top,
+    Math.max(bounds.top, bounds.bottom - size.height),
+  );
+  const hiddenWidth =
+    snapStyle === "bar"
+      ? size.width - BAR_DOCK_VISIBLE_WIDTH
+      : Math.round(size.width / 2);
+  return edgeHasAdjacentWorkArea(area, dock, monitors, size, y, hiddenWidth)
+    ? null
+    : dock;
 }
 
-export function isBallAtInternalWorkAreaEdge(position, size, area, monitors) {
-  if (!position || !area || !Array.isArray(monitors) || monitors.length <= 1) return false;
+export function isBallAtInternalWorkAreaEdge(
+  position,
+  size,
+  area,
+  monitors,
+  snapStyle = "ball",
+) {
+  if (!position || !area || !Array.isArray(monitors) || monitors.length <= 1)
+    return false;
 
   const bounds = workAreaBounds(area);
   const dock = resolveBallDock(position, size, bounds);
@@ -112,26 +178,56 @@ export function isBallAtInternalWorkAreaEdge(position, size, area, monitors) {
     left: position.x,
     top: position.y,
     right: position.x + size.width,
-    bottom: position.y + size.height
+    bottom: position.y + size.height,
   };
 
+  const hiddenWidth =
+    snapStyle === "bar"
+      ? size.width - BAR_DOCK_VISIBLE_WIDTH
+      : Math.round(size.width / 2);
+
   return (
-    edgeHasAdjacentWorkArea(area, dock, monitors, size, position.y) &&
+    edgeHasAdjacentWorkArea(
+      area,
+      dock,
+      monitors,
+      size,
+      position.y,
+      hiddenWidth,
+    ) &&
     monitors.some((monitor) => {
-      if (!monitor.workArea || sameWorkArea(area, monitor.workArea)) return false;
+      if (!monitor.workArea || sameWorkArea(area, monitor.workArea))
+        return false;
       return rectsIntersect(windowRect, workAreaBounds(monitor.workArea));
     })
   );
 }
 
-export function edgeHasAdjacentWorkArea(area, dock, monitors, size, y) {
+export function edgeHasAdjacentWorkArea(
+  area,
+  dock,
+  monitors,
+  size,
+  y,
+  hiddenWidth = null,
+) {
   if (!Array.isArray(monitors) || monitors.length <= 1) return false;
   const bounds = workAreaBounds(area);
-  const hiddenWidth = Math.round(size.width / 2);
+  const hidden = hiddenWidth ?? Math.round(size.width / 2);
   const hiddenRect =
     dock === "left"
-      ? { left: bounds.left - hiddenWidth, top: y, right: bounds.left, bottom: y + size.height }
-      : { left: bounds.right, top: y, right: bounds.right + hiddenWidth, bottom: y + size.height };
+      ? {
+          left: bounds.left - hidden,
+          top: y,
+          right: bounds.left,
+          bottom: y + size.height,
+        }
+      : {
+          left: bounds.right,
+          top: y,
+          right: bounds.right + hidden,
+          bottom: y + size.height,
+        };
 
   return monitors.some((monitor) => {
     if (!monitor.workArea || sameWorkArea(area, monitor.workArea)) return false;
@@ -142,7 +238,12 @@ export function edgeHasAdjacentWorkArea(area, dock, monitors, size, y) {
 function pointBelongsToWorkArea(point, area) {
   if (!area) return false;
   const bounds = workAreaBounds(area);
-  return point.x >= bounds.left && point.x <= bounds.right && point.y >= bounds.top && point.y <= bounds.bottom;
+  return (
+    point.x >= bounds.left &&
+    point.x <= bounds.right &&
+    point.y >= bounds.top &&
+    point.y <= bounds.bottom
+  );
 }
 
 function distanceToWorkArea(point, area) {
@@ -164,5 +265,10 @@ function sameWorkArea(first, second) {
 }
 
 function rectsIntersect(first, second) {
-  return first.left < second.right && first.right > second.left && first.top < second.bottom && first.bottom > second.top;
+  return (
+    first.left < second.right &&
+    first.right > second.left &&
+    first.top < second.bottom &&
+    first.bottom > second.top
+  );
 }

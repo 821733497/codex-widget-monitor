@@ -444,3 +444,26 @@ body[data-ball-size="small"]
   color: rgba(254, 226, 226, 0.95);
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
 }
+
+/* =========================================================
+   烈焰主题 - 竖向进度条专属配色
+   ========================================================= */
+body[data-theme="pyro"] .dock-bar-fill {
+  background: linear-gradient(
+    to top,
+    #b45309 0%,
+    #d97706 35%,
+    #f59e0b 68%,
+    #fde68a 100%
+  );
+  box-shadow:
+    0 0 6px rgba(245, 158, 11, 0.8),
+    0 0 16px rgba(180, 83, 9, 0.45);
+}
+
+body[data-theme="pyro"] .dock-bar-glow {
+  background: rgba(255, 243, 196, 0.92);
+  box-shadow:
+    0 0 5px rgba(255, 255, 200, 0.95),
+    0 0 10px rgba(245, 158, 11, 0.88);
+}

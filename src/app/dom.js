@@ -13,6 +13,8 @@ export function createElements() {
     minimizeBtn: document.getElementById("minimizeBtn"),
     closeBtn: document.getElementById("closeBtn"),
     meterHost: document.getElementById("meterHost"),
+    dockBarHost: document.getElementById("dockBarHost"),
+    dockBarFill: document.getElementById("dockBarFill"),
     dataBarCards: Array.from(document.querySelectorAll("[data-data-bar-slot]")),
     statusDot: document.getElementById("statusDot"),
     statusIcon: document.getElementById("statusIcon"),
@@ -56,6 +58,8 @@ export function createElements() {
     meterWindowSelect: document.getElementById("meterWindowSelect"),
     ballSizeLabel: document.getElementById("ballSizeLabel"),
     ballSizeSelect: document.getElementById("ballSizeSelect"),
+    ballSnapStyleLabel: document.getElementById("ballSnapStyleLabel"),
+    ballSnapStyleSelect: document.getElementById("ballSnapStyleSelect"),
     dataBarLabels: [
       document.getElementById("dataBar1Label"),
       document.getElementById("dataBar2Label"),

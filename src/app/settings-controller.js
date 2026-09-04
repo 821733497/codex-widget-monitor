@@ -1,5 +1,6 @@
 import {
   BALL_SIZE_OPTIONS,
+  BALL_SNAP_STYLE_OPTIONS,
   DATA_BAR_CONTENTS,
   DEFAULT_SETTINGS,
   LOG_LEVELS,
@@ -12,6 +13,7 @@ import { detectMacOS } from "./platform.js";
 import { syncSettingsDraftFromSettings } from "./state.js";
 import {
   normalizeBallSize,
+  normalizeBallSnapStyle,
   normalizeDataBarContent,
   normalizeDataBars,
   normalizeInputValue,
@@ -56,6 +58,7 @@ export function createSettingsController({
     localeSelect: selectSettingsLocale,
     meterWindowSelect: selectMeterWindow,
     ballSizeSelect: selectBallSize,
+    ballSnapStyleSelect: selectBallSnapStyle,
     dataBar1Select: (value) => selectDataBar(0, value),
     dataBar2Select: (value) => selectDataBar(1, value),
     dataBar3Select: (value) => selectDataBar(2, value),
@@ -76,6 +79,12 @@ export function createSettingsController({
       select: els.ballSizeSelect,
       registry: BALL_SIZE_OPTIONS,
       currentValue: () => normalizeBallSize(state.settingsDraft.ballSize),
+    },
+    {
+      select: els.ballSnapStyleSelect,
+      registry: BALL_SNAP_STYLE_OPTIONS,
+      currentValue: () =>
+        normalizeBallSnapStyle(state.settingsDraft.ballSnapStyle),
     },
     ...els.dataBarSelects.map((select, index) => ({
       select,
@@ -260,6 +269,8 @@ export function createSettingsController({
     els.languageLabel.textContent = text.language;
     els.meterWindowLabel.textContent = text.meterWindow;
     if (els.ballSizeLabel) els.ballSizeLabel.textContent = text.ballSize;
+    if (els.ballSnapStyleLabel)
+      els.ballSnapStyleLabel.textContent = text.ballSnapStyle;
     els.dataBarLabels.forEach((label, index) => {
       label.textContent = text[`dataBar${index + 1}`];
     });
@@ -391,6 +402,12 @@ export function createSettingsController({
     saveSettings();
   }
 
+  function selectBallSnapStyle(ballSnapStyle) {
+    state.settingsDraft.ballSnapStyle = normalizeBallSnapStyle(ballSnapStyle);
+    render();
+    saveSettings();
+  }
+
   function selectDataBar(index, content) {
     const normalized = normalizeDataBarContent(content);
     if (!normalized) return;
@@ -501,6 +518,9 @@ export function createSettingsController({
       ballDock: state.settings.ballDock,
       ballSize: normalizeBallSize(
         state.settingsDraft.ballSize || els.ballSizeSelect?.value,
+      ),
+      ballSnapStyle: normalizeBallSnapStyle(
+        state.settingsDraft.ballSnapStyle || els.ballSnapStyleSelect?.value,
       ),
       sites: state.settingsDraft.sites || [],
       activeTarget: state.settingsDraft.activeTarget || { type: "official" },
@@ -934,6 +954,7 @@ export function createSettingsController({
 
   function renderSelectOptionGroups(locale) {
     selectOptionConfigs.forEach(({ select, registry, currentValue }) => {
+      if (!select) return;
       renderSelectOptions(select, registry, currentValue(), locale);
     });
   }

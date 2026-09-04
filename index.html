@@ -89,6 +89,13 @@
 
       <section class="content">
         <div id="meterHost" class="meter-host"></div>
+        <div id="dockBarHost" class="dock-bar-host" aria-hidden="true">
+          <div class="dock-bar-track">
+            <div id="dockBarFill" class="dock-bar-fill">
+              <span class="dock-bar-glow"></span>
+            </div>
+          </div>
+        </div>
 
         <div class="quota-panel">
           <div
@@ -394,6 +401,31 @@
                 type="button"
                 data-no-drag
                 aria-labelledby="ballSizeLabel"
+              >
+                <span class="custom-select-value"></span>
+                <span class="custom-select-arrow" aria-hidden="true"></span>
+              </button>
+              <div class="custom-select-menu" data-no-drag></div>
+            </div>
+          </div>
+
+          <div class="settings-field">
+            <span id="ballSnapStyleLabel">吸附样式</span>
+            <div class="custom-select-shell" data-no-drag>
+              <select
+                id="ballSnapStyleSelect"
+                class="settings-input settings-select"
+                data-no-drag
+                aria-labelledby="ballSnapStyleLabel"
+              >
+                <option value="ball">半球贴边</option>
+                <option value="bar">竖向进度条</option>
+              </select>
+              <button
+                class="custom-select-trigger"
+                type="button"
+                data-no-drag
+                aria-labelledby="ballSnapStyleLabel"
               >
                 <span class="custom-select-value"></span>
                 <span class="custom-select-arrow" aria-hidden="true"></span>

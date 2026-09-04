@@ -76,6 +76,14 @@ pub enum BallSize {
     Medium,
 }
 
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum BallSnapStyle {
+    #[default]
+    Ball,
+    Bar,
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct WindowPosition {
@@ -155,6 +163,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub ball_size: BallSize,
     #[serde(default)]
+    pub ball_snap_style: BallSnapStyle,
+    #[serde(default)]
     pub sites: Vec<SiteConfig>,
     #[serde(default)]
     pub active_target: ActiveTarget,
@@ -181,6 +191,7 @@ impl Default for AppSettings {
             ball_position: None,
             ball_dock: None,
             ball_size: BallSize::default(),
+            ball_snap_style: BallSnapStyle::default(),
             sites: Vec::new(),
             active_target: ActiveTarget::default(),
         }
@@ -517,6 +528,7 @@ mod tests {
             ball_position: Some(WindowPosition { x: 1800, y: 240 }),
             ball_dock: Some(BallDock::Right),
             ball_size: BallSize::Small,
+            ball_snap_style: BallSnapStyle::Bar,
             sites: vec![],
             active_target: ActiveTarget::Official,
         };
@@ -563,6 +575,8 @@ mod tests {
         );
         assert_eq!(loaded.ball_dock, Some(BallDock::Right));
         assert_eq!(loaded.ball_size, BallSize::Small);
+        assert_eq!(loaded.ball_snap_style, BallSnapStyle::Bar);
+        assert_eq!(persisted["ballSnapStyle"], "bar");
     }
 
     #[test]

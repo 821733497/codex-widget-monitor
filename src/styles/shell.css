@@ -433,50 +433,176 @@ body[data-widget-mode="ball"]:not([data-settings-open="true"]) .content {
   cursor: grab;
 }
 
-.ball-switch-toast {
+/* =========================================================
+   竖向进度条（bar 吸附样式）
+   ========================================================= */
+
+/* 默认隐藏进度条 */
+.dock-bar-host {
+  display: none;
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 99999;
-  pointer-events: none;
-  background: rgba(15, 23, 38, 0.88);
-  backdrop-filter: blur(8px);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 9px;
+  inset: 0;
+  pointer-events: all;
+  cursor: pointer;
+  align-items: center;
+}
+
+/* 左侧吸附（贴在屏幕左边缘）：窗口只有最右侧露在屏幕内，进度条靠右对齐 */
+body[data-widget-mode="ball"][data-ball-snap-style="bar"][data-ball-dock="left"]:not(
+    [data-settings-open="true"]
+  )
+  .dock-bar-host {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 2px;
+}
+
+/* 右侧吸附（贴在屏幕右边缘）：窗口只有最左侧露在屏幕内，进度条靠左对齐 */
+body[data-widget-mode="ball"][data-ball-snap-style="bar"][data-ball-dock="right"]:not(
+    [data-settings-open="true"]
+  )
+  .dock-bar-host {
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 2px;
+}
+
+/* bar 吸附时，隐藏 3D 水球和圆形背景 */
+body[data-widget-mode="ball"][data-ball-snap-style="bar"][data-ball-dock="left"]:not(
+    [data-settings-open="true"]
+  )
+  .meter-host,
+body[data-widget-mode="ball"][data-ball-snap-style="bar"][data-ball-dock="right"]:not(
+    [data-settings-open="true"]
+  )
+  .meter-host {
+  display: none !important;
+}
+
+/* bar 吸附时，让 widget 容器背景和圆角变为透明（交由进度条自己呈现） */
+body[data-widget-mode="ball"][data-ball-snap-style="bar"][data-ball-dock="left"]:not(
+    [data-settings-open="true"]
+  )
+  .widget:not(:has(.settings-panel:not([hidden]))),
+body[data-widget-mode="ball"][data-ball-snap-style="bar"][data-ball-dock="right"]:not(
+    [data-settings-open="true"]
+  )
+  .widget:not(:has(.settings-panel:not([hidden]))) {
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* 进度条轨道（磨砂玻璃药丸形） */
+.dock-bar-track {
+  position: relative;
+  width: 10px;
+  height: 48px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
-  white-space: nowrap;
-  max-width: 78px;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 0 0 1px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  text-overflow: ellipsis;
-  animation: ballToastAnim 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-body[data-widget-mode="panel"] .ball-switch-toast {
-  max-width: 240px;
-  font-size: 11px;
-  padding: 4px 12px;
+/* 大球适配 */
+body[data-ball-size="medium"] .dock-bar-track {
+  height: 68px;
 }
 
-@keyframes ballToastAnim {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -35%) scale(0.85);
-  }
-  15% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  75% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+/* 进度填充（从底部向上） */
+.dock-bar-fill {
+  position: relative;
+  width: 100%;
+  height: 50%;
+  border-radius: 999px;
+  transition:
+    height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.5s ease;
+  background: linear-gradient(
+    to top,
+    #0369a1 0%,
+    #0284c7 40%,
+    #38bdf8 80%,
+    #7dd3fc 100%
+  );
+  box-shadow:
+    0 0 6px rgba(56, 189, 248, 0.7),
+    0 0 14px rgba(2, 132, 199, 0.45);
+  will-change: height;
+}
+
+/* 填充顶部莹亮电弧高光线 */
+.dock-bar-glow {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 0 4px rgba(255, 255, 255, 0.9),
+    0 0 8px rgba(125, 211, 252, 0.8);
+  animation: dockBarCapPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes dockBarCapPulse {
+  0%,
   100% {
-    opacity: 0;
-    transform: translate(-50%, -65%) scale(0.9);
+    opacity: 0.9;
   }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* 低电量 / 警戒态：霓虹红色 */
+.dock-bar-host[data-level="low"] .dock-bar-fill,
+.dock-bar-host[data-level="critical"] .dock-bar-fill {
+  background: linear-gradient(
+    to top,
+    #991b1b 0%,
+    #dc2626 45%,
+    #ef4444 80%,
+    #fca5a5 100%
+  );
+  box-shadow:
+    0 0 6px rgba(239, 68, 68, 0.8),
+    0 0 14px rgba(153, 27, 27, 0.5);
+  animation: dockBarLowPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes dockBarLowPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 6px rgba(239, 68, 68, 0.8),
+      0 0 14px rgba(153, 27, 27, 0.5);
+  }
+  50% {
+    box-shadow:
+      0 0 10px rgba(239, 68, 68, 1),
+      0 0 22px rgba(220, 38, 38, 0.7);
+  }
+}
+
+/* hover 微亮效果 */
+.dock-bar-host:hover .dock-bar-track {
+  border-color: rgba(255, 255, 255, 0.52);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.22),
+    0 0 8px rgba(56, 189, 248, 0.25);
 }

@@ -185,7 +185,16 @@ export function createBallController({
       const area = workAreaForBallPosition(dragPosition, size, monitors);
       if (!area) return;
 
-      if (isBallAtInternalWorkAreaEdge(dragPosition, size, area, monitors)) {
+      const snapStyle = state.settings.ballSnapStyle;
+      if (
+        isBallAtInternalWorkAreaEdge(
+          dragPosition,
+          size,
+          area,
+          monitors,
+          snapStyle,
+        )
+      ) {
         state.ballDock = null;
         await service.window.setPosition(dragPosition);
         await positionController.persistWindowPosition(
@@ -197,12 +206,19 @@ export function createBallController({
         return;
       }
 
-      const dock = resolveSafeBallDock(dragPosition, size, area, monitors);
+      const dock = resolveSafeBallDock(
+        dragPosition,
+        size,
+        area,
+        monitors,
+        snapStyle,
+      );
       const nextPosition = clampBallPositionToWorkArea(
         dragPosition,
         size,
         area,
         dock,
+        snapStyle,
       );
       state.ballDock = dock;
       await service.window.setPosition(nextPosition);

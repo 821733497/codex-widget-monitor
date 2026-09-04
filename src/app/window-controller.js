@@ -287,7 +287,16 @@ export function createWindowController({
     if (!area) throw new Error("无法获取悬浮球所在工作区。");
 
     if (targetPosition) {
-      if (isBallAtInternalWorkAreaEdge(targetPosition, size, area, monitors)) {
+      const snapStyle = settings.ballSnapStyle;
+      if (
+        isBallAtInternalWorkAreaEdge(
+          targetPosition,
+          size,
+          area,
+          monitors,
+          snapStyle,
+        )
+      ) {
         await service.window.setPosition(targetPosition);
         return {
           mode: WIDGET_MODES.BALL,
@@ -298,13 +307,14 @@ export function createWindowController({
       }
 
       const dock = settings.ballDock
-        ? resolveSafeBallDock(targetPosition, size, area, monitors)
+        ? resolveSafeBallDock(targetPosition, size, area, monitors, snapStyle)
         : null;
       const nextPosition = clampBallPositionToWorkArea(
         targetPosition,
         size,
         area,
         dock,
+        snapStyle,
       );
       await service.window.setPosition(nextPosition);
       return {
@@ -507,10 +517,14 @@ export function createWindowController({
           physicalBallSizeObj,
         );
         if (area && targetBallPos) {
-          targetBallPos = clampPositionToWorkArea(
+          const snapStyle = state.settings?.ballSnapStyle;
+          const dock = state.settings?.ballDock;
+          targetBallPos = clampBallPositionToWorkArea(
             targetBallPos,
             physicalBallSizeObj,
             area,
+            dock,
+            snapStyle,
           );
         }
 

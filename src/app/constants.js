@@ -16,6 +16,7 @@ export const DEFAULT_SETTINGS = {
   ballPosition: null,
   ballDock: null,
   ballSize: "small",
+  ballSnapStyle: "ball",
   sites: [],
   activeTarget: { type: "official" },
 };
@@ -79,6 +80,23 @@ export const BALL_SIZE_OPTIONS = {
     },
   },
 };
+
+export const BALL_SNAP_STYLE_OPTIONS = {
+  ball: {
+    label: {
+      zh: "半球贴边",
+      en: "Half-ball dock",
+    },
+  },
+  bar: {
+    label: {
+      zh: "竖向进度条",
+      en: "Vertical bar",
+    },
+  },
+};
+
+export const BAR_DOCK_VISIBLE_WIDTH = 14;
 
 export const DATA_BAR_CONTENTS = {
   fiveHour: {
@@ -233,6 +251,9 @@ export const i18n = {
     ballSizeDefault: "默认 (64px)",
     ballSizeLarge: "大 (88px)",
     ballSizeSmall: "小 (64px)",
+    ballSnapStyle: "吸附样式",
+    ballSnapStyleBall: "半球贴边",
+    ballSnapStyleBar: "竖向进度条",
     dataBar1: "数据栏 1",
     dataBar2: "数据栏 2",
     dataBar3: "数据栏 3",
@@ -359,6 +380,9 @@ export const i18n = {
     ballSizeDefault: "Default (64px)",
     ballSizeLarge: "Large (88px)",
     ballSizeSmall: "Small (64px)",
+    ballSnapStyle: "Snap style",
+    ballSnapStyleBall: "Half-ball dock",
+    ballSnapStyleBar: "Vertical bar",
     dataBar1: "Data bar 1",
     dataBar2: "Data bar 2",
     dataBar3: "Data bar 3",

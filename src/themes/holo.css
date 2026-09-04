@@ -454,3 +454,28 @@ body[data-ball-size="small"]
   color: rgba(254, 226, 226, 0.95);
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
 }
+
+/* =========================================================
+   全息主题 - 竖向进度条专属配色
+   ========================================================= */
+body[data-theme="default"] .dock-bar-fill,
+body:not([data-theme]) .dock-bar-fill {
+  background: linear-gradient(
+    to top,
+    #0369a1 0%,
+    #0284c7 35%,
+    #00b4d8 68%,
+    #7dd3fc 100%
+  );
+  box-shadow:
+    0 0 6px rgba(0, 180, 216, 0.75),
+    0 0 16px rgba(2, 132, 199, 0.4);
+}
+
+body[data-theme="default"] .dock-bar-glow,
+body:not([data-theme]) .dock-bar-glow {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 0 5px rgba(255, 255, 255, 0.95),
+    0 0 10px rgba(0, 210, 255, 0.85);
+}

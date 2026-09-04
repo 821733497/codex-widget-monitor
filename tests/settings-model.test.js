@@ -4,6 +4,7 @@ import { DEFAULT_SETTINGS } from "../src/app/constants.js";
 import {
   normalizeBallDock,
   normalizeBallSize,
+  normalizeBallSnapStyle,
   normalizeDataBars,
   normalizeInputValue,
   normalizeSettings,
@@ -141,5 +142,19 @@ describe("设置标准化", () => {
     expect(resolveActiveSourceName(fallbackSettings, { format: "short" })).toBe(
       "DeepSeek",
     );
+  });
+
+  it("吸附样式仅允许 ball 或 bar，非法值回退 ball", () => {
+    expect(normalizeBallSnapStyle("ball")).toBe("ball");
+    expect(normalizeBallSnapStyle("bar")).toBe("bar");
+    expect(normalizeBallSnapStyle("invalid")).toBe("ball");
+    expect(normalizeBallSnapStyle(undefined)).toBe("ball");
+    expect(normalizeSettings({ ballSnapStyle: "bar" }).ballSnapStyle).toBe(
+      "bar",
+    );
+    expect(normalizeSettings({ ballSnapStyle: "bad" }).ballSnapStyle).toBe(
+      "ball",
+    );
+    expect(normalizeSettings({}).ballSnapStyle).toBe("ball");
   });
 });
