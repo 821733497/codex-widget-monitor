@@ -130,9 +130,14 @@ npm run check
 # Windows NSIS 安装包
 npm run tauri:build:nsis
 
+# Windows 便携版（不生成安装器，产物为 src-tauri/target/release/CodexWidget.exe）
+npm run tauri:build:portable
+
 # 生成 GitHub Release 产物
 npm run release:github
 ```
+
+便携版不会创建安装器或自动安装 WebView2；运行目标电脑需要已有 WebView2 Runtime。便携版可执行文件属于发布产物，请放在 GitHub Releases 或其他分发渠道，不要提交到源码仓库。
 
 ## 项目结构
 

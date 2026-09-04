@@ -20,6 +20,7 @@
     "tauri:dev": "tauri dev",
     "tauri:check": "tauri build --no-bundle --ci -- --locked",
     "tauri:build": "tauri build -- --locked",
+    "tauri:build:portable": "tauri build --no-bundle --ci -- --locked",
     "tauri:build:nsis": "tauri build --bundles nsis -- --locked",
     "updater:keygen": "pwsh -NoProfile -ExecutionPolicy Bypass -Command \"New-Item -ItemType Directory -Path certs -Force | Out-Null; tauri signer generate --write-keys certs/updater.key\"",
     "tauri:build:nsis:updater": "tauri build --bundles nsis --config src-tauri/tauri.updater.conf.json -- --locked",

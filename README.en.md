@@ -130,9 +130,14 @@ Common build commands:
 # Windows NSIS installer
 npm run tauri:build:nsis
 
+# Windows portable executable (no installer; output: src-tauri/target/release/CodexWidget.exe)
+npm run tauri:build:portable
+
 # GitHub Release artifacts
 npm run release:github
 ```
+
+The portable build does not create an installer or install WebView2 automatically; the target machine must already have the WebView2 Runtime. Treat the executable as a release artifact and distribute it through GitHub Releases or another delivery channel instead of committing it to the source repository.
 
 ## Project layout
 
