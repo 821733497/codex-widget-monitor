@@ -1,261 +1,128 @@
-# Codex 额度小组件
+# Codex 额度监控小组件
 
 [English](README.en.md)
 
-Codex 额度小组件是一个桌面悬浮工具。它通过本机已登录的 Codex 读取额度信息，并用面板或悬浮球展示 5 小时额度、周额度、上周与本周额度估算、剩余重置次数、刷新时间和重置时间。
+一个运行在本机的 Codex 额度监控桌面小组件。它支持读取本机已登录的 Codex CLI，也支持配置兼容 `sub2api` 用量接口的第三方供应商，并通过完整面板或悬浮球展示额度状态。
 
-### 功能介绍
+> 本项目不是 OpenAI 官方产品，也不代表任何第三方供应商。截图中的域名、金额和 Key 均为示例数据。
 
-- 面板模式：三个数据栏可分别选择 5 小时窗口、周窗口、重置次数或额度估算，并允许重复。
-- 套餐默认：Plus 为“5 小时窗口 / 周窗口 / 额度估算”，其他或未知套餐为“额度估算 / 周窗口 / 重置次数”。
-- 仪表与悬浮球：可在设置中选择展示 5 小时额度或周额度，新配置默认周额度。
-- 边缘吸附：悬浮球可贴靠屏幕左右边缘，减少遮挡。
-- 状态颜色：正常为绿色，偏低为黄色，不足、耗尽或错误为红色，读取中为蓝色。
-- 自动刷新：默认每 5 分钟刷新一次，也会根据额度重置时间补充刷新。
-- 自动更新：默认开启，通过 GitHub Releases 下载并安装更新。
-- 开机自启：默认关闭，可在设置中开启，仅对当前用户生效。
-- macOS 菜单栏模式：可隐藏 Dock 图标，仅保留顶部菜单栏图标作为应用入口。
-- 主题切换：设置中可选择主题。
-- 中英文界面：设置中可切换中文和 English，默认中文。
+## 项目来源与二次开发说明
 
-### 主题展示
+本仓库 Fork 自 [359956085/codex-widget](https://github.com/359956085/codex-widget)，在原项目 MIT License 的基础上进行二次开发。当前版本重点加入了第三方供应商用量监控、多站点/多 Key 管理、连接测试和数据源切换。
 
-#### 默认主题
+MIT 许可允许使用、修改和再发布，但发布二开版本时请保持以下事项：
 
-<table>
-  <tr>
-    <td rowspan="2" style="text-align: center;"><strong>面板</strong><br><img src="docs/assets/ui_panel_theme_default.png" alt="默认主题面板"></td>
-    <td style="text-align: center;"><strong>悬浮球</strong><br><img src="docs/assets/ui_ball_theme_default.png" alt="默认主题悬浮球"></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;"><strong>吸附</strong><br><img src="docs/assets/ui_dock_theme_default.png" alt="默认主题悬浮球吸附"></td>
-  </tr>
-</table>
+- **保留许可**：保留仓库中的 [`LICENSE`](LICENSE) 文件及原作者版权和许可声明。
+- **标注来源**：在 README、About 或 Release 说明中明确标注上游项目和本仓库的改动范围。
+- **避免混淆**：不要使用容易让人误以为获得上游作者或 OpenAI 官方背书的名称、图标或文案。
+- **检查新增内容**：检查新增依赖和供应商接口的许可条款；不要把 API Key、密码、证书或本机配置提交到 Git。
 
-#### 基础主题 1
+上游 README 中与安装、Codex CLI 路径、悬浮球和基础设置有关的内容仍然适用，已在下文合并并按当前界面更新。原来的主题画廊、旧截图和只针对官方额度估算的长篇公式说明不再作为本 Fork 的发布文档，避免与第三方用量模式混淆。
 
-<table>
-  <tr>
-    <td rowspan="2" style="text-align: center;"><strong>面板</strong><br><img src="docs/assets/ui_panel_theme_basics1.png" alt="基础主题 1 面板"></td>
-    <td style="text-align: center;"><strong>悬浮球</strong><br><img src="docs/assets/ui_ball_theme_basics1.png" alt="基础主题 1 悬浮球"></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;"><strong>吸附</strong><br><img src="docs/assets/ui_dock_theme_basics1.png" alt="基础主题 1 悬浮球吸附"></td>
-  </tr>
-</table>
+## 当前功能
 
-#### 基础主题 2
+- **官方 Codex CLI**：复用本机 Codex 登录状态读取官方额度。
+- **第三方供应商**：支持配置多个站点，每个站点可保存多个 Key，并在设置中测试连接、编辑、删除或激活指定 Key。
+- **sub2api 用量展示**：显示今日消耗、周期额度（总额/已用/剩余）和周窗口重置信息。
+- **数据源切换**：在顶部数据源按钮或“中转站”设置页切换官方 Codex 与第三方供应商。
+- **完整面板与悬浮球**：支持左右边缘吸附、悬浮球尺寸（`88px` / `64px`）和仪表窗口选择。
+- **自动刷新与状态提示**：默认每 5 分钟刷新，可在设置中调整；绿色、黄色、红色和蓝色状态用于区分正常、偏低、异常和读取中。
+- **主题与语言**：提供全息 3D 核心、烈焰熔核两种主题，以及中文/English 界面。
+- **桌面体验**：支持开机自启、置顶、托盘隐藏和 macOS 菜单栏模式（具体能力以平台构建结果为准）。
 
-<table>
-  <tr>
-    <td rowspan="2" style="text-align: center;"><strong>面板</strong><br><img src="docs/assets/ui_panel_theme_basics2.png" alt="基础主题 2 面板"></td>
-    <td style="text-align: center;"><strong>悬浮球</strong><br><img src="docs/assets/ui_ball_theme_basics2.png" alt="基础主题 2 悬浮球"></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;"><strong>吸附</strong><br><img src="docs/assets/ui_dock_theme_basics2.png" alt="基础主题 2 悬浮球吸附"></td>
-  </tr>
-</table>
+## 功能截图
 
-#### 基础主题 3
+### 第三方供应商用量监控
 
-<table>
-  <tr>
-    <td rowspan="2" style="text-align: center;"><strong>面板</strong><br><img src="docs/assets/ui_panel_theme_basics3.png" alt="基础主题 3 面板"></td>
-    <td style="text-align: center;"><strong>悬浮球</strong><br><img src="docs/assets/ui_ball_theme_basics3.png" alt="基础主题 3 悬浮球"></td>
-  </tr>
-  <tr>
-    <td style="text-align: center;"><strong>吸附</strong><br><img src="docs/assets/ui_dock_theme_basics3.png" alt="基础主题 3 悬浮球吸附"></td>
-  </tr>
-</table>
+![第三方供应商用量监控主面板](docs/assets/third-party-usage-dashboard.png)
 
-### 使用教程
+### 中转站与 Key 管理
 
-1. 安装并登录 Codex。
-2. 启动本应用。
-3. 首次启动后，应用会自动探测本机 `codex` 或 `codex.exe`。
-4. 如果读取失败，打开设置，手动选择 `codex` 或 `codex.exe` 路径。
-5. 查看主面板中的三个数据栏；需要时可在设置中调整每栏内容和仪表窗口。
-6. 点击圆形按钮切换悬浮球模式；双击悬浮球可回到面板。
+![中转站管理页面](docs/assets/provider-settings.png)
 
-### 设置说明
+截图由当前分支的前端组件和样式生成，示例 Key 已脱敏；请勿把真实凭据放进截图、README 或 Issue。
 
-- Codex 路径：留空时自动探测；填写后优先使用该路径。
-- 自动更新：关闭后不会检查、下载或安装 GitHub Releases 更新 (可能需要配置本地代理)。
-- 自动更新代理：用于 GitHub 自动更新和 ChatGPT 额度过期时间接口，不影响 Codex CLI 主额度读取。支持 `http://`、`https://`、`socks5://`。
-- 开机自启：登录系统后自动启动本应用，仅当前用户生效。
-- 隐藏 Dock 图标：仅 macOS 显示。保存后立即隐藏或恢复 Dock 图标，隐藏时仍可通过顶部菜单栏图标显示窗口或退出。
-- 刷新分钟：自动刷新间隔，范围为 `1-1440`。
-- 主题：可选择默认主题、基础主题 1、基础主题 2、基础主题 3，保存后重启仍保留。
-- 语言：可选择中文或 English。
-- 仪表窗口：选择仪表和悬浮球展示 5 小时额度或周额度，默认周额度。
-- 数据栏 1/2/3：每栏可选择 5 小时窗口、周窗口、重置次数或额度估算，允许重复。未自定义时按套餐采用默认布局；保存自定义后不再随套餐变化。
-- 数据缺失：所选 5 小时窗口或其他数据不可用时显示 `--`，不会自动替换成另一项。
+## 使用方式
 
-### 额度估算与计算公式
+### 1. 使用官方 Codex CLI
 
-额度估算表示“100% 周额度对应的 Token API 等价值”，用于观察周额度的大致价值，不是 OpenAI 实际账单。界面将达到样本和跨度门槛的结果四舍五入为整数美元；门槛不足时显示 `--`。
+1. 安装并登录 Codex CLI。
+2. 启动本应用；首次启动会尝试自动寻找 `codex` 或 `codex.exe`。
+3. 如果读取失败，打开“设置 → 基础设置”，手动选择 Codex CLI 路径。
+4. 在完整面板查看额度；点击圆形按钮可以切换到悬浮球，双击悬浮球可回到面板。
 
-#### 数据来源与周期
+### 2. 配置第三方供应商
 
-应用首次流式扫描 `CODEX_HOME/sessions` 和 `CODEX_HOME/archived_sessions` 最近 16 天的本地会话日志，后续刷新在进程内复用未变化的 rollout，并只解析安全追加的新增内容；文件被截断、重写或尾行不完整时自动完整重读。扫描只提取模型、Token 用量、周额度百分比和重置时间。同一 rollout 在归档移动期间出现重复副本时只读取较新的文件，累计 Token 指纹继续用于文件内去重。周窗口按 `10080` 分钟识别；30 分钟内漂移的重置时间视为同一周期，当前周期允许与实时重置时间相差 2 小时，上周期取此前最近的有效周期。
+1. 打开“设置 → 中转站”，点击“添加中转站点”。
+2. 填写站点名称和 Base URL。程序会将请求地址规范化为：
+   - Base URL 以 `/v1` 结尾时，请求 `${BaseURL}/usage`；
+   - 其他情况，请求 `${BaseURL}/v1/usage`。
+3. 在站点下添加一个或多个 API Key，使用“测试连接”确认接口和凭据有效。
+4. 点击“使用”激活目标；回到主面板即可查看第三方返回的今日消耗、周期额度和周窗口。
 
-`codex-auto-review` 按 GPT-5.4 价格估算，正常参与费用累计和候选计算。其他无法公开计价的模型不会猜价，并会切断当前样本段。新样本段从新的额度百分比和费用基线开始，避免未知模型影响后续估算。
+供应商接口需要返回 JSON 用量数据，至少应能提供 `status`、`rate_limits` 或 `usage` 中的一项；具体字段以 [`src-tauri/src/quota/sub2api.rs`](src-tauri/src/quota/sub2api.rs) 的解析规则为准。请求会携带 `Authorization: Bearer <API_KEY>` 和 `X-API-Key` 请求头。
 
-#### 内置价格表
+## 配置与隐私
 
-价格表日期：`2026-08-25`。价格单位均为“美元 / 百万 Token”，列顺序为输入、缓存输入、输出。
+- 官方模式只调用本机 Codex CLI，并复用本机登录状态；本地会话日志不会上传。
+- 第三方模式会把请求发送到你选择的 Base URL，API Key 会随请求发送给该供应商。请确认供应商的隐私和数据处理政策。
+- 站点和 Key 会保存到本机应用配置目录下的 `settings.json`。当前版本未对 Key 做端到端加密，请按本机文件权限保护该文件，不要把它复制到公共位置或提交到 Git。
+- 截图、日志、Issue 和示例配置中请使用占位域名与脱敏凭据。
 
-| 模型 | 输入 | 缓存输入 | 输出 |
-|---|---:|---:|---:|
-| [GPT-5.6 Sol](https://developers.openai.com/api/docs/models/gpt-5.6-sol) | 4 | 0.4 | 20 |
-| [GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra) | 2 | 0.2 | 12 |
-| [GPT-5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna) | 0.2 | 0.02 | 1.2 |
-| [GPT-5.5](https://developers.openai.com/api/docs/models/gpt-5.5) | 5 | 0.5 | 30 |
-| [GPT-5.4](https://developers.openai.com/api/docs/models/gpt-5.4) | 2.5 | 0.25 | 15 |
+## 本地开发
 
-GPT-5.6 缓存写入按输入价格的 `1.25×` 计算。GPT-5.4（包括 `codex-auto-review`）没有独立缓存写入费率，因此按普通输入价格计算；`0.25` 仅用于缓存命中读取。GPT-5.5 没有内置公开缓存写入价格；出现缓存写入 Token 时，该事件不计价。
-
-#### 单次事件费用
-
-变量定义：
-
-- `I`：输入 Token。
-- `C`：缓存输入 Token。
-- `W`：缓存写入 Token。
-- `O`：输出 Token。
-- `P_in`、`P_cached`、`P_write`、`P_out`：对应模型的每百万 Token 价格。
-
-```text
-U = max(I - C - W, 0)
-
-I <= 272000 时：m_in = 1，m_out = 1
-I > 272000 时： m_in = 2，m_out = 1.5
-
-Cost = [m_in × (U × P_in + C × P_cached + W × P_write)
-        + m_out × O × P_out] / 1,000,000
-```
-
-缓存输入和缓存写入先从输入 Token 中扣除。推理 Token 已包含在输出统计关系中，不再单独叠加。估算不包含工具调用费用。
-
-#### 周额度稳健估算
-
-应用按相邻百分比增长构造增量候选。令 `C_i` 为该区间累计的本地可计价美元，`ΔP_i` 为周额度已用百分点增量：
-
-```text
-E_i = 100 × C_i / ΔP_i
-100% 周额度 API 等价值 = weightedMedian(E_i, weight = ΔP_i)
-```
-
-每个周周期的首个有效百分点跳变缺少完整费用基线，因此记为未计价且不参与估值；该规则优先于跨设备判断。之后，仅当相邻本地计量事件间隔达到 `15` 分钟且账号百分比继续增长时，边界增量才记为“疑似跨设备区间”、不参与估值，并从新基线继续采样。跨设备推断不依据候选金额高低；高成本、低成本、短时突发和模型切换产生的有效候选都参与加权中位数。无效候选只记为未计价。
-
-有效跨度统计全部有效候选实际覆盖百分点区间的并集长度；重叠区间只计算一次，未观察区间不会被填补。仅当至少包含 `3` 个样本、唯一覆盖跨度至少 `2%`，且加权中位数为正数和有限值时展示金额。模型组合、长上下文比例、缓存命中和样本分布变化仍会使估算值发生变化。
-
-### 隐私说明
-
-本应用只调用本机已有的 Codex，并复用本机登录状态读取额度。本应用不会要求输入或保存 Token。额度估算只读取本地会话日志中的结构化计量字段，不读取会话正文，不上传会话日志或估算数据。解析缓存和估算结果仅保存在当前进程内存中，应用退出后清空，不写入磁盘。
-
-### 社区
-
-- [LINUX DO](https://linux.do)
-
-### 常见问题
-
-**找不到 Codex CLI**
-
-在设置中手动选择 `codex` 或 `codex.exe`。应用会优先使用设置中的路径，其次读取 `CODEX_CLI_PATH`，再尝试系统 `PATH` 和常见安装目录。macOS 还会自动探测 `~/.nvm/versions/node/*/bin/codex`，并为 Codex 子进程补充对应的 Node 路径，Finder 启动时无需加载 `.zshrc`。也可按 [Codex CLI 官方说明](https://developers.openai.com/codex/cli/)安装独立版。
-
-**额度读取失败**
-
-确认 Codex 已安装、可运行并已登录。可以在终端运行 `codex` 检查登录状态。
-
-**自动更新慢或失败**
-
-自动更新依赖 GitHub Releases。如果网络不可达，在设置中配置自动更新代理。
-
-**开机自启未生效**
-
-关闭后重新开启一次开机自启，并确认系统启动项或登录项没有禁用本应用。本功能不需要管理员权限。
-
-### 本地开发
-
-安装依赖：
+环境要求：Node.js、npm、Rust 和 Tauri 构建依赖。Windows 开发建议使用 PowerShell。
 
 ```powershell
-npm install
-```
+# 安装锁定版本的前端依赖
+npm ci
 
-启动开发模式：
-
-```powershell
+# 启动 Tauri 开发模式
 npm run tauri:dev
+
+# 前端检查
+npm run lint
+npm test
+npm run build:frontend
+
+# Rust 检查与测试
+cargo test --locked --manifest-path src-tauri/Cargo.toml
+
+# 一键检查（包含前端审计、Rust fmt/clippy/test）
+npm run check
 ```
 
-构建前端：
+发布前建议至少确认：
+
+- `npm run check` 通过；
+- Release 中包含安装包和校验/签名文件，不要把 `.exe`、`src-tauri/target` 或本机配置直接提交进源码仓库；
+- README、About 和 Release 页面都保留上游来源、MIT 许可和非官方声明；
+- 发布包中的自动更新地址已改为你自己的 GitHub Releases（如果仍沿用上游配置，应先确认不会把用户导向上游版本）。
+
+常用构建命令：
 
 ```powershell
-npm run build
-```
-
-检查 Rust：
-
-```powershell
-cargo check --manifest-path src-tauri/Cargo.toml
-```
-
-运行 Rust 测试：
-
-```powershell
-cargo test --manifest-path src-tauri/Cargo.toml
-```
-
-生成 Windows NSIS 安装包：
-
-```powershell
+# Windows NSIS 安装包
 npm run tauri:build:nsis
-```
 
-生成 macOS Apple Silicon 安装包和更新包：
-
-```powershell
-npm run tauri:build:mac:aarch64:updater
-```
-
-生成 macOS Intel 安装包和更新包：
-
-```powershell
-npm run tauri:build:mac:x64:updater
-```
-
-生成 GitHub Release 产物：
-
-```powershell
+# 生成 GitHub Release 产物
 npm run release:github
 ```
 
-Release 产物命名：
+## 项目结构
 
-```txt
-codex-widget_{version}_windows_x64-setup.exe
-codex-widget_{version}_windows_x64-setup.exe.sig
-codex-widget_{version}_macos_aarch64.dmg
-codex-widget_{version}_macos_aarch64.app.tar.gz
-codex-widget_{version}_macos_aarch64.app.tar.gz.sig
-codex-widget_{version}_macos_x64.dmg
-codex-widget_{version}_macos_x64.app.tar.gz
-codex-widget_{version}_macos_x64.app.tar.gz.sig
-latest.json
-```
-
-### 项目结构
-
-```txt
-codex-widget/
-├─ .github/workflows/   # GitHub Actions 发布流程
-├─ docs/assets/         # README 图片资源
-├─ src/                 # 前端界面与交互
-├─ src-tauri/           # Rust 后端、Tauri 配置和图标资源
-├─ scripts/             # 图标生成和发布产物整理脚本
+```text
+codex-widget-monitor/
+├─ .github/workflows/   # CI 与发布流程
+├─ docs/assets/         # README 功能截图
+├─ src/                 # 前端界面、主题与交互
+├─ src-tauri/           # Rust 后端、Tauri 配置和供应商适配
+├─ scripts/             # 构建/发布辅助脚本
 ├─ index.html           # Vite 页面入口
 ├─ package.json         # 前端依赖和 npm 脚本
 └─ README.md
 ```
+
+## 许可
+
+本项目遵循仓库 [`LICENSE`](LICENSE) 中的 MIT License。上游版权和许可声明继续有效；新增代码、资源和第三方依赖请分别遵循其适用许可。
