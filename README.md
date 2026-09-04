@@ -21,7 +21,7 @@ MIT 许可允许使用、修改和再发布，但发布二开版本时请保持�
 
 ## 本仓库新增功能
 
-相对上游项目，本仓库主要新增并维护以下能力：
+相对上游项目，本仓库只聚焦以下二次开发能力：
 
 - **第三方供应商适配**：接入兼容 `sub2api` 的用量接口，自动读取今日消耗、周期额度和周窗口数据。
 - **多站点管理**：支持添加多个供应商站点，并自动规范化 `/v1/usage` 请求地址。
@@ -29,28 +29,41 @@ MIT 许可允许使用、修改和再发布，但发布二开版本时请保持�
 - **连接测试**：在保存或切换前测试供应商接口，明确反馈鉴权失败、接口错误和成功状态。
 - **数据源切换**：在官方 Codex CLI 与第三方供应商之间切换，主面板显示当前激活站点和 Key。
 - **第三方额度卡片**：针对供应商返回的数据展示“今日消耗 / 周期额度 / 周窗口”，不再套用官方额度估算逻辑。
+- **顶部快捷操作栏**：调整主面板顶部入口，集中提供悬浮球、设置、置顶、刷新、主题、数据源和隐藏到托盘操作。
+- **设置交互优化**：设置窗口扩大到 `800 × 500`；移除“取消 / 保存”按钮，选择、开关和数据源切换点击后立即生效，文本输入在变更或失焦后自动保存。
 
-上游已有的面板、悬浮球、边缘吸附、主题、自动刷新和桌面设置能力继续保留，但不在这里重复展开；安装和基础使用方式见下文。
+上游已有的面板、悬浮球、边缘吸附、主题、自动刷新和桌面设置能力继续保留，但不在这里重复展开；安装和基础使用方式见下文。截图按“二开功能页面、主题、悬浮球”分组，便于快速查看本仓库实际改动。
 
 ## 功能截图
 
-### 第三方供应商用量监控（全息 3D 核心主题）
+### 二开功能页面
 
-![第三方供应商用量监控主面板](docs/assets/third-party-usage-dashboard.png)
+<table>
+  <tr>
+    <td width="50%"><strong>中转站与 Key 管理</strong><br><img src="docs/assets/provider-settings.png" alt="中转站与 Key 管理页面" width="100%"></td>
+    <td width="50%"><strong>设置页（800 × 500，修改立即生效）</strong><br><img src="docs/assets/settings-expanded.png" alt="800 × 500 设置页面" width="100%"></td>
+  </tr>
+</table>
 
-### 中转站与 Key 管理
+### 两种主题的用量面板
 
-![中转站管理页面](docs/assets/provider-settings.png)
+<table>
+  <tr>
+    <td width="50%"><strong>全息 3D 核心</strong><br><img src="docs/assets/third-party-usage-dashboard.png" alt="全息 3D 核心主题的第三方用量主面板" width="100%"></td>
+    <td width="50%"><strong>烈焰熔核</strong><br><img src="docs/assets/theme-pyro.png" alt="烈焰熔核主题的第三方用量主面板" width="100%"></td>
+  </tr>
+</table>
 
-### 烈焰熔核主题
+### 两种主题的悬浮球
 
-![烈焰熔核主题主面板](docs/assets/theme-pyro.png)
+<table>
+  <tr>
+    <td width="50%"><strong>全息 3D 核心悬浮球</strong><br><img src="docs/assets/floating-ball-holo.png" alt="全息 3D 核心主题悬浮球" width="100%"></td>
+    <td width="50%"><strong>烈焰熔核悬浮球</strong><br><img src="docs/assets/floating-ball-pyro.png" alt="烈焰熔核主题悬浮球" width="100%"></td>
+  </tr>
+</table>
 
-### 悬浮球模式
-
-![悬浮球模式](docs/assets/floating-ball.png)
-
-截图由当前分支的前端组件和样式生成，示例 Key 已脱敏；请勿把真实凭据放进截图、README 或 Issue。
+截图由当前分支的前端组件和样式生成，使用示例数据且 Key 已脱敏；请勿把真实凭据放进截图、README 或 Issue。
 
 ## 使用方式
 

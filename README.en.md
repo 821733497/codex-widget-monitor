@@ -21,7 +21,7 @@ The upstream instructions that still apply—installation, Codex CLI path select
 
 ## Features added by this fork
 
-Compared with the upstream project, this fork mainly adds and maintains:
+Compared with the upstream project, this fork focuses on these additions:
 
 - **Third-party provider adapter**: reads today cost, cycle quota, and weekly-window data from a compatible `sub2api` usage endpoint.
 - **Multi-site management**: configure multiple provider sites and normalize their `/v1/usage` request URL.
@@ -29,28 +29,41 @@ Compared with the upstream project, this fork mainly adds and maintains:
 - **Connection testing**: validate a provider before saving or switching, with clear success, authentication, and API error feedback.
 - **Source switching**: switch between the official Codex CLI and a provider, with the active site and key shown in the main panel.
 - **Provider-specific quota cards**: render “today cost / cycle quota / weekly window” without applying the official CLI estimate logic.
+- **Top action bar**: reorganizes the main-panel shortcuts for floating ball, settings, pin, refresh, theme, source, and hide-to-tray actions.
+- **Settings interaction**: expands the settings window to `800 × 500`; removes Cancel/Save buttons so selections, toggles, and source changes apply immediately, while text inputs save on change or blur.
 
-The upstream panel, floating ball, edge docking, themes, refresh, and desktop settings remain available but are not repeated here; installation and basic usage are documented below.
+The upstream panel, floating ball, edge docking, themes, refresh, and desktop settings remain available but are not repeated here; installation and basic usage are documented below. Screenshots are grouped by fork feature, theme, and floating-ball mode for quick comparison.
 
 ## Screenshots
 
-### Third-party usage monitoring (Holo 3D Core)
+### Fork feature pages
 
-![Third-party usage dashboard](docs/assets/third-party-usage-dashboard.png)
+<table>
+  <tr>
+    <td width="50%"><strong>Provider and key management</strong><br><img src="docs/assets/provider-settings.png" alt="Provider and key management page" width="100%"></td>
+    <td width="50%"><strong>Settings (800 × 500, changes apply immediately)</strong><br><img src="docs/assets/settings-expanded.png" alt="Expanded settings page" width="100%"></td>
+  </tr>
+</table>
 
-### Provider and key management
+### Usage panels in both themes
 
-![Provider settings](docs/assets/provider-settings.png)
+<table>
+  <tr>
+    <td width="50%"><strong>Holo 3D Core</strong><br><img src="docs/assets/third-party-usage-dashboard.png" alt="Third-party usage panel in Holo 3D Core theme" width="100%"></td>
+    <td width="50%"><strong>Pyro Core</strong><br><img src="docs/assets/theme-pyro.png" alt="Third-party usage panel in Pyro Core theme" width="100%"></td>
+  </tr>
+</table>
 
-### Pyro Core theme
+### Floating balls in both themes
 
-![Pyro Core theme](docs/assets/theme-pyro.png)
+<table>
+  <tr>
+    <td width="50%"><strong>Holo 3D Core floating ball</strong><br><img src="docs/assets/floating-ball-holo.png" alt="Holo 3D Core floating ball" width="100%"></td>
+    <td width="50%"><strong>Pyro Core floating ball</strong><br><img src="docs/assets/floating-ball-pyro.png" alt="Pyro Core floating ball" width="100%"></td>
+  </tr>
+</table>
 
-### Floating-ball mode
-
-![Floating-ball mode](docs/assets/floating-ball.png)
-
-These images are rendered from the current branch’s frontend components and styles. Keys are masked; never place real credentials in screenshots, README files, or Issues.
+These images are rendered from the current branch’s frontend components and styles with sample data. Keys are masked; never place real credentials in screenshots, README files, or Issues.
 
 ## Usage
 
