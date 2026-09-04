@@ -1,3 +1,6 @@
+@import "../styles/base.css";
+@import "../themes.css";
+
 * {
   margin: 0;
   padding: 0;
@@ -7,28 +10,26 @@
 }
 
 :root {
-  --bg-panel: rgba(20, 24, 30, 0.97);
-  --border-color: rgba(255, 255, 255, 0.1);
   --text-primary: #f0f6fc;
-  --text-secondary: rgba(255, 255, 255, 0.5);
-  --item-hover-bg: rgba(255, 255, 255, 0.07);
-  --item-active-bg: rgba(255, 255, 255, 0.12);
-  --separator-color: rgba(255, 255, 255, 0.07);
-  --accent-color: #00e5ff;
-  --accent-dim: rgba(0, 229, 255, 0.14);
-  --accent-hover-dim: rgba(0, 229, 255, 0.25);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --accent-color: #38bdf8;
+  --accent-dim: rgba(56, 189, 248, 0.16);
+  --accent-hover-dim: rgba(56, 189, 248, 0.28);
+  --item-hover-bg: rgba(56, 189, 248, 0.12);
+  --item-active-bg: rgba(56, 189, 248, 0.22);
+  --separator-color: rgba(56, 189, 248, 0.14);
 }
 
 /* 烈焰熔核 (Pyro) 主题联动 */
-[data-theme="pyro"] {
-  --bg-panel: rgba(22, 14, 10, 0.97);
-  --border-color: rgba(255, 122, 0, 0.2);
-  --item-hover-bg: rgba(255, 122, 0, 0.1);
-  --item-active-bg: rgba(255, 122, 0, 0.18);
-  --separator-color: rgba(255, 122, 0, 0.1);
-  --accent-color: #ff9800;
-  --accent-dim: rgba(255, 152, 0, 0.15);
-  --accent-hover-dim: rgba(255, 152, 0, 0.26);
+:is([data-theme="pyro"], body[data-theme="pyro"]) {
+  --text-primary: #fef3c7;
+  --text-secondary: rgba(253, 230, 138, 0.65);
+  --accent-color: #fbbf24;
+  --accent-dim: rgba(245, 158, 11, 0.18);
+  --accent-hover-dim: rgba(245, 158, 11, 0.32);
+  --item-hover-bg: rgba(245, 158, 11, 0.14);
+  --item-active-bg: rgba(245, 158, 11, 0.24);
+  --separator-color: rgba(245, 158, 11, 0.15);
 }
 
 html,
@@ -46,25 +47,74 @@ body.quick-menu-body {
 }
 
 .quick-menu-container {
+  position: relative;
   width: 100%;
   height: 100%;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-color);
+  background: var(--widget-surface-background);
+  backdrop-filter: var(--widget-surface-backdrop);
+  -webkit-backdrop-filter: var(--widget-surface-backdrop);
   border-radius: 12px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 8px 32px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
+  overflow: hidden !important;
   display: flex;
   flex-direction: column;
   padding: 5px;
   transition:
     background 0.25s ease,
-    border-color 0.25s ease;
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
-/* 菜单列表 */
+/* 默认 / 全息主题边框与内发光 */
+:is(body[data-theme="default"], body:not([data-theme="pyro"]))
+  .quick-menu-container {
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.4),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Pyro 烈焰熔核主题边框与内发光 */
+body[data-theme="pyro"] .quick-menu-container {
+  border: 1px solid rgba(245, 158, 11, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* 复刻主面板与概览卡片的水晶微光渐变层 */
+.quick-menu-container::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  border-radius: 12px;
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(126, 211, 255, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(69, 244, 176, 0.1), transparent 35%);
+}
+
+body[data-theme="pyro"] .quick-menu-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(245, 158, 11, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(239, 68, 68, 0.12), transparent 35%);
+}
+
+/* 菜单列表（提升层级在渐变层之上） */
 .menu-list {
+  position: relative;
+  z-index: 1;
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -89,7 +139,9 @@ body.quick-menu-body {
   font-weight: 500;
   letter-spacing: -0.1px;
   text-align: left;
-  transition: background 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
   white-space: nowrap;
 }
 
@@ -120,7 +172,7 @@ body.quick-menu-body {
 
 .menu-item:hover .menu-item-icon {
   background: var(--accent-hover-dim);
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
 /* 标签 */
@@ -131,21 +183,22 @@ body.quick-menu-body {
 /* 数据源胶囊微型标签 */
 .source-badge {
   font-size: 10px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 1px 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
   border-radius: 4px;
-  max-width: 66px;
+  max-width: 68px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-[data-theme="pyro"] .source-badge {
-  background: rgba(255, 122, 0, 0.1);
-  border-color: rgba(255, 122, 0, 0.15);
+:is([data-theme="pyro"], body[data-theme="pyro"]) .source-badge {
+  color: var(--pyro-muted, #fde68a);
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.22);
 }
 
 /* 分割线 */

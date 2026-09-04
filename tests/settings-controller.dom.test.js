@@ -87,8 +87,8 @@ describe("设置面板", () => {
     const fixture = createFixture(vi.fn().mockResolvedValue({}));
     fixture.open();
 
-    expect(fixture.els.ballSizeSelect.value).toBe("medium");
-    fixture.els.ballSizeSelect.value = "small";
+    expect(fixture.els.ballSizeSelect.value).toBe("small");
+    fixture.els.ballSizeSelect.value = "medium";
     fixture.els.ballSizeSelect.dispatchEvent(
       new Event("change", { bubbles: true }),
     );
@@ -97,7 +97,7 @@ describe("设置面板", () => {
       expect(fixture.persistSettings).toHaveBeenCalledOnce(),
     );
     const [updateSettings] = fixture.persistSettings.mock.calls[0];
-    expect(updateSettings(fixture.state.settings).ballSize).toBe("small");
+    expect(updateSettings(fixture.state.settings).ballSize).toBe("medium");
   });
 
   it("自动数据栏按 Plus 套餐展示且保存其他设置仍保持自动", async () => {
@@ -270,17 +270,18 @@ describe("设置面板", () => {
     expect(fixture.adjustWindowForSettings).toHaveBeenCalledWith(false);
   });
 
-  it("在悬浮球模式下打开并关闭设置面板时还原为悬浮球模式", async () => {
+  it("在悬浮球模式下打开并关闭设置面板不会切换为面板模式", async () => {
     const setWidgetMode = vi.fn().mockResolvedValue(undefined);
     const fixture = createFixture(vi.fn().mockResolvedValue({}), {
       setWidgetMode,
     });
     fixture.state.widgetMode = "ball";
     await fixture.open();
-    expect(setWidgetMode).toHaveBeenCalledWith("panel");
+    expect(setWidgetMode).not.toHaveBeenCalled();
 
     await fixture.els.settingsCloseBtn.click();
-    expect(setWidgetMode).toHaveBeenCalledWith("ball");
+    expect(setWidgetMode).not.toHaveBeenCalled();
+    expect(fixture.adjustWindowForSettings).toHaveBeenCalledWith(false);
   });
 });
 

@@ -38,11 +38,9 @@ export function createSettingsController({
   logger,
   clearPanelClick,
   adjustWindowForSettings,
-  setWidgetMode,
+  setWidgetMode: _setWidgetMode,
   isMacOS = detectMacOS(),
 }) {
-  let modeBeforeSettings = null;
-
   const customSelects = createCustomSelectController({
     shells: els.customSelectShells,
     onChange: handleCustomSelectChange,
@@ -112,6 +110,7 @@ export function createSettingsController({
     els.codexPathInput?.addEventListener("blur", syncCodexPath);
     els.tabBasicBtn?.addEventListener("click", () => switchTab("basic"));
     els.tabSourcesBtn?.addEventListener("click", () => switchTab("sources"));
+    els.tabSystemBtn?.addEventListener("click", () => switchTab("system"));
     customSelects.bindEvents();
   }
 
@@ -138,6 +137,13 @@ export function createSettingsController({
         String(activeTab === "sources"),
       );
     }
+    if (els.tabSystemBtn) {
+      els.tabSystemBtn.classList.toggle("active", activeTab === "system");
+      els.tabSystemBtn.setAttribute(
+        "aria-selected",
+        String(activeTab === "system"),
+      );
+    }
     if (els.basicSettingsScroll) {
       els.basicSettingsScroll.hidden = activeTab !== "basic";
       els.basicSettingsScroll.style.display =
@@ -148,20 +154,21 @@ export function createSettingsController({
       els.sourcesSettingsScroll.style.display =
         activeTab === "sources" ? "grid" : "none";
     }
+    if (els.systemSettingsScroll) {
+      els.systemSettingsScroll.hidden = activeTab !== "system";
+      els.systemSettingsScroll.style.display =
+        activeTab === "system" ? "grid" : "none";
+    }
     render();
   }
 
   async function openSettingsPanel(tab = "basic") {
     clearPanelClick();
-    if (!state.settingsOpen) {
-      modeBeforeSettings = state.widgetMode;
-    }
-    if (state.widgetMode === "ball" && setWidgetMode) {
-      await setWidgetMode("panel");
-    }
     syncSettingsDraftFromSettings(state);
     state.settingsOpen = true;
-    switchTab(tab === "sources" ? "sources" : "basic");
+    switchTab(
+      tab === "sources" ? "sources" : tab === "system" ? "system" : "basic",
+    );
     fillSettingsForm();
     render();
     focusManager.activate();
@@ -207,14 +214,7 @@ export function createSettingsController({
     render();
     focusManager.deactivate();
 
-    const previousMode = modeBeforeSettings;
-    modeBeforeSettings = null;
-
-    if (previousMode === "ball" && setWidgetMode) {
-      await setWidgetMode("ball");
-    } else {
-      adjustWindowForSettings?.(false);
-    }
+    adjustWindowForSettings?.(false);
   }
 
   function fillSettingsForm() {
@@ -240,9 +240,12 @@ export function createSettingsController({
   function renderSettingsLabels(text) {
     els.settingsTitle.textContent = text.settings;
     if (els.tabBasicBtn)
-      els.tabBasicBtn.textContent = text.tabBasic || "基础设置";
+      els.tabBasicBtn.textContent =
+        text.tabAppearance || text.tabBasic || "外观显示";
     if (els.tabSourcesBtn)
       els.tabSourcesBtn.textContent = text.tabSources || "中转站";
+    if (els.tabSystemBtn)
+      els.tabSystemBtn.textContent = text.tabSystem || "系统设置";
     els.codexPathLabel.textContent = text.codexPath;
     els.autoUpdateLabel.textContent = text.autoUpdate;
     els.autoUpdateHint.textContent = text.autoUpdateHint;

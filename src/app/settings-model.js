@@ -17,9 +17,9 @@ export const OTHER_DEFAULT_DATA_BARS = [
 export function normalizeSettings(settings) {
   const refreshIntervalMinutes = Number(settings?.refreshIntervalMinutes);
   const widgetMode =
-    settings?.widgetMode === WIDGET_MODES.BALL
-      ? WIDGET_MODES.BALL
-      : WIDGET_MODES.PANEL;
+    settings?.widgetMode === WIDGET_MODES.PANEL
+      ? WIDGET_MODES.PANEL
+      : WIDGET_MODES.BALL;
   return {
     codexCliPath:
       typeof settings?.codexCliPath === "string" ? settings.codexCliPath : "",
@@ -125,7 +125,7 @@ export function normalizeBallDock(dock) {
 }
 
 export function normalizeBallSize(ballSize) {
-  return ballSize === "small" ? "small" : "medium";
+  return ballSize === "medium" ? "medium" : "small";
 }
 
 export function normalizeTheme(theme) {

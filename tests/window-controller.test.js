@@ -39,17 +39,17 @@ describe("窗口模式事务", () => {
       panelPosition: { x: 120, y: 90 },
       ballPosition: { x: 600, y: 240 },
     });
-    expect(fixture.native.size).toEqual({ width: 88, height: 88 });
+    expect(fixture.native.size).toEqual({ width: 64, height: 64 });
     expect(fixture.state.errors.window).toBe("");
   });
 
-  it("小尺寸配置下切换悬浮球模式使用 64x64", async () => {
+  it("大尺寸配置下切换悬浮球模式使用 88x88", async () => {
     const fixture = createFixture();
-    fixture.state.settings.ballSize = "small";
+    fixture.state.settings.ballSize = "medium";
 
     await fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
 
-    expect(fixture.native.size).toEqual({ width: 64, height: 64 });
+    expect(fixture.native.size).toEqual({ width: 88, height: 88 });
   });
 
   it("忙碌期间相同意图合并且保持原生操作串行", async () => {
@@ -85,7 +85,7 @@ describe("窗口模式事务", () => {
     const fixture = createFixture({
       setSize: vi.fn(async (size) => {
         fixture.native.size = { ...size };
-        if (size.width === 88) await ballSizeWrite.promise;
+        if (size.width === 64) await ballSizeWrite.promise;
       }),
     });
 
@@ -173,13 +173,32 @@ describe("窗口模式事务", () => {
     expect(fixture.persistSettings).toHaveBeenCalledOnce();
   });
 
-  it("打开设置调整为 SETTINGS_PANEL_SIZE 并在关闭后恢复 PANEL_SIZE", async () => {
-    const fixture = createFixture();
+  it("打开设置默认在屏幕工作区居中展示，并在关闭后精准恢复悬浮球原位", async () => {
+    const fixture = createFixture({ initialMode: WIDGET_MODES.BALL });
+    expect(fixture.native.position).toEqual({ x: 600, y: 240 });
+
+    // 打开设置：默认居中于当前工作区 (1920-800)/2 = 560, (1040-500)/2 = 270
     await fixture.controller.adjustWindowForSettings(true);
     expect(fixture.native.size).toEqual({ width: 800, height: 500 });
+    expect(fixture.native.position).toEqual({ x: 560, y: 270 });
+
+    // 模拟用户在设置期间拖动移动了设置面板
+    fixture.native.position = { x: 100, y: 100 };
+
+    // 关闭设置：悬浮球精准恢复打开前所在的原位 (600, 240)，不被移动所影响
+    await fixture.controller.adjustWindowForSettings(false);
+    expect(fixture.native.size).toEqual({ width: 64, height: 64 });
+    expect(fixture.native.position).toEqual({ x: 600, y: 240 });
+
+    // 悬浮球靠边 (1850, 400) 再次打开设置：依然屏幕居中，关闭恢复 (1850, 400)
+    fixture.native.position = { x: 1850, y: 400 };
+    await fixture.controller.adjustWindowForSettings(true);
+    expect(fixture.native.size).toEqual({ width: 800, height: 500 });
+    expect(fixture.native.position).toEqual({ x: 560, y: 270 });
 
     await fixture.controller.adjustWindowForSettings(false);
-    expect(fixture.native.size).toEqual({ width: 390, height: 236 });
+    expect(fixture.native.size).toEqual({ width: 64, height: 64 });
+    expect(fixture.native.position).toEqual({ x: 1850, y: 400 });
   });
 
   it("设置面板打开时双击不切换小组件模式", async () => {

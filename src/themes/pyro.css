@@ -18,10 +18,6 @@ body[data-theme="pyro"] {
   --settings-muted-color: var(--pyro-muted);
 }
 
-body[data-theme="pyro"] .settings-panel {
-  background: #140b0a !important;
-}
-
 body[data-theme="pyro"] {
   --widget-surface-background:
     radial-gradient(
@@ -124,8 +120,12 @@ body[data-theme="pyro"] .status-dot {
 /* =========================================================
    悬浮球模式下的全局穿透重置（彻底消除黑底盘与正方形切边）
    ========================================================= */
-body[data-theme="pyro"][data-widget-mode="ball"] .widget,
-body[data-theme="pyro"] .widget[data-widget-mode="ball"] {
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget:not(:has(.settings-panel:not([hidden]))),
+body[data-theme="pyro"]
+  .widget[data-widget-mode="ball"]:not(:has(.settings-panel:not([hidden]))) {
   position: relative !important;
   box-sizing: border-box !important;
   width: var(--ball-size, 88px) !important;
@@ -141,16 +141,37 @@ body[data-theme="pyro"] .widget[data-widget-mode="ball"] {
   mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
 }
 
-body[data-theme="pyro"][data-widget-mode="ball"] .widget::before,
-body[data-theme="pyro"][data-widget-mode="ball"] .widget::after,
-body[data-theme="pyro"][data-widget-mode="ball"] .titlebar,
-body[data-theme="pyro"][data-widget-mode="ball"] .quota-panel,
-body[data-theme="pyro"][data-widget-mode="ball"] .status,
-body[data-theme="pyro"][data-widget-mode="ball"] .settings-panel {
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::before,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::after,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .titlebar,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .quota-panel,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .status,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .settings-panel {
   display: none !important;
 }
 
-body[data-theme="pyro"][data-widget-mode="ball"] .content {
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .content {
   position: absolute !important;
   inset: 0 !important;
   display: flex !important;
@@ -162,7 +183,10 @@ body[data-theme="pyro"][data-widget-mode="ball"] .content {
   cursor: grab;
 }
 
-body[data-theme="pyro"][data-widget-mode="ball"] .meter-host {
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .meter-host {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;

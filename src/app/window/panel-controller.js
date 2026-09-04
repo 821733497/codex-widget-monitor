@@ -24,6 +24,18 @@ export function createPanelController({
       return;
     }
 
+    if (state.settingsOpen) {
+      clearPanelClick();
+      event.preventDefault();
+      if (!service.isAvailable()) return;
+      try {
+        await service.window.startDragging();
+      } catch (error) {
+        logWindowError("启动窗口拖动失败", error);
+      }
+      return;
+    }
+
     if (state.widgetMode === WIDGET_MODES.BALL) {
       clearPanelClick();
       await startBallDrag(event);

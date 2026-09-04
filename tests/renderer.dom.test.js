@@ -66,16 +66,19 @@ describe("界面渲染", () => {
 
     renderer.render();
     expect(els.meterHost.textContent).toContain("88%");
+    expect(els.body.dataset.settingsOpen).toBe("false");
 
     state.settingsOpen = true;
     state.settingsDraft.meterWindow = "secondary";
     renderer.render();
     expect(els.meterHost.textContent).toContain("97%");
+    expect(els.body.dataset.settingsOpen).toBe("true");
 
     state.settingsOpen = false;
     state.widgetMode = "ball";
     renderer.render();
     expect(els.meterHost.textContent).toContain("88%");
+    expect(els.body.dataset.settingsOpen).toBe("false");
   });
 
   it("所选仪表窗口缺失时不回退另一窗口", () => {

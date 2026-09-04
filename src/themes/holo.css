@@ -128,10 +128,10 @@
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
-  .widget,
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
+  .widget:not(:has(.settings-panel:not([hidden]))),
 :is(body[data-theme="holo"], body[data-theme="default"])
-  .widget[data-widget-mode="ball"] {
+  .widget[data-widget-mode="ball"]:not(:has(.settings-panel:not([hidden]))) {
   position: relative !important;
   box-sizing: border-box !important;
   width: var(--ball-size, 88px) !important;
@@ -150,32 +150,32 @@
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .widget::before,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .widget::after,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .titlebar,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .quota-panel,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .status,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .settings-panel {
   display: none !important;
 }
@@ -183,7 +183,7 @@
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .content {
   position: absolute !important;
   inset: 0 !important;
@@ -199,7 +199,7 @@
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .meter-host {
   position: absolute !important;
   inset: 0 !important;

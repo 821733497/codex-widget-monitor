@@ -209,7 +209,7 @@
               role="tab"
               data-no-drag
             >
-              基础设置
+              外观显示
             </button>
             <button
               id="tabSourcesBtn"
@@ -219,6 +219,15 @@
               data-no-drag
             >
               中转站
+            </button>
+            <button
+              id="tabSystemBtn"
+              class="settings-tab-btn"
+              type="button"
+              role="tab"
+              data-no-drag
+            >
+              系统设置
             </button>
           </div>
           <button
@@ -256,6 +265,28 @@
           </div>
 
           <div class="settings-field">
+            <span id="dataBar1Label">数据栏 1</span>
+            <div class="custom-select-shell" data-no-drag>
+              <select
+                id="dataBar1Select"
+                class="settings-input settings-select"
+                data-no-drag
+                aria-labelledby="dataBar1Label"
+              ></select>
+              <button
+                class="custom-select-trigger"
+                type="button"
+                data-no-drag
+                aria-labelledby="dataBar1Label"
+              >
+                <span class="custom-select-value"></span>
+                <span class="custom-select-arrow" aria-hidden="true"></span>
+              </button>
+              <div class="custom-select-menu" data-no-drag></div>
+            </div>
+          </div>
+
+          <div class="settings-field">
             <span id="languageLabel">语言</span>
             <div class="custom-select-shell" data-no-drag>
               <select
@@ -272,75 +303,6 @@
                 type="button"
                 data-no-drag
                 aria-labelledby="languageLabel"
-              >
-                <span class="custom-select-value"></span>
-                <span class="custom-select-arrow" aria-hidden="true"></span>
-              </button>
-              <div class="custom-select-menu" data-no-drag></div>
-            </div>
-          </div>
-
-          <div class="settings-field">
-            <span id="meterWindowLabel">仪表窗口</span>
-            <div class="custom-select-shell" data-no-drag>
-              <select
-                id="meterWindowSelect"
-                class="settings-input settings-select"
-                data-no-drag
-                aria-labelledby="meterWindowLabel"
-              ></select>
-              <button
-                class="custom-select-trigger"
-                type="button"
-                data-no-drag
-                aria-labelledby="meterWindowLabel"
-              >
-                <span class="custom-select-value"></span>
-                <span class="custom-select-arrow" aria-hidden="true"></span>
-              </button>
-              <div class="custom-select-menu" data-no-drag></div>
-            </div>
-          </div>
-
-          <div class="settings-field">
-            <span id="ballSizeLabel">悬浮球大小</span>
-            <div class="custom-select-shell" data-no-drag>
-              <select
-                id="ballSizeSelect"
-                class="settings-input settings-select"
-                data-no-drag
-                aria-labelledby="ballSizeLabel"
-              >
-                <option value="medium">默认 (88px)</option>
-                <option value="small">小 (64px)</option>
-              </select>
-              <button
-                class="custom-select-trigger"
-                type="button"
-                data-no-drag
-                aria-labelledby="ballSizeLabel"
-              >
-                <span class="custom-select-value"></span>
-                <span class="custom-select-arrow" aria-hidden="true"></span>
-              </button>
-              <div class="custom-select-menu" data-no-drag></div>
-            </div>
-          </div>
-
-          <div class="settings-field">
-            <span id="dataBar1Label">数据栏 1</span>
-            <div class="custom-select-shell" data-no-drag>
-              <select
-                id="dataBar1Select"
-                class="settings-input settings-select"
-                data-no-drag
-                aria-labelledby="dataBar1Label"
-              ></select>
-              <button
-                class="custom-select-trigger"
-                type="button"
-                data-no-drag
-                aria-labelledby="dataBar1Label"
               >
                 <span class="custom-select-value"></span>
                 <span class="custom-select-arrow" aria-hidden="true"></span>
@@ -372,6 +334,28 @@
           </div>
 
           <div class="settings-field">
+            <span id="meterWindowLabel">仪表窗口</span>
+            <div class="custom-select-shell" data-no-drag>
+              <select
+                id="meterWindowSelect"
+                class="settings-input settings-select"
+                data-no-drag
+                aria-labelledby="meterWindowLabel"
+              ></select>
+              <button
+                class="custom-select-trigger"
+                type="button"
+                data-no-drag
+                aria-labelledby="meterWindowLabel"
+              >
+                <span class="custom-select-value"></span>
+                <span class="custom-select-arrow" aria-hidden="true"></span>
+              </button>
+              <div class="custom-select-menu" data-no-drag></div>
+            </div>
+          </div>
+
+          <div class="settings-field">
             <span id="dataBar3Label">数据栏 3</span>
             <div class="custom-select-shell" data-no-drag>
               <select
@@ -394,19 +378,22 @@
           </div>
 
           <div class="settings-field">
-            <span id="logLevelLabel">日志等级</span>
+            <span id="ballSizeLabel">悬浮球大小</span>
             <div class="custom-select-shell" data-no-drag>
               <select
-                id="logLevelSelect"
+                id="ballSizeSelect"
                 class="settings-input settings-select"
                 data-no-drag
-                aria-labelledby="logLevelLabel"
-              ></select>
+                aria-labelledby="ballSizeLabel"
+              >
+                <option value="small">默认 (64px)</option>
+                <option value="medium">大 (88px)</option>
+              </select>
               <button
                 class="custom-select-trigger"
                 type="button"
                 data-no-drag
-                aria-labelledby="logLevelLabel"
+                aria-labelledby="ballSizeLabel"
               >
                 <span class="custom-select-value"></span>
                 <span class="custom-select-arrow" aria-hidden="true"></span>
@@ -414,7 +401,27 @@
               <div class="custom-select-menu" data-no-drag></div>
             </div>
           </div>
+        </div>
 
+        <div
+          id="sourcesSettingsScroll"
+          class="settings-scroll sources-scroll"
+          hidden
+          data-no-drag
+        >
+          <div
+            id="sourcesContainer"
+            class="sources-container"
+            data-no-drag
+          ></div>
+        </div>
+
+        <div
+          id="systemSettingsScroll"
+          class="settings-scroll system-scroll"
+          hidden
+          data-no-drag
+        >
           <div class="settings-field settings-row">
             <div class="settings-copy">
               <span id="autoStartLabel">开机自启</span>
@@ -424,6 +431,24 @@
             </div>
             <label class="switch-control" data-no-drag>
               <input id="autoStartSwitch" type="checkbox" data-no-drag />
+              <span class="switch-track" aria-hidden="true"></span>
+            </label>
+          </div>
+
+          <div class="settings-field settings-row">
+            <div class="settings-copy">
+              <span id="autoUpdateLabel">自动更新</span>
+              <small id="autoUpdateHint"
+                >依赖 GitHub，网络不可达时可能需要配置代理。</small
+              >
+            </div>
+            <label class="switch-control" data-no-drag>
+              <input
+                id="autoUpdateSwitch"
+                type="checkbox"
+                data-no-drag
+                checked
+              />
               <span class="switch-track" aria-hidden="true"></span>
             </label>
           </div>
@@ -461,22 +486,26 @@
             />
           </label>
 
-          <div class="settings-field settings-row">
-            <div class="settings-copy">
-              <span id="autoUpdateLabel">自动更新</span>
-              <small id="autoUpdateHint"
-                >依赖 GitHub，网络不可达时可能需要配置代理。</small
-              >
-            </div>
-            <label class="switch-control" data-no-drag>
-              <input
-                id="autoUpdateSwitch"
-                type="checkbox"
+          <div class="settings-field">
+            <span id="logLevelLabel">日志等级</span>
+            <div class="custom-select-shell" data-no-drag>
+              <select
+                id="logLevelSelect"
+                class="settings-input settings-select"
                 data-no-drag
-                checked
-              />
-              <span class="switch-track" aria-hidden="true"></span>
-            </label>
+                aria-labelledby="logLevelLabel"
+              ></select>
+              <button
+                class="custom-select-trigger"
+                type="button"
+                data-no-drag
+                aria-labelledby="logLevelLabel"
+              >
+                <span class="custom-select-value"></span>
+                <span class="custom-select-arrow" aria-hidden="true"></span>
+              </button>
+              <div class="custom-select-menu" data-no-drag></div>
+            </div>
           </div>
 
           <label class="settings-field">
@@ -493,7 +522,7 @@
             >
           </label>
 
-          <div class="settings-field">
+          <div class="settings-field full-width">
             <label id="codexPathLabel" for="codexPathInput"
               >Codex CLI 路径</label
             >
@@ -516,19 +545,6 @@
               </button>
             </div>
           </div>
-        </div>
-
-        <div
-          id="sourcesSettingsScroll"
-          class="settings-scroll sources-scroll"
-          hidden
-          data-no-drag
-        >
-          <div
-            id="sourcesContainer"
-            class="sources-container"
-            data-no-drag
-          ></div>
         </div>
 
         <div class="settings-actions">

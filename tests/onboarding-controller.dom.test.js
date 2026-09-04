@@ -13,6 +13,7 @@ describe("功能引导键盘交互", () => {
     loadApplicationMarkup();
     const els = createElements();
     const state = createAppState();
+    state.widgetMode = "panel";
     const saveCurrentSettings = vi.fn().mockResolvedValue(undefined);
     const applyNormalizedSettings = vi.fn((settings) => {
       state.settings = settings;
@@ -24,7 +25,7 @@ describe("功能引导键盘交互", () => {
       renderTheme: () => "default",
       applyNormalizedSettings,
       saveCurrentSettings,
-      i18n
+      i18n,
     });
     controller.bindEvents();
     els.modeBtn.focus();
@@ -33,18 +34,20 @@ describe("功能引导键盘交互", () => {
     expect(els.onboardingOverlay.hidden).toBe(false);
     expect(document.activeElement).toBe(els.onboardingNextBtn);
 
-    els.onboardingNextBtn.dispatchEvent(new KeyboardEvent("keydown", {
-      key: "Escape",
-      bubbles: true,
-      cancelable: true
-    }));
+    els.onboardingNextBtn.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
     await vi.waitFor(() => expect(saveCurrentSettings).toHaveBeenCalledOnce());
 
     expect(els.onboardingOverlay.hidden).toBe(true);
     expect(document.activeElement).toBe(els.modeBtn);
     expect(applyNormalizedSettings).toHaveBeenCalledWith(
       expect.objectContaining({ onboardingSeen: true }),
-      { syncDraft: true }
+      { syncDraft: true },
     );
   });
 });

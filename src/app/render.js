@@ -101,8 +101,13 @@ export function createRenderer({
     setDatasetValue(els.body, "state", mainState);
     setDatasetValue(els.body, "widgetMode", state.widgetMode);
     setDatasetValue(els.body, "ballDock", state.ballDock || "none");
-    setDatasetValue(els.body, "ballSize", state.settings.ballSize || "medium");
+    setDatasetValue(els.body, "ballSize", state.settings.ballSize || "small");
     setDatasetValue(els.body, "theme", activeTheme);
+    setDatasetValue(
+      els.body,
+      "settingsOpen",
+      state.settingsOpen ? "true" : "false",
+    );
   }
 
   function renderHeader({ text }) {
@@ -187,7 +192,7 @@ export function createRenderer({
       label: text.remaining,
       mode: state.widgetMode,
       dock: state.ballDock || "none",
-      ballSize: state.settings.ballSize || "medium",
+      ballSize: state.settings.ballSize || "small",
     });
   }
 

@@ -57,8 +57,8 @@ pub enum DataBarContent {
 #[serde(rename_all = "lowercase")]
 pub enum WidgetMode {
     #[default]
-    Panel,
     Ball,
+    Panel,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -72,8 +72,8 @@ pub enum BallDock {
 #[serde(rename_all = "lowercase")]
 pub enum BallSize {
     #[default]
-    Medium,
     Small,
+    Medium,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -615,7 +615,7 @@ mod tests {
         assert!(settings.meter_window_migrated);
         assert_eq!(settings.data_bars, None);
         assert_eq!(settings.log_level, LogLevel::Off);
-        assert_eq!(settings.widget_mode, WidgetMode::Panel);
+        assert_eq!(settings.widget_mode, WidgetMode::Ball);
         assert_eq!(settings.panel_position, None);
         assert_eq!(settings.ball_position, None);
         assert_eq!(settings.ball_dock, None);

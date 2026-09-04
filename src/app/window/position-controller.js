@@ -1,19 +1,23 @@
 import { POSITION_SAVE_DEBOUNCE_MS, WIDGET_MODES } from "../constants.js";
-import { normalizeBallDock, normalizeWindowPosition } from "../settings-model.js";
+import {
+  normalizeBallDock,
+  normalizeWindowPosition,
+} from "../settings-model.js";
 
 export function createPositionController({
   state,
   service,
   persistSettings,
   showError,
-  logWindowError
+  logWindowError,
 }) {
   async function registerWindowMoveSave() {
     if (!service.isAvailable() || state.windowMoveUnlisten) return;
 
     try {
       state.windowMoveUnlisten = await service.window.onMoved(() => {
-        if (state.isApplyingWindowMode || state.ballDrag) return;
+        if (state.isApplyingWindowMode || state.ballDrag || state.settingsOpen)
+          return;
         scheduleSaveCurrentWindowPosition();
       });
     } catch (error) {
@@ -22,7 +26,12 @@ export function createPositionController({
   }
 
   function scheduleSaveCurrentWindowPosition() {
-    if (!service.isAvailable() || state.isApplyingWindowMode) return;
+    if (
+      !service.isAvailable() ||
+      state.isApplyingWindowMode ||
+      state.settingsOpen
+    )
+      return;
     if (state.positionSaveTimer) {
       window.clearTimeout(state.positionSaveTimer);
     }
@@ -40,7 +49,12 @@ export function createPositionController({
 
   async function saveCurrentWindowPosition({ silent = true } = {}) {
     clearPositionSaveTimer();
-    if (!service.isAvailable() || state.isApplyingWindowMode) return;
+    if (
+      !service.isAvailable() ||
+      state.isApplyingWindowMode ||
+      state.settingsOpen
+    )
+      return;
 
     try {
       const position = await readCurrentWindowPosition();
@@ -57,16 +71,19 @@ export function createPositionController({
   }
 
   async function persistWindowPosition(position, mode, dock = null) {
-    await persistSettings((currentSettings) => {
-      const nextSettings = { ...currentSettings };
-      if (mode === WIDGET_MODES.BALL) {
-        nextSettings.ballPosition = position;
-        nextSettings.ballDock = normalizeBallDock(dock);
-      } else {
-        nextSettings.panelPosition = position;
-      }
-      return nextSettings;
-    }, { syncDraft: !state.settingsOpen });
+    await persistSettings(
+      (currentSettings) => {
+        const nextSettings = { ...currentSettings };
+        if (mode === WIDGET_MODES.BALL) {
+          nextSettings.ballPosition = position;
+          nextSettings.ballDock = normalizeBallDock(dock);
+        } else {
+          nextSettings.panelPosition = position;
+        }
+        return nextSettings;
+      },
+      { syncDraft: !state.settingsOpen },
+    );
   }
 
   async function readCurrentWindowPosition() {
@@ -101,6 +118,6 @@ export function createPositionController({
     readCurrentWindowPosition,
     registerWindowMoveSave,
     saveCurrentWindowPosition,
-    scheduleSaveCurrentWindowPosition
+    scheduleSaveCurrentWindowPosition,
   };
 }

@@ -93,12 +93,12 @@ describe("设置标准化", () => {
     ).toEqual(["fiveHour", "fiveHour", "fiveHour"]);
   });
 
-  it("悬浮球尺寸仅允许 small 或 medium，非法值回退 medium", () => {
+  it("悬浮球尺寸仅允许 small 或 medium，非法值回退 small", () => {
     expect(normalizeBallSize("small")).toBe("small");
     expect(normalizeBallSize("medium")).toBe("medium");
-    expect(normalizeBallSize("invalid")).toBe("medium");
-    expect(normalizeSettings({ ballSize: "small" }).ballSize).toBe("small");
-    expect(normalizeSettings({ ballSize: "large" }).ballSize).toBe("medium");
+    expect(normalizeBallSize("invalid")).toBe("small");
+    expect(normalizeSettings({ ballSize: "medium" }).ballSize).toBe("medium");
+    expect(normalizeSettings({ ballSize: "large" }).ballSize).toBe("small");
   });
 
   it("正确解析数据源名称（官方与自定义站点Key）", () => {

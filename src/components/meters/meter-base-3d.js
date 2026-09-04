@@ -167,7 +167,7 @@ export function create3DMeterBase(root, config) {
     label: nextLabel,
     mode = "panel",
     dock = "none",
-    ballSize = "medium",
+    ballSize = "small",
   } = {}) {
     const rawPercent = nextPercent;
     const isFinite =

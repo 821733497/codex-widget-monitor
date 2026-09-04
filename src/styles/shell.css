@@ -364,13 +364,26 @@
   gap: 14px;
   cursor: grab;
 }
+body {
+  --ball-size: 64px;
+}
+body[data-ball-size="medium"] {
+  --ball-size: 88px;
+}
 body[data-ball-size="small"] {
   --ball-size: 64px;
 }
 
-body[data-widget-mode="ball"] .widget {
-  width: var(--ball-size, 88px);
-  height: var(--ball-size, 88px);
+.titlebar,
+.status,
+.onboarding-overlay {
+  display: none !important;
+}
+
+body[data-widget-mode="ball"]:not([data-settings-open="true"])
+  .widget:not(:has(.settings-panel:not([hidden]))) {
+  width: var(--ball-size, 64px);
+  height: var(--ball-size, 64px);
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -379,15 +392,39 @@ body[data-widget-mode="ball"] .widget {
   backdrop-filter: var(--widget-surface-backdrop);
 }
 
-body[data-widget-mode="ball"] .widget::before,
+body[data-widget-mode="ball"]:not([data-settings-open="true"]) .widget::before,
 body[data-widget-mode="ball"] .titlebar,
-body[data-widget-mode="ball"] .quota-panel,
-body[data-widget-mode="ball"] .status,
-body[data-widget-mode="ball"] .settings-panel {
+body .widget:not(:has(.settings-panel:not([hidden]))) .quota-panel,
+body[data-widget-mode="ball"] .status {
   display: none !important;
 }
 
-body[data-widget-mode="ball"] .content {
+body[data-settings-open="true"] .widget,
+body .widget:has(.settings-panel:not([hidden])) {
+  width: 800px !important;
+  height: 500px !important;
+  border-radius: 16px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  overflow: hidden !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+body[data-settings-open="true"] .widget .settings-panel,
+body .widget:has(.settings-panel:not([hidden])) .settings-panel {
+  display: grid !important;
+}
+
+body[data-settings-open="true"] .widget .content,
+body .widget:has(.settings-panel:not([hidden])) .content {
+  display: none !important;
+}
+
+body[data-widget-mode="ball"]:not([data-settings-open="true"]) .content {
   position: absolute;
   inset: 0;
   display: block;

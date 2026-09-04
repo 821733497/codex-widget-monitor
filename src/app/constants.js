@@ -11,11 +11,11 @@ export const DEFAULT_SETTINGS = {
   autoStartEnabled: false,
   hideDockIcon: false,
   onboardingSeen: false,
-  widgetMode: "panel",
+  widgetMode: "ball",
   panelPosition: null,
   ballPosition: null,
   ballDock: null,
-  ballSize: "medium",
+  ballSize: "small",
   sites: [],
   activeTarget: { type: "official" },
 };
@@ -66,16 +66,16 @@ export const METER_WINDOWS = {
 };
 
 export const BALL_SIZE_OPTIONS = {
-  medium: {
-    label: {
-      zh: "默认 (88px)",
-      en: "Default (88px)",
-    },
-  },
   small: {
     label: {
-      zh: "小 (64px)",
-      en: "Small (64px)",
+      zh: "默认 (64px)",
+      en: "Default (64px)",
+    },
+  },
+  medium: {
+    label: {
+      zh: "大 (88px)",
+      en: "Large (88px)",
     },
   },
 };
@@ -153,9 +153,9 @@ export const BALL_SIZES = {
   small: 64,
 };
 export function resolveBallSize(sizeKey) {
-  return BALL_SIZES[sizeKey] || BALL_SIZES.medium;
+  return BALL_SIZES[sizeKey] || BALL_SIZES.small;
 }
-export const BALL_SIZE = 88;
+export const BALL_SIZE = 64;
 export const SNAP_DISTANCE = 24;
 export const CLICK_DELAY_MS = 220;
 export const PANEL_DOUBLE_CLICK_MS = 320;
@@ -230,7 +230,8 @@ export const i18n = {
     language: "语言",
     meterWindow: "仪表窗口",
     ballSize: "悬浮球大小",
-    ballSizeDefault: "默认 (88px)",
+    ballSizeDefault: "默认 (64px)",
+    ballSizeLarge: "大 (88px)",
     ballSizeSmall: "小 (64px)",
     dataBar1: "数据栏 1",
     dataBar2: "数据栏 2",
@@ -267,8 +268,10 @@ export const i18n = {
     onboardingPrev: "上一步",
     onboardingNext: "下一步",
     onboardingDone: "完成",
-    tabBasic: "基础设置",
+    tabBasic: "外观显示",
+    tabAppearance: "外观显示",
     tabSources: "中转站",
+    tabSystem: "系统设置",
     officialSource: "官方 Codex CLI",
     addSite: "添加中转站点",
     editSite: "编辑站点",
@@ -353,7 +356,8 @@ export const i18n = {
     language: "Language",
     meterWindow: "Meter window",
     ballSize: "Ball size",
-    ballSizeDefault: "Default (88px)",
+    ballSizeDefault: "Default (64px)",
+    ballSizeLarge: "Large (88px)",
     ballSizeSmall: "Small (64px)",
     dataBar1: "Data bar 1",
     dataBar2: "Data bar 2",
@@ -395,8 +399,10 @@ export const i18n = {
     onboardingPrev: "Previous",
     onboardingNext: "Next",
     onboardingDone: "Done",
-    tabBasic: "General",
+    tabBasic: "Appearance",
+    tabAppearance: "Appearance",
     tabSources: "Relay Sites",
+    tabSystem: "System",
     officialSource: "Official Codex CLI",
     addSite: "Add Provider",
     editSite: "Edit Provider",

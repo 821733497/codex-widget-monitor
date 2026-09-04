@@ -68,6 +68,7 @@ function init() {
     const { theme, sourceName } = event.payload || {};
     if (theme) {
       document.documentElement.setAttribute("data-theme", theme);
+      document.body.dataset.theme = theme;
     }
     if (sourceName && elements.currentSourceBadge) {
       elements.currentSourceBadge.textContent = sourceName;
