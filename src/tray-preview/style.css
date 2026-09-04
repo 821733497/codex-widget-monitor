@@ -1,0 +1,231 @@
+@import "../styles/base.css";
+@import "../styles/quota.css";
+@import "../themes.css";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html,
+body.tray-preview-body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  overflow: hidden !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  color: #f0f6fc;
+}
+
+.tray-preview-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: var(--widget-surface-background);
+  backdrop-filter: var(--widget-surface-backdrop);
+  -webkit-backdrop-filter: var(--widget-surface-backdrop);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px 11px 9px;
+  gap: 8px;
+  overflow: hidden !important;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* 默认 / 全息主题背景边框与内发光 */
+body[data-theme="default"] .tray-preview-container,
+body:not([data-theme="pyro"]) .tray-preview-container {
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.4);
+}
+
+/* Pyro 烈焰熔核主题边框与内发光 */
+body[data-theme="pyro"] .tray-preview-container {
+  border: 1px solid rgba(245, 158, 11, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.5);
+}
+
+/* 复刻主面板左上角毛玻璃高光与通透渐变感 */
+.tray-preview-container::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  border-radius: 12px;
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.24), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(126, 211, 255, 0.18),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 20% 90%,
+      rgba(69, 244, 176, 0.12),
+      transparent 35%
+    );
+}
+
+body[data-theme="pyro"] .tray-preview-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(245, 158, 11, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(239, 68, 68, 0.12), transparent 35%);
+}
+
+.preview-header,
+.quota-panel,
+.preview-footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* 头部：状态点、数据源与身份徽章 */
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 1px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+  transition:
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.status-dot.normal {
+  background-color: #30d158;
+  box-shadow: 0 0 6px rgba(48, 209, 88, 0.8);
+}
+
+body[data-theme="pyro"] .status-dot.normal {
+  background-color: #ff9800;
+  box-shadow: 0 0 6px rgba(255, 152, 0, 0.8);
+}
+
+.status-dot.warning {
+  background-color: #ffd60a;
+  box-shadow: 0 0 6px rgba(255, 214, 10, 0.8);
+}
+
+.status-dot.danger {
+  background-color: #ff453a;
+  box-shadow: 0 0 6px rgba(255, 69, 58, 0.8);
+}
+
+.status-dot.unknown {
+  background-color: #8e8e93;
+  box-shadow: 0 0 4px rgba(142, 142, 147, 0.5);
+}
+
+.header-main-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
+.header-dot-sep {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.header-source-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(225, 237, 248, 0.72);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.badge {
+  font-size: 9.5px;
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.reset-badge {
+  background: rgba(94, 92, 230, 0.2);
+  color: #b3a6ff;
+  border: 1px solid rgba(94, 92, 230, 0.35);
+}
+
+.plan-badge {
+  background: rgba(48, 209, 88, 0.15);
+  color: #30d158;
+  border: 1px solid rgba(48, 209, 88, 0.3);
+  text-transform: uppercase;
+}
+
+body[data-theme="pyro"] .plan-badge {
+  background: rgba(255, 122, 0, 0.18);
+  color: #ff9800;
+  border: 1px solid rgba(255, 122, 0, 0.35);
+}
+
+/* 核心：1:1 承载主面板配额卡片 */
+.quota-panel {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+/* 底部更新时间 */
+.preview-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1px;
+}
+
+.update-text {
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.38);
+  font-feature-settings: "tnum";
+}

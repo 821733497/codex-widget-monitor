@@ -322,13 +322,9 @@ export function createRenderer({
 
   function renderWidgetHint(text) {
     if (state.widgetMode === WIDGET_MODES.BALL) {
-      const hint =
-        state.settings.ballSize === "small"
-          ? text.ballRestoreHintSmall || text.ballRestoreHint
-          : text.ballRestoreHint;
-      setTooltip(els.widget, hint);
+      removeTooltip(els.widget);
       removeAttribute(els.widget, "title");
-      setAttribute(els.widget, "aria-label", hint);
+      setAttribute(els.widget, "aria-label", text?.ballMode || "悬浮球");
       setAttribute(els.widget, "role", "button");
       setAttribute(els.widget, "tabindex", "0");
       return;

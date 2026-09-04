@@ -38,8 +38,11 @@ export function createSettingsController({
   logger,
   clearPanelClick,
   adjustWindowForSettings,
+  setWidgetMode,
   isMacOS = detectMacOS(),
 }) {
+  let modeBeforeSettings = null;
+
   const customSelects = createCustomSelectController({
     shells: els.customSelectShells,
     onChange: handleCustomSelectChange,
@@ -93,7 +96,7 @@ export function createSettingsController({
 
   function bindEvents() {
     focusManager.bindEvents();
-    els.settingsBtn.addEventListener("click", openSettingsPanel);
+    els.settingsBtn?.addEventListener("click", openSettingsPanel);
     els.settingsCloseBtn.addEventListener("click", closeSettingsPanel);
     els.cancelSettingsBtn?.addEventListener("click", closeSettingsPanel);
     els.saveSettingsBtn?.addEventListener("click", saveSettings);
@@ -148,8 +151,14 @@ export function createSettingsController({
     render();
   }
 
-  function openSettingsPanel(tab = "basic") {
+  async function openSettingsPanel(tab = "basic") {
     clearPanelClick();
+    if (!state.settingsOpen) {
+      modeBeforeSettings = state.widgetMode;
+    }
+    if (state.widgetMode === "ball" && setWidgetMode) {
+      await setWidgetMode("panel");
+    }
     syncSettingsDraftFromSettings(state);
     state.settingsOpen = true;
     switchTab(tab === "sources" ? "sources" : "basic");
@@ -186,7 +195,7 @@ export function createSettingsController({
     }
   }
 
-  function closeSettingsPanel() {
+  async function closeSettingsPanel() {
     if (state.settingsOpen) {
       syncInputsOnClose();
     }
@@ -197,7 +206,15 @@ export function createSettingsController({
     customSelects.close();
     render();
     focusManager.deactivate();
-    adjustWindowForSettings?.(false);
+
+    const previousMode = modeBeforeSettings;
+    modeBeforeSettings = null;
+
+    if (previousMode === "ball" && setWidgetMode) {
+      await setWidgetMode("ball");
+    } else {
+      adjustWindowForSettings?.(false);
+    }
   }
 
   function fillSettingsForm() {

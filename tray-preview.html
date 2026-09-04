@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>额度概览</title>
+    <link rel="stylesheet" href="/src/tray-preview/style.css" />
+  </head>
+  <body class="tray-preview-body">
+    <div id="trayPreviewApp" class="tray-preview-container">
+      <!-- 头部：发光状态指示点、标题/源与身份徽章 -->
+      <header class="preview-header">
+        <div class="header-left">
+          <span id="previewStatusDot" class="status-dot normal"></span>
+          <span class="header-main-title">Codex 额度</span>
+          <span class="header-dot-sep">·</span>
+          <span id="previewSourceName" class="header-source-name">官方</span>
+        </div>
+        <div class="header-right">
+          <span id="previewResetCredits" class="badge reset-badge" hidden
+            >↺ 0</span
+          >
+          <span id="previewPlanBadge" class="badge plan-badge">PLUS</span>
+        </div>
+      </header>
+
+      <!-- 核心：1:1 承接主面板的配额卡片 -->
+      <div id="previewCardsHost" class="quota-panel"></div>
+
+      <!-- 底部更新时间 -->
+      <footer class="preview-footer">
+        <span id="previewUpdatedAt" class="update-text">等待数据同步...</span>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/tray-preview/index.js"></script>
+  </body>
+</html>

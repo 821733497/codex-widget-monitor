@@ -269,11 +269,24 @@ describe("设置面板", () => {
     fixture.els.settingsCloseBtn.click();
     expect(fixture.adjustWindowForSettings).toHaveBeenCalledWith(false);
   });
+
+  it("在悬浮球模式下打开并关闭设置面板时还原为悬浮球模式", async () => {
+    const setWidgetMode = vi.fn().mockResolvedValue(undefined);
+    const fixture = createFixture(vi.fn().mockResolvedValue({}), {
+      setWidgetMode,
+    });
+    fixture.state.widgetMode = "ball";
+    await fixture.open();
+    expect(setWidgetMode).toHaveBeenCalledWith("panel");
+
+    await fixture.els.settingsCloseBtn.click();
+    expect(setWidgetMode).toHaveBeenCalledWith("ball");
+  });
 });
 
 function createFixture(
   persistSettings,
-  { locale = "zh", isMacOS = false } = {},
+  { locale = "zh", isMacOS = false, setWidgetMode } = {},
 ) {
   loadApplicationMarkup();
   const els = createElements();
@@ -304,6 +317,7 @@ function createFixture(
     logger: { error: vi.fn() },
     clearPanelClick: vi.fn(),
     adjustWindowForSettings,
+    setWidgetMode,
     isMacOS,
   });
   controller.bindEvents();

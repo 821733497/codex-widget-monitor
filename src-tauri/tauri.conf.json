@@ -26,6 +26,34 @@
         "alwaysOnTop": true,
         "visible": false,
         "skipTaskbar": false
+      },
+      {
+        "label": "quick-menu",
+        "title": "快捷功能",
+        "url": "quick-menu.html",
+        "width": 176,
+        "height": 186,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "visible": false,
+        "skipTaskbar": true
+      },
+      {
+        "label": "tray-preview",
+        "title": "额度概览",
+        "url": "tray-preview.html",
+        "width": 260,
+        "height": 208,
+        "resizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "visible": false,
+        "skipTaskbar": true
       }
     ],
     "security": {
@@ -52,19 +80,13 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "nsis"
-    ],
+    "targets": ["nsis"],
     "publisher": "fengshi",
     "copyright": "Copyright (c) 2026 fengshi",
     "category": "Utility",
     "shortDescription": "通过 Codex CLI 读取 Codex 额度的悬浮小组件。",
     "longDescription": "通过本机 Codex CLI 读取 Codex 额度状态的桌面悬浮小组件。",
-    "icon": [
-      "icons/icon.ico",
-      "icons/icon.png",
-      "icons/icon.icns"
-    ],
+    "icon": ["icons/icon.ico", "icons/icon.png", "icons/icon.icns"],
     "windows": {
       "webviewInstallMode": {
         "type": "downloadBootstrapper",
@@ -74,10 +96,7 @@
         "installMode": "currentUser",
         "installerIcon": "icons/icon.ico",
         "uninstallerIcon": "icons/icon.ico",
-        "languages": [
-          "SimpChinese",
-          "English"
-        ],
+        "languages": ["SimpChinese", "English"],
         "displayLanguageSelector": false,
         "compression": "lzma"
       }

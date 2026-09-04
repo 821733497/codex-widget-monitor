@@ -524,6 +524,7 @@ export function createWindowController({
     bindEvents,
     clearPanelClick: panelController.clearPanelClick,
     closeApp,
+    hideWindow,
     mergeWindowPosition: positionController.mergeWindowPosition,
     readCurrentWindowPosition: positionController.readCurrentWindowPosition,
     registerWindowMoveSave: positionController.registerWindowMoveSave,

@@ -245,8 +245,9 @@ export const i18n = {
     onboardingModeDescription:
       "在完整面板和悬浮球之间切换，按使用场景选择显示方式。",
     onboardingSettings: "打开设置，配置主题、语言等",
-    onboardingSettingsTitle: "打开设置",
-    onboardingSettingsDescription: "配置主题、语言等个性化选项，打造专属体验。",
+    onboardingSettingsTitle: "右键快捷菜单",
+    onboardingSettingsDescription:
+      "右键单击悬浮球或面板，可快捷打开设置、切换数据源、切换主题或放至托盘。",
     onboardingRefresh: "手动刷新额度",
     onboardingRefreshTitle: "手动刷新额度",
     onboardingRefreshDescription: "立即重新读取 Codex CLI 额度，获取最新状态。",
@@ -370,9 +371,9 @@ export const i18n = {
     onboardingModeDescription:
       "Switch between full panel and floating ball for different workflows.",
     onboardingSettings: "Open settings for theme, language, and more",
-    onboardingSettingsTitle: "Open settings",
+    onboardingSettingsTitle: "Quick Menu",
     onboardingSettingsDescription:
-      "Configure theme, language, and other personal preferences.",
+      "Right-click the floating ball or panel to access settings, switch data sources, toggle themes, or minimize to tray.",
     onboardingRefresh: "Refresh quota manually",
     onboardingRefreshTitle: "Refresh quota manually",
     onboardingRefreshDescription:

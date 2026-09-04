@@ -1,0 +1,170 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+:root {
+  --bg-panel: rgba(20, 24, 30, 0.97);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --text-primary: #f0f6fc;
+  --text-secondary: rgba(255, 255, 255, 0.5);
+  --item-hover-bg: rgba(255, 255, 255, 0.07);
+  --item-active-bg: rgba(255, 255, 255, 0.12);
+  --separator-color: rgba(255, 255, 255, 0.07);
+  --accent-color: #00e5ff;
+  --accent-dim: rgba(0, 229, 255, 0.14);
+  --accent-hover-dim: rgba(0, 229, 255, 0.25);
+}
+
+/* 烈焰熔核 (Pyro) 主题联动 */
+[data-theme="pyro"] {
+  --bg-panel: rgba(22, 14, 10, 0.97);
+  --border-color: rgba(255, 122, 0, 0.2);
+  --item-hover-bg: rgba(255, 122, 0, 0.1);
+  --item-active-bg: rgba(255, 122, 0, 0.18);
+  --separator-color: rgba(255, 122, 0, 0.1);
+  --accent-color: #ff9800;
+  --accent-dim: rgba(255, 152, 0, 0.15);
+  --accent-hover-dim: rgba(255, 152, 0, 0.26);
+}
+
+html,
+body.quick-menu-body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  overflow: hidden !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  color: var(--text-primary);
+}
+
+.quick-menu-container {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* 菜单列表 */
+.menu-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+
+/* 每一行菜单项 */
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 9px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  text-align: left;
+  transition: background 0.12s ease;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  background: var(--item-hover-bg);
+}
+
+.menu-item:active {
+  background: var(--item-active-bg);
+}
+
+/* 图标容器：所有选项统一拥有圆角磁贴背景，全部跟随主题主色调 */
+.menu-item-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 5px;
+  color: var(--accent-color);
+  background: var(--accent-dim);
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.menu-item:hover .menu-item-icon {
+  background: var(--accent-hover-dim);
+  transform: scale(1.05);
+}
+
+/* 标签 */
+.menu-item-label {
+  flex: 1;
+}
+
+/* 数据源胶囊微型标签 */
+.source-badge {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  max-width: 66px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme="pyro"] .source-badge {
+  background: rgba(255, 122, 0, 0.1);
+  border-color: rgba(255, 122, 0, 0.15);
+}
+
+/* 分割线 */
+.menu-separator {
+  height: 1px;
+  margin: 3px 6px;
+  background: var(--separator-color);
+}
+
+/* 刷新旋转动画 */
+.spinning {
+  animation: spinAnim 0.75s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes spinAnim {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

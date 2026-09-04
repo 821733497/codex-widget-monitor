@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { emit, listen } from "@tauri-apps/api/event";
 import {
   availableMonitors,
   currentMonitor,
@@ -19,14 +19,20 @@ export function createTauriService() {
       getQuota: () => invoke("get_quota"),
       getResetCreditExpiries: () => invoke("get_reset_credit_expiries"),
       getSettings: () => invoke("get_settings"),
+      hideQuickMenu: () => invoke("hide_quick_menu"),
       hideWindow: () => invoke("hide_window"),
       setSkipTaskbar: (skip) => invoke("set_skip_taskbar", { skip }),
       saveSettings: (settings) => invoke("save_settings", { settings }),
       setAlwaysOnTop: (value) => invoke("set_always_on_top", { value }),
+      showQuickMenu: (x, y) => invoke("show_quick_menu", { x, y }),
       switchActiveTarget: (target) =>
         invoke("switch_active_target", { target }),
       testSub2apiConnection: (baseUrl, apiKey) =>
         invoke("test_sub2api_connection", { baseUrl, apiKey }),
+      updateTrayIcon: (rgba, width, height) =>
+        invoke("update_tray_icon", { rgba, width, height }),
+      updateTraySource: (sourceName) =>
+        invoke("update_tray_source", { sourceName }),
       writeFrontendLog: (level, message, context) =>
         invoke("write_frontend_log", { level, message, context }),
     },
@@ -41,6 +47,7 @@ export function createTauriService() {
       check: (options) => check(options),
     },
     events: {
+      emit,
       listen,
     },
     window: {

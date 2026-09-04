@@ -16,6 +16,8 @@ import {
 } from "./state.js";
 import { createTauriService } from "./tauri-service.js";
 import { createSourcePickerController } from "./source-picker-controller.js";
+import { createContextMenuController } from "./context-menu-controller.js";
+import { createTrayPresentationManager } from "./tray-presentation.js";
 import { createTooltipController } from "./tooltip-controller.js";
 import { createUpdateController } from "./update-controller.js";
 import { createWindowController } from "./window-controller.js";
@@ -149,6 +151,7 @@ export function createApp(dependencies = {}) {
     logger,
     clearPanelClick: windowController.clearPanelClick,
     adjustWindowForSettings: windowController.adjustWindowForSettings,
+    setWidgetMode: windowController.setWidgetMode,
   });
 
   const sourcePickerController = (
@@ -165,6 +168,14 @@ export function createApp(dependencies = {}) {
     getLocale: () => renderLocale(state),
   });
 
+  const trayPresentationManager = (
+    factories.createTrayPresentationManager || createTrayPresentationManager
+  )({
+    service,
+    state,
+    logger,
+  });
+
   const renderer = (factories.createRenderer || createRenderer)({
     els,
     state,
@@ -174,12 +185,29 @@ export function createApp(dependencies = {}) {
     settingsView: settingsController,
     sourcePickerView: sourcePickerController,
   });
-  render = renderer.render;
+  render = () => {
+    renderer.render();
+    trayPresentationManager.update();
+  };
+
+  const contextMenuController = (
+    factories.createContextMenuController || createContextMenuController
+  )({
+    state,
+    service,
+    openSettings: settingsController.openSettingsPanel,
+    sourcePickerController,
+    refreshQuota: quotaController.refreshQuota,
+    cycleTheme,
+    hideWindow: windowController.hideWindow,
+    logger,
+  });
 
   function bindEvents() {
     windowController.bindEvents();
     settingsController.bindEvents();
     sourcePickerController.bindEvents();
+    contextMenuController.bindEvents();
     onboardingController.bindEvents();
     tooltipController.bindEvents();
     els.pinBtn.addEventListener("click", toggleAlwaysOnTop);
@@ -187,6 +215,12 @@ export function createApp(dependencies = {}) {
       quotaController.refreshQuota(),
     );
     els.themeSwitchBtn?.addEventListener("click", cycleTheme);
+
+    if (service.isAvailable() && service.events?.listen) {
+      service.events.listen("settings:open-requested", () => {
+        void settingsController.openSettingsPanel("basic");
+      });
+    }
   }
 
   async function cycleTheme() {

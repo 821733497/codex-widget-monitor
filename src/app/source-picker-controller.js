@@ -1,5 +1,3 @@
-import { WIDGET_MODES } from "./constants.js";
-
 export function createSourcePickerController({
   els,
   state,
@@ -15,7 +13,6 @@ export function createSourcePickerController({
     els.sourcePickerBtn?.addEventListener("click", cycleToNextSource);
     els.activeSourceIndicator?.addEventListener("click", togglePanelMenu);
     document.addEventListener("click", handleDocumentClick);
-    document.addEventListener("contextmenu", handleContextMenu);
   }
 
   function handleDocumentClick(event) {
@@ -73,12 +70,6 @@ export function createSourcePickerController({
       ? `${nextItem.group} · ${nextItem.label}`
       : nextItem.label;
     showSwitchToast(toastLabel);
-  }
-
-  async function handleContextMenu(event) {
-    event.preventDefault();
-    if (state.widgetMode !== WIDGET_MODES.BALL) return;
-    await cycleToNextSource(event);
   }
 
   function togglePanelMenu(event) {
@@ -272,5 +263,8 @@ export function createSourcePickerController({
     bindEvents,
     closePanelMenu,
     updatePickerLabel,
+    buildSourceItems,
+    switchSource,
+    cycleToNextSource,
   };
 }
