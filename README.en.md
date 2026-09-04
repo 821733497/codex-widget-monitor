@@ -19,26 +19,36 @@ MIT permits use, modification, and redistribution. When publishing a derived ver
 
 The upstream instructions that still apply—installation, Codex CLI path selection, floating-ball controls, and basic settings—are retained below and updated for this fork. The old theme gallery, legacy screenshots, and the long formula-only documentation for official quota estimation were removed because they do not describe the third-party usage mode.
 
-## Features
+## Features added by this fork
 
-- **Official Codex CLI**: reads the quota from the local signed-in Codex CLI.
-- **Third-party providers**: configure multiple sites, multiple keys per site, connection tests, editing/deletion, and activation of a selected key.
-- **sub2api usage cards**: shows today’s cost, cycle quota (limit/used/remaining), and the weekly-window reset.
-- **Source switching**: switch between the official CLI and configured providers from the source button or the “中转站” settings tab.
-- **Panel and floating ball**: left/right edge docking, `88px` / `64px` ball sizes, and a selectable meter window.
-- **Refresh and status feedback**: refreshes every five minutes by default; colors distinguish healthy, low, error, and loading states.
-- **Themes and language**: Holo 3D Core, Pyro Core, Chinese, and English.
-- **Desktop behavior**: start at login, always-on-top, tray hiding, and macOS menu-bar mode where supported by the platform build.
+Compared with the upstream project, this fork mainly adds and maintains:
+
+- **Third-party provider adapter**: reads today cost, cycle quota, and weekly-window data from a compatible `sub2api` usage endpoint.
+- **Multi-site management**: configure multiple provider sites and normalize their `/v1/usage` request URL.
+- **Multi-key management**: store multiple API keys per site with masking, editing, deletion, and activation.
+- **Connection testing**: validate a provider before saving or switching, with clear success, authentication, and API error feedback.
+- **Source switching**: switch between the official Codex CLI and a provider, with the active site and key shown in the main panel.
+- **Provider-specific quota cards**: render “today cost / cycle quota / weekly window” without applying the official CLI estimate logic.
+
+The upstream panel, floating ball, edge docking, themes, refresh, and desktop settings remain available but are not repeated here; installation and basic usage are documented below.
 
 ## Screenshots
 
-### Third-party usage monitoring
+### Third-party usage monitoring (Holo 3D Core)
 
 ![Third-party usage dashboard](docs/assets/third-party-usage-dashboard.png)
 
 ### Provider and key management
 
 ![Provider settings](docs/assets/provider-settings.png)
+
+### Pyro Core theme
+
+![Pyro Core theme](docs/assets/theme-pyro.png)
+
+### Floating-ball mode
+
+![Floating-ball mode](docs/assets/floating-ball.png)
 
 These images are rendered from the current branch’s frontend components and styles. Keys are masked; never place real credentials in screenshots, README files, or Issues.
 
