@@ -88,7 +88,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJFMDk5ODQxMjEwMDY4QTgKUldTb2FBQWhRWmdKTHBPam9MQWZWRk8ybU55TElianVmY2RhM2ZtRGJhV0xQVE55cC9jWkdRdncK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJFN0M0MDkxNTQ4MTI3ODgKUldTSUo0RlVrVUI4TG93S2pvajl6a1FoNGZoV0J1YklNL3J5VUptWjB2QlZEMmFZOHQrdkNRSi8K",
       "endpoints": [
         "https://github.com/821733497/codex-widget-monitor/releases/latest/download/latest.json"
       ],
