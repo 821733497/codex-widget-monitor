@@ -76,7 +76,7 @@ pub(crate) fn set_always_on_top_authoritative(
     value: bool,
 ) -> tauri::Result<bool> {
     // 窗口属性是权威状态；托盘与事件只是投影，投影失败不能把已成功操作报告成失败。
-    window.set_always_on_top(value)?;
+    let _ = window.set_always_on_top(value);
     let state = app.state::<AppState>();
     state.always_on_top.store(value, Ordering::SeqCst);
 
@@ -91,11 +91,11 @@ pub(crate) fn set_always_on_top_authoritative(
 
 fn toggle_window(app: &AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window(MAIN_WINDOW_LABEL) {
-        if window.is_visible()? {
-            window.hide()?;
+        if window.is_visible().unwrap_or(false) {
+            let _ = window.hide();
         } else {
-            window.show()?;
-            window.set_focus()?;
+            let _ = window.show();
+            let _ = window.set_focus();
         }
     }
     Ok(())

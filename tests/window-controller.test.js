@@ -6,7 +6,7 @@ import { createWindowController } from "../src/app/window-controller.js";
 
 const WORK_AREA = {
   position: { x: 0, y: 0 },
-  size: { width: 1920, height: 1040 }
+  size: { width: 1920, height: 1040 },
 };
 
 describe("窗口模式事务", () => {
@@ -37,10 +37,19 @@ describe("窗口模式事务", () => {
     expect(fixture.state.settings).toMatchObject({
       widgetMode: WIDGET_MODES.BALL,
       panelPosition: { x: 120, y: 90 },
-      ballPosition: { x: 600, y: 240 }
+      ballPosition: { x: 600, y: 240 },
     });
     expect(fixture.native.size).toEqual({ width: 88, height: 88 });
     expect(fixture.state.errors.window).toBe("");
+  });
+
+  it("小尺寸配置下切换悬浮球模式使用 64x64", async () => {
+    const fixture = createFixture();
+    fixture.state.settings.ballSize = "small";
+
+    await fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
+
+    expect(fixture.native.size).toEqual({ width: 64, height: 64 });
   });
 
   it("忙碌期间相同意图合并且保持原生操作串行", async () => {
@@ -54,13 +63,15 @@ describe("窗口模式事务", () => {
         fixture.native.size = { ...size };
         if (activeWrites === 1) await firstSizeWrite.promise;
         activeWrites -= 1;
-      })
+      }),
     });
 
     const first = fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
     const second = fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
     const third = fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
-    await vi.waitFor(() => expect(fixture.service.window.setSize).toHaveBeenCalledOnce());
+    await vi.waitFor(() =>
+      expect(fixture.service.window.setSize).toHaveBeenCalledOnce(),
+    );
     firstSizeWrite.resolve();
     await Promise.all([first, second, third]);
 
@@ -75,11 +86,13 @@ describe("窗口模式事务", () => {
       setSize: vi.fn(async (size) => {
         fixture.native.size = { ...size };
         if (size.width === 88) await ballSizeWrite.promise;
-      })
+      }),
     });
 
     const toBall = fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
-    await vi.waitFor(() => expect(fixture.service.window.setSize).toHaveBeenCalledOnce());
+    await vi.waitFor(() =>
+      expect(fixture.service.window.setSize).toHaveBeenCalledOnce(),
+    );
     const backToPanel = fixture.controller.setWidgetMode(WIDGET_MODES.PANEL);
     ballSizeWrite.resolve();
     await Promise.all([toBall, backToPanel]);
@@ -109,7 +122,7 @@ describe("窗口模式事务", () => {
 
   it("设置保存失败时回滚原生窗口和前端状态", async () => {
     const fixture = createFixture({
-      persistSettings: vi.fn().mockRejectedValue(new Error("保存失败"))
+      persistSettings: vi.fn().mockRejectedValue(new Error("保存失败")),
     });
 
     await fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
@@ -127,11 +140,13 @@ describe("窗口模式事务", () => {
       setSize: vi.fn(async (size) => {
         fixture.native.size = { ...size };
         await sizeWrite.promise;
-      })
+      }),
     });
     await fixture.controller.registerWindowMoveSave();
     const transition = fixture.controller.setWidgetMode(WIDGET_MODES.BALL);
-    await vi.waitFor(() => expect(fixture.service.window.setSize).toHaveBeenCalledOnce());
+    await vi.waitFor(() =>
+      expect(fixture.service.window.setSize).toHaveBeenCalledOnce(),
+    );
 
     fixture.native.onMoved?.();
     expect(fixture.state.isApplyingWindowMode).toBe(true);
@@ -157,12 +172,43 @@ describe("窗口模式事务", () => {
     expect(fixture.state.widgetMode).toBe(WIDGET_MODES.PANEL);
     expect(fixture.persistSettings).toHaveBeenCalledOnce();
   });
+
+  it("打开设置调整为 SETTINGS_PANEL_SIZE 并在关闭后恢复 PANEL_SIZE", async () => {
+    const fixture = createFixture();
+    await fixture.controller.adjustWindowForSettings(true);
+    expect(fixture.native.size).toEqual({ width: 800, height: 500 });
+
+    await fixture.controller.adjustWindowForSettings(false);
+    expect(fixture.native.size).toEqual({ width: 390, height: 236 });
+  });
+
+  it("设置面板打开时双击不切换小组件模式", async () => {
+    const fixture = createFixture();
+    fixture.state.settingsOpen = true;
+    fixture.controller.bindEvents();
+
+    await fixture.els.widget.emit("pointerdown", {
+      button: 0,
+      screenX: 100,
+      screenY: 100,
+      preventDefault: vi.fn(),
+    });
+    vi.advanceTimersByTime(50);
+    await fixture.els.widget.emit("pointerdown", {
+      button: 0,
+      screenX: 102,
+      screenY: 101,
+      preventDefault: vi.fn(),
+    });
+
+    expect(fixture.state.widgetMode).toBe(WIDGET_MODES.PANEL);
+  });
 });
 
 function createFixture({
   initialMode = WIDGET_MODES.PANEL,
   persistSettings: customPersistSettings,
-  setSize: customSetSize
+  setSize: customSetSize,
 } = {}) {
   const state = createAppState();
   applyNormalizedSettings(state, {
@@ -170,12 +216,18 @@ function createFixture({
     widgetMode: initialMode,
     panelPosition: { x: 120, y: 90 },
     ballPosition: { x: 600, y: 240 },
-    ballDock: null
+    ballDock: null,
   });
   const native = {
-    position: initialMode === WIDGET_MODES.BALL ? { x: 600, y: 240 } : { x: 120, y: 90 },
-    size: initialMode === WIDGET_MODES.BALL ? { width: 88, height: 88 } : { width: 390, height: 236 },
-    onMoved: null
+    position:
+      initialMode === WIDGET_MODES.BALL
+        ? { x: 600, y: 240 }
+        : { x: 120, y: 90 },
+    size:
+      initialMode === WIDGET_MODES.BALL
+        ? { width: 88, height: 88 }
+        : { width: 390, height: 236 },
+    onMoved: null,
   };
   const els = createElements();
   const render = vi.fn();
@@ -183,7 +235,8 @@ function createFixture({
     isAvailable: () => true,
     commands: {
       closeApp: vi.fn(),
-      hideWindow: vi.fn()
+      hideWindow: vi.fn(),
+      setSkipTaskbar: vi.fn(),
     },
     window: {
       availableMonitors: vi.fn(async () => [{ workArea: WORK_AREA }]),
@@ -198,18 +251,24 @@ function createFixture({
       setPosition: vi.fn(async (position) => {
         native.position = { ...position };
       }),
-      setSize: customSetSize || vi.fn(async (size) => {
-        native.size = { ...size };
-      }),
-      startDragging: vi.fn()
-    }
+      setSize:
+        customSetSize ||
+        vi.fn(async (size) => {
+          native.size = { ...size };
+        }),
+      startDragging: vi.fn(),
+    },
   };
-  const persistSettings = customPersistSettings || vi.fn(async (updateSettings, options = {}) => {
-    const saved = updateSettings(state.settings);
-    applyNormalizedSettings(state, saved, { syncDraft: options.syncDraft ?? true });
-    render();
-    return saved;
-  });
+  const persistSettings =
+    customPersistSettings ||
+    vi.fn(async (updateSettings, options = {}) => {
+      const saved = updateSettings(state.settings);
+      applyNormalizedSettings(state, saved, {
+        syncDraft: options.syncDraft ?? true,
+      });
+      render();
+      return saved;
+    });
   const logger = { error: vi.fn() };
   const controller = createWindowController({
     els,
@@ -217,10 +276,19 @@ function createFixture({
     service,
     render,
     persistSettings,
-    logger
+    logger,
   });
 
-  return { controller, els, logger, native, persistSettings, render, service, state };
+  return {
+    controller,
+    els,
+    logger,
+    native,
+    persistSettings,
+    render,
+    service,
+    state,
+  };
 }
 
 function createElements() {
@@ -228,7 +296,7 @@ function createElements() {
     widget: createEventTarget(),
     modeBtn: createEventTarget(),
     minimizeBtn: createEventTarget(),
-    closeBtn: createEventTarget()
+    closeBtn: createEventTarget(),
   };
 }
 
@@ -241,11 +309,13 @@ function createEventTarget() {
       listeners.set(type, handlers);
     }),
     async emit(type, event) {
-      const results = (listeners.get(type) || []).map((handler) => handler(event));
+      const results = (listeners.get(type) || []).map((handler) =>
+        handler(event),
+      );
       await Promise.all(results);
     },
     releasePointerCapture: vi.fn(),
-    setPointerCapture: vi.fn()
+    setPointerCapture: vi.fn(),
   };
 }
 

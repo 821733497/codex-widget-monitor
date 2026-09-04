@@ -32,6 +32,8 @@ pub enum ThemeMode {
     Basic1,
     Basic2,
     Basic3,
+    Holo,
+    Pyro,
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -66,11 +68,56 @@ pub enum BallDock {
     Right,
 }
 
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum BallSize {
+    #[default]
+    Medium,
+    Small,
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct WindowPosition {
     pub x: i32,
     pub y: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ApiKeyConfig {
+    pub id: String,
+    pub name: String,
+    pub key: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SiteConfig {
+    pub id: String,
+    pub name: String,
+    pub base_url: String,
+    #[serde(default)]
+    pub keys: Vec<ApiKeyConfig>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub enum ActiveTarget {
+    Official,
+    #[serde(rename_all = "camelCase")]
+    SiteKey {
+        #[serde(alias = "site_id")]
+        site_id: String,
+        #[serde(alias = "key_id")]
+        key_id: String,
+    },
+}
+
+impl Default for ActiveTarget {
+    fn default() -> Self {
+        Self::Official
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -110,6 +157,12 @@ pub struct AppSettings {
     pub ball_position: Option<WindowPosition>,
     #[serde(default)]
     pub ball_dock: Option<BallDock>,
+    #[serde(default)]
+    pub ball_size: BallSize,
+    #[serde(default)]
+    pub sites: Vec<SiteConfig>,
+    #[serde(default)]
+    pub active_target: ActiveTarget,
 }
 
 impl Default for AppSettings {
@@ -132,6 +185,9 @@ impl Default for AppSettings {
             panel_position: None,
             ball_position: None,
             ball_dock: None,
+            ball_size: BallSize::default(),
+            sites: Vec::new(),
+            active_target: ActiveTarget::default(),
         }
     }
 }
@@ -241,6 +297,8 @@ fn validate_and_normalize(mut settings: AppSettings) -> Result<AppSettings> {
         ));
     }
 
+    normalize_sites_and_target(&mut settings.sites, &mut settings.active_target);
+
     Ok(settings)
 }
 
@@ -254,7 +312,29 @@ fn normalize_loaded_settings(mut settings: AppSettings) -> AppSettings {
     if !is_valid_refresh_interval(settings.refresh_interval_minutes) {
         settings.refresh_interval_minutes = DEFAULT_REFRESH_INTERVAL_MINUTES;
     }
+    normalize_sites_and_target(&mut settings.sites, &mut settings.active_target);
     settings
+}
+
+fn normalize_sites_and_target(sites: &mut Vec<SiteConfig>, active_target: &mut ActiveTarget) {
+    for site in sites.iter_mut() {
+        site.id = site.id.trim().to_string();
+        site.name = site.name.trim().to_string();
+        site.base_url = site.base_url.trim().to_string();
+        for key in site.keys.iter_mut() {
+            key.id = key.id.trim().to_string();
+            key.name = key.name.trim().to_string();
+            key.key = key.key.trim().to_string();
+        }
+    }
+    if let ActiveTarget::SiteKey { site_id, key_id } = active_target {
+        let exists = sites.iter().any(|s| {
+            s.id == *site_id && s.keys.iter().any(|k| k.id == *key_id)
+        });
+        if !exists {
+            *active_target = ActiveTarget::Official;
+        }
+    }
 }
 
 fn default_refresh_interval_minutes() -> u16 {
@@ -441,6 +521,8 @@ mod tests {
             panel_position: Some(WindowPosition { x: 120, y: 80 }),
             ball_position: Some(WindowPosition { x: 1800, y: 240 }),
             ball_dock: Some(BallDock::Right),
+            sites: vec![],
+            active_target: ActiveTarget::Official,
         };
 
         let saved = save_to_path(&path, settings).unwrap();

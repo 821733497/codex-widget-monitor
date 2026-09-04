@@ -3,11 +3,12 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_SETTINGS } from "../src/app/constants.js";
 import {
   normalizeBallDock,
+  normalizeBallSize,
   normalizeDataBars,
   normalizeInputValue,
   normalizeSettings,
   normalizeWindowPosition,
-  resolveDataBars
+  resolveDataBars,
 } from "../src/app/settings-model.js";
 
 describe("设置标准化", () => {
@@ -15,38 +16,42 @@ describe("设置标准化", () => {
     const settings = normalizeSettings({
       refreshIntervalMinutes: 1440,
       locale: "en",
-      theme: "basic2",
+      theme: "pyro",
       meterWindow: "primary",
       dataBars: ["weekly", "weekly", "quotaEstimate"],
       logLevel: "debug",
       hideDockIcon: true,
       widgetMode: "ball",
       panelPosition: { x: -10.6, y: 20.4 },
-      ballDock: "right"
+      ballDock: "right",
     });
 
     expect(settings).toMatchObject({
       refreshIntervalMinutes: 1440,
       locale: "en",
-      theme: "basic2",
+      theme: "pyro",
       meterWindow: "primary",
       dataBars: ["weekly", "weekly", "quotaEstimate"],
       logLevel: "debug",
       hideDockIcon: true,
       widgetMode: "ball",
       panelPosition: { x: -11, y: 20 },
-      ballDock: "right"
+      ballDock: "right",
     });
   });
 
   it.each([0, 1441, Number.NaN])("无效刷新间隔 %s 回退默认值", (value) => {
-    expect(normalizeSettings({ refreshIntervalMinutes: value }).refreshIntervalMinutes)
-      .toBe(DEFAULT_SETTINGS.refreshIntervalMinutes);
+    expect(
+      normalizeSettings({ refreshIntervalMinutes: value })
+        .refreshIntervalMinutes,
+    ).toBe(DEFAULT_SETTINGS.refreshIntervalMinutes);
   });
 
   it("旧配置和非法 Dock 设置回退显示图标", () => {
     expect(normalizeSettings({}).hideDockIcon).toBe(false);
-    expect(normalizeSettings({ hideDockIcon: "true" }).hideDockIcon).toBe(false);
+    expect(normalizeSettings({ hideDockIcon: "true" }).hideDockIcon).toBe(
+      false,
+    );
   });
 
   it("拒绝无效位置、停靠方向并清理空文本", () => {
@@ -57,17 +62,41 @@ describe("设置标准化", () => {
   });
 
   it("数据栏严格要求三个合法值并允许重复", () => {
-    expect(normalizeDataBars(["weekly", "weekly", "quotaEstimate"]))
-      .toEqual(["weekly", "weekly", "quotaEstimate"]);
+    expect(normalizeDataBars(["weekly", "weekly", "quotaEstimate"])).toEqual([
+      "weekly",
+      "weekly",
+      "quotaEstimate",
+    ]);
     expect(normalizeDataBars(["weekly", "quotaEstimate"])).toBeNull();
     expect(normalizeDataBars(["weekly", "bad", "quotaEstimate"])).toBeNull();
   });
 
   it("未自定义数据栏时按套餐选择默认布局", () => {
-    expect(resolveDataBars(null, " PLUS ")).toEqual(["fiveHour", "weekly", "quotaEstimate"]);
-    expect(resolveDataBars(null, "business")).toEqual(["quotaEstimate", "weekly", "resetCredits"]);
-    expect(resolveDataBars(null, null)).toEqual(["quotaEstimate", "weekly", "resetCredits"]);
-    expect(resolveDataBars(["fiveHour", "fiveHour", "fiveHour"], "plus"))
-      .toEqual(["fiveHour", "fiveHour", "fiveHour"]);
+    expect(resolveDataBars(null, " PLUS ")).toEqual([
+      "fiveHour",
+      "weekly",
+      "quotaEstimate",
+    ]);
+    expect(resolveDataBars(null, "business")).toEqual([
+      "quotaEstimate",
+      "weekly",
+      "resetCredits",
+    ]);
+    expect(resolveDataBars(null, null)).toEqual([
+      "quotaEstimate",
+      "weekly",
+      "resetCredits",
+    ]);
+    expect(
+      resolveDataBars(["fiveHour", "fiveHour", "fiveHour"], "plus"),
+    ).toEqual(["fiveHour", "fiveHour", "fiveHour"]);
+  });
+
+  it("悬浮球尺寸仅允许 small 或 medium，非法值回退 medium", () => {
+    expect(normalizeBallSize("small")).toBe("small");
+    expect(normalizeBallSize("medium")).toBe("medium");
+    expect(normalizeBallSize("invalid")).toBe("medium");
+    expect(normalizeSettings({ ballSize: "small" }).ballSize).toBe("small");
+    expect(normalizeSettings({ ballSize: "large" }).ballSize).toBe("medium");
   });
 });

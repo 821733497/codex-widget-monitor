@@ -1,0 +1,422 @@
+body[data-theme="pyro"] {
+  --pyro-gold: #fbbf24;
+  --pyro-flame: #ef4444;
+  --pyro-magma: #b91c1c;
+  --pyro-accent: #f59e0b;
+  --pyro-accent-deep: #b45309;
+  --pyro-accent-rgb: 245, 158, 11;
+  --pyro-panel: rgba(20, 11, 10, 0.95);
+  --pyro-card: rgba(35, 18, 16, 0.65);
+  --pyro-card-strong: rgba(48, 24, 20, 0.82);
+  --pyro-line: rgba(245, 158, 11, 0.22);
+  --pyro-text: rgba(254, 243, 199, 0.96);
+  --pyro-muted: rgba(253, 230, 138, 0.72);
+  --pyro-faint: rgba(252, 211, 77, 0.45);
+  --settings-accent-color: var(--pyro-accent);
+  --settings-accent-soft: rgba(var(--pyro-accent-rgb), 0.22);
+  --settings-text-color: var(--pyro-text);
+  --settings-muted-color: var(--pyro-muted);
+}
+
+body[data-theme="pyro"] .settings-panel {
+  background: #140b0a !important;
+}
+
+body[data-theme="pyro"] {
+  --widget-surface-background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(245, 158, 11, 0.18),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 80% 85%,
+      rgba(239, 68, 68, 0.16),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(32, 16, 14, 0.96),
+      rgba(18, 9, 8, 0.98) 60%,
+      rgba(10, 5, 4, 1)
+    );
+  --widget-surface-shadow:
+    inset 0 0 0 1px rgba(245, 158, 11, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.5), 0 0 24px rgba(245, 158, 11, 0.15);
+  --widget-surface-backdrop: blur(28px) saturate(1.4);
+  --meter-primary-color: #ffffff;
+}
+
+body[data-theme="pyro"][data-state="low"] {
+  --pyro-accent: #f87171;
+  --pyro-accent-deep: #dc2626;
+  --pyro-accent-rgb: 248, 113, 113;
+}
+
+body[data-theme="pyro"][data-state="critical"],
+body[data-theme="pyro"][data-state="empty"],
+body[data-theme="pyro"][data-state="error"] {
+  --pyro-accent: #ef4444;
+  --pyro-accent-deep: #7f1d1d;
+  --pyro-accent-rgb: 239, 68, 68;
+}
+
+/* 标题栏与文字 */
+body[data-theme="pyro"] .titlebar h1 {
+  color: var(--pyro-text);
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.45);
+}
+
+body[data-theme="pyro"] .titlebar p {
+  color: var(--pyro-accent);
+}
+
+/* 卡片样式 */
+body[data-theme="pyro"] .quota-card {
+  background: var(--pyro-card);
+  border: 1px solid var(--pyro-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 12px rgba(10, 3, 2, 0.4);
+}
+
+body[data-theme="pyro"] .quota-card:hover {
+  background: var(--pyro-card-strong);
+  border-color: rgba(245, 158, 11, 0.45);
+}
+
+body[data-theme="pyro"] .quota-card strong {
+  max-width: 95px;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 850;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+}
+
+body[data-theme="pyro"] .quota-card .quota-icon {
+  color: var(--pyro-accent);
+}
+
+body[data-theme="pyro"] .quota-card .quota-copy span {
+  color: var(--pyro-text);
+}
+
+body[data-theme="pyro"] .quota-card .quota-subtext {
+  color: var(--pyro-muted);
+}
+
+body[data-theme="pyro"] .quota-card .quota-sub-value {
+  color: var(--pyro-accent);
+}
+
+/* 状态栏 */
+body[data-theme="pyro"] .status {
+  border-top: 1px solid rgba(245, 158, 11, 0.16);
+  color: var(--pyro-muted);
+}
+
+body[data-theme="pyro"] .status-dot {
+  background: var(--pyro-accent);
+  box-shadow: 0 0 8px var(--pyro-accent);
+}
+
+/* =========================================================
+   悬浮球模式下的全局穿透重置（彻底消除黑底盘与正方形切边）
+   ========================================================= */
+body[data-theme="pyro"][data-widget-mode="ball"] .widget,
+body[data-theme="pyro"] .widget[data-widget-mode="ball"] {
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: var(--ball-size, 88px) !important;
+  height: var(--ball-size, 88px) !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  overflow: hidden !important;
+  -webkit-mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+  mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+}
+
+body[data-theme="pyro"][data-widget-mode="ball"] .widget::before,
+body[data-theme="pyro"][data-widget-mode="ball"] .widget::after,
+body[data-theme="pyro"][data-widget-mode="ball"] .titlebar,
+body[data-theme="pyro"][data-widget-mode="ball"] .quota-panel,
+body[data-theme="pyro"][data-widget-mode="ball"] .status,
+body[data-theme="pyro"][data-widget-mode="ball"] .settings-panel {
+  display: none !important;
+}
+
+body[data-theme="pyro"][data-widget-mode="ball"] .content {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  cursor: grab;
+}
+
+body[data-theme="pyro"][data-widget-mode="ball"] .meter-host {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* =========================================================
+   3D 烈焰熔核专属球体样式 (Pyro Meter)
+   ========================================================= */
+.pyro-meter {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+/* 外围烈焰漫反射暖光（仅在面板模式下展示） */
+.pyro-meter-glow {
+  position: absolute;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(245, 158, 11, 0.45) 0%,
+    rgba(239, 68, 68, 0.15) 50%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+  animation: pyroGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes pyroGlowPulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+/* 核心圆球容器（深邃高透赤金力场，无黑塑料底，靠光泽自然勾勒立体） */
+.pyro-sphere-container {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 24px rgba(245, 158, 11, 0.55),
+    inset 0 2px 5px rgba(255, 255, 255, 0.55),
+    inset 0 -12px 24px rgba(185, 28, 28, 0.45);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(245, 158, 11, 0.12) 0%,
+    rgba(239, 68, 68, 0.22) 65%,
+    rgba(127, 29, 29, 0.38) 100%
+  );
+  z-index: 2;
+}
+
+.pyro-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+/* 顶部暖金微弧反射 */
+.pyro-glass-reflect {
+  position: absolute;
+  top: 3px;
+  left: 15%;
+  width: 70%;
+  height: 42%;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(254, 240, 138, 0.2) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(0.5px);
+}
+
+.pyro-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* 高对比烈焰黑曜石文字：无论在亮色高光还是暗红水体下均清晰可见 */
+.pyro-percent {
+  font-family: ui-monospace, "SF Pro Display", "SF Mono", monospace;
+  font-size: 27px;
+  font-weight: 900;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow:
+    0 0 3px #000000,
+    0 0 8px rgba(0, 0, 0, 0.95),
+    0 2px 4px rgba(0, 0, 0, 1),
+    0 0 16px rgba(245, 158, 11, 0.9);
+}
+
+.pyro-label {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fef08a;
+  letter-spacing: 1px;
+  text-shadow:
+    0 0 3px #000000,
+    0 1px 3px rgba(0, 0, 0, 0.95),
+    0 0 8px rgba(245, 158, 11, 0.8);
+}
+
+/* =========================================================
+   悬浮球模式适配 (88px 纯净正圆全息日冕火球)
+   ========================================================= */
+.pyro-meter[data-mode="ball"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.pyro-meter[data-mode="ball"] .pyro-meter-glow {
+  display: none !important;
+}
+
+.pyro-meter[data-mode="ball"] .pyro-sphere-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset 0 0 20px rgba(245, 158, 11, 0.55),
+    inset 0 1.5px 4px rgba(255, 255, 255, 0.5),
+    inset 0 -10px 20px rgba(185, 28, 28, 0.4) !important;
+}
+
+.pyro-meter[data-mode="ball"] .pyro-percent {
+  font-size: 20px !important;
+}
+
+.pyro-meter[data-mode="ball"] .pyro-label {
+  font-size: 10px !important;
+}
+
+body[data-ball-size="small"] .pyro-meter[data-mode="ball"] .pyro-percent {
+  font-size: 15px !important;
+}
+
+body[data-ball-size="small"] .pyro-meter[data-mode="ball"] .pyro-label {
+  font-size: 9px !important;
+}
+
+/* 吸附态文字偏移到可见半球 */
+.pyro-meter[data-mode="ball"][data-dock="right"] .pyro-content {
+  transform: translateX(-18px);
+}
+
+.pyro-meter[data-mode="ball"][data-dock="left"] .pyro-content {
+  transform: translateX(18px);
+}
+
+.pyro-meter[data-mode="ball"]:not([data-dock="none"]) .pyro-percent {
+  font-size: 16px !important;
+}
+
+.pyro-meter[data-mode="ball"]:not([data-dock="none"]) .pyro-label {
+  font-size: 9px !important;
+}
+
+/* 小球吸附态适配 (64px) */
+body[data-ball-size="small"]
+  .pyro-meter[data-mode="ball"][data-dock="right"]
+  .pyro-content {
+  transform: translateX(-15px);
+}
+
+body[data-ball-size="small"]
+  .pyro-meter[data-mode="ball"][data-dock="left"]
+  .pyro-content {
+  transform: translateX(15px);
+}
+
+body[data-ball-size="small"]
+  .pyro-meter[data-mode="ball"]:not([data-dock="none"])
+  .pyro-percent {
+  font-size: 12px !important;
+  letter-spacing: -0.5px;
+}
+
+body[data-ball-size="small"]
+  .pyro-meter[data-mode="ball"]:not([data-dock="none"])
+  .pyro-label {
+  font-size: 8px !important;
+}
+
+/* =========================================================
+   低电量警戒样式
+   ========================================================= */
+.pyro-meter[data-level="low"] .pyro-meter-glow {
+  background: radial-gradient(
+    circle,
+    rgba(239, 68, 68, 0.5) 0%,
+    rgba(185, 28, 28, 0.2) 50%,
+    transparent 72%
+  );
+}
+
+.pyro-meter[data-level="low"] .pyro-sphere-container {
+  box-shadow:
+    inset 0 0 24px rgba(239, 68, 68, 0.6),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(127, 29, 29, 0.5);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(239, 68, 68, 0.2) 0%,
+    rgba(185, 28, 28, 0.35) 65%,
+    rgba(127, 29, 29, 0.5) 100%
+  );
+}
+
+.pyro-meter[data-level="low"] .pyro-percent {
+  text-shadow:
+    0 0 18px rgba(239, 68, 68, 0.98),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.pyro-meter[data-level="low"] .pyro-label {
+  color: rgba(254, 226, 226, 0.95);
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+}

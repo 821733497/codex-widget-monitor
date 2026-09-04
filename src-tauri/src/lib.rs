@@ -15,7 +15,8 @@ use app_state::AppState;
 use autostart::reconcile_auto_start;
 use commands::{
     close_app, get_always_on_top, get_quota, get_reset_credit_expiries, get_settings, hide_window,
-    open_codex, save_settings, set_always_on_top, write_frontend_log,
+    open_codex, save_settings, set_always_on_top, set_skip_taskbar, switch_active_target,
+    test_sub2api_connection, write_frontend_log,
 };
 use dock::set_dock_icon_hidden;
 use logging::LogLevel;
@@ -65,9 +66,11 @@ pub fn run() {
             let window = app
                 .get_webview_window(MAIN_WINDOW_LABEL)
                 .expect("主窗口不存在");
-            // Windows 的无边框原生阴影会附带 1px 白边，圆角加大后会在透明角落露出虚框。
-            window.set_shadow(false)?;
-            window.set_icon(load_app_icon()?)?;
+            // Windows 的无边框原生阴影会附带 1px 白边，容错设置避免因 HWND 句柄状态 panic。
+            let _ = window.set_shadow(false);
+            if let Ok(icon) = load_app_icon() {
+                let _ = window.set_icon(icon);
+            }
             let startup_settings = resolve_startup_settings(SettingsService::load(app.handle()));
             let state = app.state::<AppState>();
             state
@@ -98,21 +101,24 @@ pub fn run() {
                         .write_best_effort(LogLevel::Error, "backend.settings", &error);
                 }
             }
-            apply_startup_window_state(&window, &startup_settings.settings)?;
-            window.show()?;
-            create_tray(app.handle())?;
+            let _ = apply_startup_window_state(&window, &startup_settings.settings);
+            let _ = window.show();
+            let _ = create_tray(app.handle());
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             get_quota,
             get_reset_credit_expiries,
             hide_window,
+            set_skip_taskbar,
             close_app,
             get_always_on_top,
             set_always_on_top,
             open_codex,
             get_settings,
             save_settings,
+            switch_active_target,
+            test_sub2api_connection,
             write_frontend_log
         ])
         .run(tauri::generate_context!())

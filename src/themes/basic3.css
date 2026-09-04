@@ -24,22 +24,46 @@ body[data-theme="basic3"] {
   --basic3-gauge-rgb: 255, 82, 150;
   --remaining-angle: 0deg;
   --settings-panel-background:
-    radial-gradient(circle at 8% 0%, rgba(255, 255, 255, 0.82), transparent 36%),
-    radial-gradient(circle at 94% 100%, rgba(255, 95, 159, 0.2), transparent 36%),
+    radial-gradient(
+      circle at 8% 0%,
+      rgba(255, 255, 255, 0.82),
+      transparent 36%
+    ),
+    radial-gradient(
+      circle at 94% 100%,
+      rgba(255, 95, 159, 0.2),
+      transparent 36%
+    ),
     linear-gradient(145deg, #fff2f7, #ffd9e7);
   --settings-control-background:
-    linear-gradient(145deg, #ffffff, #ffd6e6),
-    #ffecf4;
+    linear-gradient(145deg, #ffffff, #ffd6e6), #ffecf4;
   --settings-control-border: rgba(255, 95, 159, 0.28);
   --settings-accent-color: var(--basic3-pink);
   --settings-accent-soft: rgba(255, 95, 159, 0.17);
   --settings-text-color: var(--basic3-text);
   --settings-muted-color: var(--basic3-muted);
   --widget-surface-background:
-    radial-gradient(ellipse 170px 86px at -8% -12%, rgba(255, 255, 255, 0.52), transparent 70%),
-    radial-gradient(ellipse 150px 72px at 96% 111%, rgba(255, 255, 255, 0.34), transparent 72%),
-    radial-gradient(ellipse 88px 44px at 96% 104%, rgba(255, 82, 150, 0.2), transparent 76%),
-    linear-gradient(146deg, rgba(255, 248, 252, 0.64), rgba(255, 220, 235, 0.72) 52%, rgba(255, 232, 242, 0.78)),
+    radial-gradient(
+      ellipse 170px 86px at -8% -12%,
+      rgba(255, 255, 255, 0.52),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 150px 72px at 96% 111%,
+      rgba(255, 255, 255, 0.34),
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 88px 44px at 96% 104%,
+      rgba(255, 82, 150, 0.2),
+      transparent 76%
+    ),
+    linear-gradient(
+      146deg,
+      rgba(255, 248, 252, 0.64),
+      rgba(255, 220, 235, 0.72) 52%,
+      rgba(255, 232, 242, 0.78)
+    ),
     #fff0f6;
   --widget-surface-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.76),
@@ -96,13 +120,39 @@ body[data-theme="basic3"] .widget::before {
   z-index: 0;
   opacity: 0.42;
   background:
-    radial-gradient(circle at 5.5% 8%, rgba(255, 255, 255, 0.58), transparent 6%),
-    radial-gradient(ellipse 78px 32px at 101% 101%, rgba(255, 82, 150, 0.14), transparent 74%),
-    radial-gradient(circle at 8% 61%, rgba(255, 255, 255, 0.62) 0 0.62px, transparent 0.94px),
-    radial-gradient(circle at 92% 84%, rgba(255, 255, 255, 0.58) 0 0.62px, transparent 0.94px),
+    radial-gradient(
+      circle at 5.5% 8%,
+      rgba(255, 255, 255, 0.58),
+      transparent 6%
+    ),
+    radial-gradient(
+      ellipse 78px 32px at 101% 101%,
+      rgba(255, 82, 150, 0.14),
+      transparent 74%
+    ),
+    radial-gradient(
+      circle at 8% 61%,
+      rgba(255, 255, 255, 0.62) 0 0.62px,
+      transparent 0.94px
+    ),
+    radial-gradient(
+      circle at 92% 84%,
+      rgba(255, 255, 255, 0.58) 0 0.62px,
+      transparent 0.94px
+    ),
     linear-gradient(118deg, rgba(255, 255, 255, 0.16), transparent 28%),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.014) 0 1px, transparent 1px 12px);
-  background-size: auto, auto, 76px 76px, 82px 82px, auto, auto;
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.014) 0 1px,
+      transparent 1px 12px
+    );
+  background-size:
+    auto,
+    auto,
+    76px 76px,
+    82px 82px,
+    auto,
+    auto;
 }
 
 body[data-theme="basic3"] .widget::after {
@@ -114,10 +164,28 @@ body[data-theme="basic3"] .widget::after {
   content: "";
   opacity: 0.56;
   background:
-    linear-gradient(90deg, transparent 0 96%, rgba(255, 82, 150, 0.18) 99%, rgba(255, 255, 255, 0.5) 100%),
-    linear-gradient(180deg, transparent 0 90%, rgba(255, 82, 150, 0.16) 97%, rgba(255, 255, 255, 0.5) 100%),
-    radial-gradient(ellipse 76px 30px at 100% 101%, rgba(255, 255, 255, 0.44), transparent 70%),
-    radial-gradient(ellipse 104px 46px at 106% 114%, rgba(255, 82, 150, 0.28), transparent 78%),
+    linear-gradient(
+      90deg,
+      transparent 0 96%,
+      rgba(255, 82, 150, 0.18) 99%,
+      rgba(255, 255, 255, 0.5) 100%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0 90%,
+      rgba(255, 82, 150, 0.16) 97%,
+      rgba(255, 255, 255, 0.5) 100%
+    ),
+    radial-gradient(
+      ellipse 76px 30px at 100% 101%,
+      rgba(255, 255, 255, 0.44),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 104px 46px at 106% 114%,
+      rgba(255, 82, 150, 0.28),
+      transparent 78%
+    ),
     linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent 13%);
   box-shadow:
     inset 0 0 18px rgba(255, 255, 255, 0.16),
@@ -145,8 +213,12 @@ body[data-theme="basic3"] .brand {
 body[data-theme="basic3"] .traffic-light {
   width: 13px;
   height: 13px;
-  background:
-    radial-gradient(circle at 34% 28%, #fff7fb 0 20%, var(--basic3-meter-a) 21% 56%, var(--basic3-meter-c) 100%);
+  background: radial-gradient(
+    circle at 34% 28%,
+    #fff7fb 0 20%,
+    var(--basic3-meter-a) 21% 56%,
+    var(--basic3-meter-c) 100%
+  );
   box-shadow:
     0 0 0 2px rgba(255, 255, 255, 0.62),
     0 0 0 3px rgba(255, 82, 150, 0.24),
@@ -181,8 +253,16 @@ body[data-theme="basic3"] .version-badge {
   font-weight: 840;
   line-height: 11px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.98), transparent 64%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 184, 212, 0.2)),
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 255, 255, 0.98),
+      transparent 64%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.72),
+      rgba(255, 184, 212, 0.2)
+    ),
     #fffafd;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.96),
@@ -194,8 +274,16 @@ body[data-theme="basic3"] .version-badge {
 body[data-theme="basic3"] .version-badge:hover {
   color: #8c0d33;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.96), transparent 62%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 143, 189, 0.42)),
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 255, 255, 0.96),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.82),
+      rgba(255, 143, 189, 0.42)
+    ),
     rgba(255, 226, 238, 0.86);
 }
 
@@ -219,8 +307,16 @@ body[data-theme="basic3"] .icon-button {
   border-radius: 50%;
   color: var(--basic3-rose);
   background:
-    radial-gradient(circle at 34% 18%, rgba(255, 255, 255, 0.88), transparent 33%),
-    radial-gradient(circle at 50% 112%, rgba(255, 82, 150, 0.22), transparent 56%),
+    radial-gradient(
+      circle at 34% 18%,
+      rgba(255, 255, 255, 0.88),
+      transparent 33%
+    ),
+    radial-gradient(
+      circle at 50% 112%,
+      rgba(255, 82, 150, 0.22),
+      transparent 56%
+    ),
     linear-gradient(180deg, #fffafd, #ffd8e9);
   box-shadow:
     inset 0 0 0 1px rgba(255, 82, 150, 0.42),
@@ -241,8 +337,16 @@ body[data-theme="basic3"] .icon-button:hover,
 body[data-theme="basic3"] .icon-button.active {
   color: #ffffff;
   background:
-    radial-gradient(circle at 36% 20%, rgba(255, 255, 255, 0.92), transparent 34%),
-    radial-gradient(circle at 50% 112%, rgba(255, 82, 150, 0.34), transparent 58%),
+    radial-gradient(
+      circle at 36% 20%,
+      rgba(255, 255, 255, 0.92),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 50% 112%,
+      rgba(255, 82, 150, 0.34),
+      transparent 58%
+    ),
     linear-gradient(180deg, rgba(255, 118, 176, 0.86), rgba(238, 38, 113, 0.88));
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.72),
@@ -255,7 +359,11 @@ body[data-theme="basic3"] .icon-button.active {
 body[data-theme="basic3"] .icon-button.danger:hover {
   color: #ffffff;
   background:
-    radial-gradient(circle at 35% 22%, rgba(255, 255, 255, 0.66), transparent 32%),
+    radial-gradient(
+      circle at 35% 22%,
+      rgba(255, 255, 255, 0.66),
+      transparent 32%
+    ),
     linear-gradient(180deg, rgba(238, 38, 113, 0.88), rgba(160, 20, 64, 0.9));
 }
 
@@ -289,8 +397,7 @@ body[data-theme="basic3"] .basic3-gauge {
   height: 140px;
   overflow: visible;
   color: var(--basic3-gauge-a);
-  filter:
-    drop-shadow(0 0 6px rgba(var(--basic3-gauge-rgb), 0.16))
+  filter: drop-shadow(0 0 6px rgba(var(--basic3-gauge-rgb), 0.16))
     drop-shadow(0 8px 10px rgba(145, 20, 62, 0.18));
 }
 
@@ -366,8 +473,7 @@ body[data-theme="basic3"] .basic3-gauge-outer-progress {
   stroke-linecap: round;
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  filter:
-    drop-shadow(0 0 2px rgba(233, 37, 116, 0.32))
+  filter: drop-shadow(0 0 2px rgba(233, 37, 116, 0.32))
     drop-shadow(0 0 6px rgba(233, 37, 116, 0.34));
   transition: stroke-dashoffset 360ms ease;
 }
@@ -392,8 +498,7 @@ body[data-theme="basic3"] .basic3-gauge-progress {
 
 body[data-theme="basic3"] .basic3-gauge-mark {
   fill: url("#basic3GaugeAccent");
-  filter:
-    drop-shadow(0 1px 1px rgba(145, 20, 62, 0.28))
+  filter: drop-shadow(0 1px 1px rgba(145, 20, 62, 0.28))
     drop-shadow(0 0 8px rgba(var(--basic3-gauge-rgb), 0.46));
 }
 
@@ -415,7 +520,9 @@ body[data-theme="basic3"] .basic3-gauge-label {
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.78);
 }
 
-body[data-theme="basic3"] .basic3-meter[data-mode="panel"] .basic3-gauge-percent {
+body[data-theme="basic3"]
+  .basic3-meter[data-mode="panel"]
+  .basic3-gauge-percent {
   font-size: 33px;
   font-weight: 920;
 }
@@ -429,7 +536,9 @@ body[data-theme="basic3"] .basic3-meter[data-mode="ball"] .basic3-gauge-label {
   display: none;
 }
 
-body[data-theme="basic3"] .basic3-meter[data-mode="ball"]:not([data-dock="none"]) .basic3-gauge-percent {
+body[data-theme="basic3"]
+  .basic3-meter[data-mode="ball"]:not([data-dock="none"])
+  .basic3-gauge-percent {
   font-size: 20px;
   transform: translateY(0);
 }
@@ -446,7 +555,12 @@ body[data-theme="basic3"] .quota-card {
   border-radius: 14px;
   background:
     radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.5), transparent 42%),
-    linear-gradient(135deg, rgba(255, 244, 249, 0.52), rgba(255, 82, 150, 0.1) 50%, transparent),
+    linear-gradient(
+      135deg,
+      rgba(255, 244, 249, 0.52),
+      rgba(255, 82, 150, 0.1) 50%,
+      transparent
+    ),
     #ffe8f1;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.76),
@@ -479,9 +593,12 @@ body[data-theme="basic3"] .quota-card.estimate-card .estimate-value {
 body[data-theme="basic3"] .quota-card.primary,
 body[data-theme="basic3"] .quota-card.slim {
   background:
-    radial-gradient(circle at 0% 0%, rgba(255, 255, 255, 0.54), transparent 42%),
-    linear-gradient(135deg, rgba(255, 191, 216, 0.18), transparent 45%),
-    #ffebf3;
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(255, 255, 255, 0.54),
+      transparent 42%
+    ),
+    linear-gradient(135deg, rgba(255, 191, 216, 0.18), transparent 45%), #ffebf3;
 }
 
 body[data-theme="basic3"] .quota-icon {
@@ -492,8 +609,16 @@ body[data-theme="basic3"] .quota-icon {
   border-radius: 50%;
   color: #ffffff;
   background:
-    radial-gradient(circle at 34% 20%, rgba(255, 255, 255, 0.84), transparent 34%),
-    radial-gradient(circle at 50% 100%, rgba(194, 24, 91, 0.28), transparent 58%),
+    radial-gradient(
+      circle at 34% 20%,
+      rgba(255, 255, 255, 0.84),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(194, 24, 91, 0.28),
+      transparent 58%
+    ),
     linear-gradient(180deg, #ffafd0, var(--basic3-meter-b));
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.74),
@@ -530,7 +655,7 @@ body[data-theme="basic3"] .quota-card .quota-sub-value {
 }
 
 body[data-theme="basic3"] .quota-card strong {
-  max-width: 58px;
+  max-width: 95px;
   color: #3b0614;
   font-size: 19px;
   font-weight: 920;
@@ -560,7 +685,12 @@ body[data-theme="basic3"] .status::before {
   left: 0;
   height: 1px;
   content: "";
-  background: linear-gradient(90deg, rgba(255, 196, 220, 0.66), rgba(255, 82, 150, 0.3), rgba(255, 196, 220, 0.52));
+  background: linear-gradient(
+    90deg,
+    rgba(255, 196, 220, 0.66),
+    rgba(255, 82, 150, 0.3),
+    rgba(255, 196, 220, 0.52)
+  );
 }
 
 body[data-theme="basic3"] .status-dot {
@@ -637,8 +767,7 @@ body[data-theme="basic3"][data-widget-mode="ball"] .basic3-gauge-sphere {
   stroke: rgba(255, 248, 252, 0.92);
   stroke-width: 1.6;
   vector-effect: non-scaling-stroke;
-  filter:
-    drop-shadow(0 0 4px rgba(255, 255, 255, 0.16))
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.16))
     drop-shadow(0 6px 8px rgba(112, 8, 42, 0.18));
 }
 
@@ -659,10 +788,10 @@ body[data-theme="basic3"][data-widget-mode="ball"] .basic3-gauge-outer-track {
   stroke-width: 10.8;
 }
 
-body[data-theme="basic3"][data-widget-mode="ball"] .basic3-gauge-outer-progress {
+body[data-theme="basic3"][data-widget-mode="ball"]
+  .basic3-gauge-outer-progress {
   stroke-width: 10.8;
-  filter:
-    drop-shadow(0 0 2px rgba(233, 37, 116, 0.42))
+  filter: drop-shadow(0 0 2px rgba(233, 37, 116, 0.42))
     drop-shadow(0 0 4px rgba(233, 37, 116, 0.38));
 }
 
@@ -700,8 +829,7 @@ body[data-theme="basic3"][data-widget-mode="ball"] .basic3-gauge-mark {
   stroke: rgba(255, 255, 255, 0.72);
   stroke-width: 1.05;
   paint-order: stroke fill;
-  filter:
-    drop-shadow(0 1px 1px rgba(112, 8, 42, 0.22))
+  filter: drop-shadow(0 1px 1px rgba(112, 8, 42, 0.22))
     drop-shadow(0 0 6px rgba(255, 255, 255, 0.36));
 }
 

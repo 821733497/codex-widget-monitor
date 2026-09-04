@@ -8,8 +8,14 @@ import { createRenderer } from "./render.js";
 import { createSettingsController } from "./settings-controller.js";
 import { createSettingsPersistence } from "./settings-persistence.js";
 import { listenRuntimeEvent } from "./startup.js";
-import { applyNormalizedSettings as applyStateSettings, createAppState, renderLocale, renderTheme } from "./state.js";
+import {
+  applyNormalizedSettings as applyStateSettings,
+  createAppState,
+  renderLocale,
+  renderTheme,
+} from "./state.js";
 import { createTauriService } from "./tauri-service.js";
+import { createSourcePickerController } from "./source-picker-controller.js";
 import { createTooltipController } from "./tooltip-controller.js";
 import { createUpdateController } from "./update-controller.js";
 import { createWindowController } from "./window-controller.js";
@@ -20,8 +26,11 @@ export function createApp(dependencies = {}) {
   const service = dependencies.service || createTauriService();
   const logger = dependencies.logger || createLogger(service);
   const factories = dependencies.factories || {};
-  const initializeIcons = dependencies.initializeActionIcons || initializeActionIcons;
-  const tooltipController = (factories.createTooltipController || createTooltipController)({ root: els.body });
+  const initializeIcons =
+    dependencies.initializeActionIcons || initializeActionIcons;
+  const tooltipController = (
+    factories.createTooltipController || createTooltipController
+  )({ root: els.body });
   let render = () => {};
 
   function applySettings(settings) {
@@ -33,11 +42,13 @@ export function createApp(dependencies = {}) {
     return applyStateSettings(state, settings, options);
   }
 
-  const { persistSettings } = (factories.createSettingsPersistence || createSettingsPersistence)({
+  const { persistSettings } = (
+    factories.createSettingsPersistence || createSettingsPersistence
+  )({
     state,
     service,
     applyNormalizedSettings,
-    render: () => render()
+    render: () => render(),
   });
 
   async function saveCurrentSettings({ silent = false } = {}) {
@@ -74,7 +85,9 @@ export function createApp(dependencies = {}) {
     }
   }
 
-  const windowController = (factories.createWindowController || createWindowController)({
+  const windowController = (
+    factories.createWindowController || createWindowController
+  )({
     els,
     state,
     service,
@@ -83,35 +96,43 @@ export function createApp(dependencies = {}) {
     persistSettings,
     saveCurrentSettings,
     showError: showWindowError,
-    logger
+    logger,
   });
 
-  const quotaController = (factories.createQuotaController || createQuotaController)({
+  const quotaController = (
+    factories.createQuotaController || createQuotaController
+  )({
     state,
     service,
     render: () => render(),
     normalizeError,
-    logger
+    logger,
   });
 
-  const updateController = (factories.createUpdateController || createUpdateController)({
+  const updateController = (
+    factories.createUpdateController || createUpdateController
+  )({
     state,
     service,
     render: () => render(),
-    logger
+    logger,
   });
 
-  const onboardingController = (factories.createOnboardingController || createOnboardingController)({
+  const onboardingController = (
+    factories.createOnboardingController || createOnboardingController
+  )({
     els,
     state,
     renderLocale: () => renderLocale(state),
     renderTheme: () => renderTheme(state),
     applyNormalizedSettings,
     saveCurrentSettings,
-    i18n
+    i18n,
   });
 
-  const settingsController = (factories.createSettingsController || createSettingsController)({
+  const settingsController = (
+    factories.createSettingsController || createSettingsController
+  )({
     els,
     state,
     service,
@@ -126,7 +147,22 @@ export function createApp(dependencies = {}) {
     refreshQuota: quotaController.refreshQuota,
     scheduleUpdateChecks: updateController.scheduleUpdateChecks,
     logger,
-    clearPanelClick: windowController.clearPanelClick
+    clearPanelClick: windowController.clearPanelClick,
+    adjustWindowForSettings: windowController.adjustWindowForSettings,
+  });
+
+  const sourcePickerController = (
+    factories.createSourcePickerController || createSourcePickerController
+  )({
+    els,
+    state,
+    service,
+    render: () => render(),
+    refreshQuota: quotaController.refreshQuota,
+    setWidgetMode: windowController.setWidgetMode,
+    openSettings: settingsController.openSettingsPanel,
+    closeApp: windowController.closeApp,
+    getLocale: () => renderLocale(state),
   });
 
   const renderer = (factories.createRenderer || createRenderer)({
@@ -135,18 +171,44 @@ export function createApp(dependencies = {}) {
     getLocale: () => renderLocale(state),
     getTheme: () => renderTheme(state),
     onVersionClick: triggerManualUpdateCheck,
-    settingsView: settingsController
+    settingsView: settingsController,
+    sourcePickerView: sourcePickerController,
   });
   render = renderer.render;
 
   function bindEvents() {
     windowController.bindEvents();
     settingsController.bindEvents();
+    sourcePickerController.bindEvents();
     onboardingController.bindEvents();
     tooltipController.bindEvents();
-    document.addEventListener("contextmenu", (event) => event.preventDefault());
     els.pinBtn.addEventListener("click", toggleAlwaysOnTop);
-    els.refreshBtn.addEventListener("click", () => quotaController.refreshQuota());
+    els.refreshBtn.addEventListener("click", () =>
+      quotaController.refreshQuota(),
+    );
+    els.themeSwitchBtn?.addEventListener("click", cycleTheme);
+  }
+
+  async function cycleTheme() {
+    try {
+      const currentTheme =
+        state.settings?.theme === "pyro" ? "pyro" : "default";
+      const nextTheme = currentTheme === "default" ? "pyro" : "default";
+      state.settings = {
+        ...state.settings,
+        theme: nextTheme,
+      };
+      if (state.settingsDraft) {
+        state.settingsDraft.theme = nextTheme;
+      }
+      render();
+      await persistSettings((currentSettings) => ({
+        ...currentSettings,
+        theme: nextTheme,
+      }));
+    } catch (error) {
+      logger.error("快捷切换主题失败", error, "frontend.settings");
+    }
   }
 
   async function toggleAlwaysOnTop() {
@@ -187,7 +249,8 @@ export function createApp(dependencies = {}) {
         service.events.listen,
         "quota:refresh-requested",
         () => quotaController.refreshQuota(),
-        (error) => logger.error("监听托盘刷新事件失败", error, "frontend.events")
+        (error) =>
+          logger.error("监听托盘刷新事件失败", error, "frontend.events"),
       ),
       listenRuntimeEvent(
         service.events.listen,
@@ -196,8 +259,9 @@ export function createApp(dependencies = {}) {
           state.alwaysOnTop = Boolean(event.payload);
           render();
         },
-        (error) => logger.error("监听窗口置顶事件失败", error, "frontend.events")
-      )
+        (error) =>
+          logger.error("监听窗口置顶事件失败", error, "frontend.events"),
+      ),
     ];
 
     // 事件监听属于增强能力，不能阻塞核心刷新与定时任务启动。

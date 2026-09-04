@@ -21,6 +21,29 @@ pub(crate) async fn get_quota(
         let _settings_guard = state.settings_lock.lock().await;
         load_operational_settings(&app, &state, "backend.quota")
     };
+
+    if let crate::settings::ActiveTarget::SiteKey { site_id, key_id } = &settings.active_target {
+        if let Some(site) = settings.sites.iter().find(|s| s.id == *site_id) {
+            if let Some(key) = site.keys.iter().find(|k| k.id == *key_id) {
+                return quota::fetch_sub2api_quota(
+                    &site.name,
+                    &key.name,
+                    &site.base_url,
+                    &key.key,
+                    settings.update_proxy.as_deref(),
+                )
+                .await
+                .map_err(|error| {
+                    let message = error.to_string();
+                    state
+                        .logger
+                        .write_best_effort(LogLevel::Error, "backend.quota.sub2api", &message);
+                    message
+                });
+            }
+        }
+    }
+
     let codex_cli_path = settings.codex_cli_path.as_deref().map(Path::new);
     let mut snapshot = {
         // 长连接会话必须串行使用，避免多个刷新同时读写同一条 stdio 通道。
@@ -76,6 +99,12 @@ pub(crate) async fn get_reset_credit_expiries(
 #[tauri::command]
 pub(crate) fn hide_window(window: WebviewWindow) -> Result<(), String> {
     window.hide().map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub(crate) fn set_skip_taskbar(window: WebviewWindow, skip: bool) -> Result<bool, String> {
+    let _ = window.set_skip_taskbar(skip);
+    Ok(skip)
 }
 
 #[tauri::command]
@@ -302,6 +331,42 @@ fn append_rollback_error(
             format!("{error}；恢复{rollback_name}的原状态失败：{rollback_error}")
         }
     }
+}
+
+#[tauri::command]
+pub(crate) async fn test_sub2api_connection(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    base_url: String,
+    api_key: String,
+) -> Result<quota::Sub2ApiTestResult, String> {
+    let settings = {
+        let _settings_guard = state.settings_lock.lock().await;
+        load_operational_settings(&app, &state, "backend.sub2api.test")
+    };
+    quota::test_sub2api_connection(&base_url, &api_key, settings.update_proxy.as_deref())
+        .await
+        .map_err(|error| {
+            let message = error.to_string();
+            state
+                .logger
+                .write_best_effort(LogLevel::Error, "backend.sub2api.test", &message);
+            message
+        })
+}
+
+#[tauri::command]
+pub(crate) async fn switch_active_target(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    target: crate::settings::ActiveTarget,
+) -> Result<AppSettings, String> {
+    let mut settings = {
+        let _settings_guard = state.settings_lock.lock().await;
+        load_operational_settings(&app, &state, "backend.settings.switch_target")
+    };
+    settings.active_target = target;
+    save_settings(app, state, settings).await
 }
 
 //noinspection NonAsciiCharacters

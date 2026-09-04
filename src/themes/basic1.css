@@ -13,8 +13,16 @@ body[data-theme="basic1"] {
   --basic1-meter-b: var(--basic1-mint);
   --basic1-meter-rgb: 103, 232, 249;
   --settings-panel-background:
-    radial-gradient(circle at 14% 0%, rgba(103, 232, 249, 0.14), transparent 34%),
-    radial-gradient(circle at 88% 100%, rgba(52, 242, 176, 0.12), transparent 36%),
+    radial-gradient(
+      circle at 14% 0%,
+      rgba(103, 232, 249, 0.14),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 88% 100%,
+      rgba(52, 242, 176, 0.12),
+      transparent 36%
+    ),
     linear-gradient(145deg, rgba(24, 34, 43, 0.92), rgba(8, 13, 18, 0.98));
   --settings-control-background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(8, 17, 24, 0.34)),
@@ -25,15 +33,27 @@ body[data-theme="basic1"] {
   --settings-text-color: var(--basic1-text);
   --settings-muted-color: var(--basic1-muted);
   --widget-surface-background:
-    radial-gradient(circle at 18% 18%, rgba(103, 232, 249, 0.14), transparent 31%),
-    radial-gradient(circle at 82% 84%, rgba(52, 242, 176, 0.13), transparent 34%),
-    linear-gradient(145deg, rgba(26, 36, 47, 0.8), rgba(11, 15, 20, 0.96) 48%, rgba(6, 11, 16, 0.98)),
+    radial-gradient(
+      circle at 18% 18%,
+      rgba(103, 232, 249, 0.14),
+      transparent 31%
+    ),
+    radial-gradient(
+      circle at 82% 84%,
+      rgba(52, 242, 176, 0.13),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(26, 36, 47, 0.8),
+      rgba(11, 15, 20, 0.96) 48%,
+      rgba(6, 11, 16, 0.98)
+    ),
     var(--basic1-panel);
   --widget-surface-shadow:
     inset 0 0 0 1px rgba(201, 235, 255, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    inset 0 -18px 42px rgba(0, 0, 0, 0.26),
-    0 0 0 1px rgba(103, 232, 249, 0.1);
+    inset 0 -18px 42px rgba(0, 0, 0, 0.26), 0 0 0 1px rgba(103, 232, 249, 0.1);
   --widget-surface-backdrop: blur(26px) saturate(1.28);
   --meter-primary-color: #ffffff;
 }
@@ -78,8 +98,16 @@ body[data-theme="basic1"] .widget {
 
 body[data-theme="basic1"] .widget::before {
   background:
-    radial-gradient(ellipse 210px 92px at 8% -10%, rgba(211, 240, 255, 0.17), transparent 66%),
-    radial-gradient(ellipse 180px 94px at 96% 108%, rgba(52, 242, 176, 0.1), transparent 68%),
+    radial-gradient(
+      ellipse 210px 92px at 8% -10%,
+      rgba(211, 240, 255, 0.17),
+      transparent 66%
+    ),
+    radial-gradient(
+      ellipse 180px 94px at 96% 108%,
+      rgba(52, 242, 176, 0.1),
+      transparent 68%
+    ),
     linear-gradient(118deg, rgba(255, 255, 255, 0.07), transparent 27%);
 }
 
@@ -176,7 +204,11 @@ body[data-theme="basic1"] .icon-button:hover,
 body[data-theme="basic1"] .icon-button.active {
   color: #ffffff;
   background:
-    linear-gradient(145deg, rgba(103, 232, 249, 0.16), rgba(52, 242, 176, 0.08)),
+    linear-gradient(
+      145deg,
+      rgba(103, 232, 249, 0.16),
+      rgba(52, 242, 176, 0.08)
+    ),
     rgba(27, 44, 55, 0.78);
   box-shadow:
     inset 0 0 0 1px rgba(103, 232, 249, 0.24),
@@ -313,7 +345,9 @@ body[data-theme="basic1"] .basic1-gauge-label {
   letter-spacing: 0;
 }
 
-body[data-theme="basic1"] .basic1-meter[data-mode="panel"] .basic1-gauge-percent {
+body[data-theme="basic1"]
+  .basic1-meter[data-mode="panel"]
+  .basic1-gauge-percent {
   fill: var(--basic1-panel-gauge-text);
   font-size: 38px;
   font-weight: 880;
@@ -327,7 +361,9 @@ body[data-theme="basic1"] .basic1-meter[data-mode="panel"] .basic1-gauge-label {
   filter: drop-shadow(0 0 8px rgba(246, 251, 255, 0.22));
 }
 
-body[data-theme="basic1"] .basic1-meter[data-mode="ball"] .basic1-gauge-percent {
+body[data-theme="basic1"]
+  .basic1-meter[data-mode="ball"]
+  .basic1-gauge-percent {
   font-size: 18px;
   font-weight: 620;
 }
@@ -336,7 +372,9 @@ body[data-theme="basic1"] .basic1-meter[data-mode="ball"] .basic1-gauge-label {
   display: none;
 }
 
-body[data-theme="basic1"] .basic1-meter[data-mode="ball"]:not([data-dock="none"]) .basic1-gauge-percent {
+body[data-theme="basic1"]
+  .basic1-meter[data-mode="ball"]:not([data-dock="none"])
+  .basic1-gauge-percent {
   font-size: 19px;
 }
 
@@ -352,7 +390,11 @@ body[data-theme="basic1"] .quota-card {
   border: 1px solid rgba(201, 235, 255, 0.12);
   border-radius: 12px;
   background:
-    radial-gradient(circle at 0% 0%, rgba(103, 232, 249, 0.11), transparent 44%),
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(103, 232, 249, 0.11),
+      transparent 44%
+    ),
     linear-gradient(135deg, rgba(255, 255, 255, 0.075), transparent 46%),
     rgba(15, 28, 37, 0.64);
   box-shadow:
@@ -436,14 +478,13 @@ body[data-theme="basic1"] .quota-card .quota-sub-value {
 }
 
 body[data-theme="basic1"] .quota-card strong {
-  max-width: 58px;
+  max-width: 95px;
   color: var(--basic1-text);
   font-size: 17px;
   font-weight: 780;
   line-height: 20px;
   text-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
 }
-
 
 body[data-theme="basic1"] .status {
   grid-template-columns: 17px minmax(0, 1fr);

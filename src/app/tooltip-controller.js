@@ -41,7 +41,8 @@ export function createTooltipController({ root = document.body } = {}) {
 
   function handlePointerOut(event) {
     if (!activeTarget) return;
-    const relatedTarget = event.relatedTarget instanceof Element ? event.relatedTarget : null;
+    const relatedTarget =
+      event.relatedTarget instanceof Element ? event.relatedTarget : null;
     if (relatedTarget && activeTarget.contains(relatedTarget)) return;
     hide();
   }
@@ -107,7 +108,10 @@ export function createTooltipController({ root = document.body } = {}) {
     const preferredTop = anchorY + MOUSE_OFFSET_Y;
     const fallbackTop = anchorY - tooltipRect.height - MOUSE_OFFSET_Y;
     const left = preferredLeft;
-    const top = preferredTop + tooltipRect.height + VIEWPORT_PADDING > viewportHeight ? fallbackTop : preferredTop;
+    const top =
+      preferredTop + tooltipRect.height + VIEWPORT_PADDING > viewportHeight
+        ? fallbackTop
+        : preferredTop;
 
     tooltip.style.left = `${clamp(left, VIEWPORT_PADDING, viewportWidth - tooltipRect.width - VIEWPORT_PADDING)}px`;
     tooltip.style.top = `${clamp(top, VIEWPORT_PADDING, viewportHeight - tooltipRect.height - VIEWPORT_PADDING)}px`;
@@ -116,16 +120,25 @@ export function createTooltipController({ root = document.body } = {}) {
   function positionBallTooltip() {
     tooltip.style.width = "max-content";
     const tooltipRect = tooltip.getBoundingClientRect();
-    const anchorX = lastPointer?.x ?? window.innerWidth / 2;
-    const anchorY = lastPointer?.y ?? window.innerHeight / 2;
-    const preferredLeft = anchorX + MOUSE_OFFSET_X;
-    const preferredTop = anchorY + MOUSE_OFFSET_Y;
-    const fallbackTop = anchorY - tooltipRect.height - MOUSE_OFFSET_Y;
-    const left = preferredLeft;
-    const top = preferredTop + tooltipRect.height + 6 > window.innerHeight ? fallbackTop : preferredTop;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
-    tooltip.style.left = `${clamp(left, 6, window.innerWidth - tooltipRect.width - 6)}px`;
-    tooltip.style.top = `${clamp(top, 6, window.innerHeight - tooltipRect.height - 6)}px`;
+    const ballDock = document.body?.dataset?.ballDock;
+    let centerX = viewportWidth / 2;
+    if (ballDock === "right") {
+      centerX = viewportWidth * 0.25;
+    } else if (ballDock === "left") {
+      centerX = viewportWidth * 0.75;
+    }
+
+    const maxLeft = Math.max(2, viewportWidth - tooltipRect.width - 2);
+    const left = clamp(centerX - tooltipRect.width / 2, 2, maxLeft);
+
+    const maxTop = Math.max(2, viewportHeight - tooltipRect.height - 2);
+    const top = clamp((viewportHeight - tooltipRect.height) * 0.25, 2, maxTop);
+
+    tooltip.style.left = `${Math.round(left)}px`;
+    tooltip.style.top = `${Math.round(top)}px`;
   }
 
   return { bindEvents, hide };
@@ -144,13 +157,16 @@ function tooltipText(target) {
 function pointerFromEvent(event) {
   return {
     x: event.clientX,
-    y: event.clientY
+    y: event.clientY,
   };
 }
 
 function placementFor(target) {
   if (target.classList.contains("estimate-card")) return "estimate";
-  return document.body.dataset.widgetMode === "ball" && target.classList.contains("widget") ? "ball" : "top";
+  return document.body.dataset.widgetMode === "ball" &&
+    target.classList.contains("widget")
+    ? "ball"
+    : "top";
 }
 
 function clamp(value, min, max) {

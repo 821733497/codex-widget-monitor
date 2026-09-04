@@ -1,10 +1,11 @@
 use tauri::{LogicalSize, PhysicalPosition, Position, Size, WebviewWindow};
 
-use crate::settings::{AppSettings, BallDock, WidgetMode, WindowPosition};
+use crate::settings::{AppSettings, BallDock, BallSize, WidgetMode, WindowPosition};
 
 const PANEL_WIDTH: f64 = 390.0;
 const PANEL_HEIGHT: f64 = 236.0;
-const BALL_SIZE: f64 = 88.0;
+const BALL_SIZE_MEDIUM: f64 = 88.0;
+const BALL_SIZE_SMALL: f64 = 64.0;
 const SNAP_DISTANCE: i32 = 24;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -19,23 +20,35 @@ pub(crate) fn apply_startup_window_state(
     window: &WebviewWindow,
     settings: &AppSettings,
 ) -> tauri::Result<()> {
-    window.set_size(Size::Logical(window_size_for_mode(settings.widget_mode)))?;
-    if restore_saved_window_position(window, settings)? {
+    let _ = window.set_size(Size::Logical(window_size_for_settings(settings)));
+    let _ = window.set_skip_taskbar(settings.widget_mode == WidgetMode::Ball);
+    if let Ok(true) = restore_saved_window_position(window, settings) {
         return Ok(());
     }
-    place_window_top_right(window)
+    let _ = place_window_top_right(window);
+    Ok(())
 }
 
-fn window_size_for_mode(mode: WidgetMode) -> LogicalSize<f64> {
-    match mode {
+fn resolve_ball_size(ball_size: BallSize) -> f64 {
+    match ball_size {
+        BallSize::Small => BALL_SIZE_SMALL,
+        BallSize::Medium => BALL_SIZE_MEDIUM,
+    }
+}
+
+fn window_size_for_settings(settings: &AppSettings) -> LogicalSize<f64> {
+    match settings.widget_mode {
         WidgetMode::Panel => LogicalSize {
             width: PANEL_WIDTH,
             height: PANEL_HEIGHT,
         },
-        WidgetMode::Ball => LogicalSize {
-            width: BALL_SIZE,
-            height: BALL_SIZE,
-        },
+        WidgetMode::Ball => {
+            let size = resolve_ball_size(settings.ball_size);
+            LogicalSize {
+                width: size,
+                height: size,
+            }
+        }
     }
 }
 

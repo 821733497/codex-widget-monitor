@@ -17,11 +17,23 @@ body[data-theme="basic2"] {
   --basic2-meter-rgb: 238, 178, 88;
   --remaining-angle: 0deg;
   --settings-panel-background:
-    radial-gradient(circle at 10% 0%, rgba(255, 218, 145, 0.08), transparent 34%),
-    radial-gradient(circle at 98% 106%, rgba(230, 123, 49, 0.1), transparent 30%),
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(255, 218, 145, 0.08),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 98% 106%,
+      rgba(230, 123, 49, 0.1),
+      transparent 30%
+    ),
     linear-gradient(145deg, rgba(20, 17, 13, 0.98), rgba(6, 6, 5, 0.99));
   --settings-control-background:
-    linear-gradient(145deg, rgba(255, 218, 145, 0.08), rgba(230, 123, 49, 0.03)),
+    linear-gradient(
+      145deg,
+      rgba(255, 218, 145, 0.08),
+      rgba(230, 123, 49, 0.03)
+    ),
     rgba(12, 11, 9, 0.8);
   --settings-control-border: rgba(238, 178, 88, 0.23);
   --settings-accent-color: var(--basic2-gold);
@@ -29,18 +41,34 @@ body[data-theme="basic2"] {
   --settings-text-color: var(--basic2-text);
   --settings-muted-color: var(--basic2-muted);
   --widget-surface-background:
-    radial-gradient(circle at 4.5% 9%, rgba(255, 214, 130, 0.16), transparent 6.6%),
-    radial-gradient(ellipse 54px 24px at 101% 101%, rgba(255, 201, 112, 0.17), transparent 68%),
-    radial-gradient(ellipse 88px 38px at 110% 116%, rgba(230, 123, 49, 0.1), transparent 74%),
-    linear-gradient(150deg, rgba(14, 12, 9, 0.998), rgba(4, 4, 3, 0.998) 58%, rgba(10, 8, 6, 0.998)),
+    radial-gradient(
+      circle at 4.5% 9%,
+      rgba(255, 214, 130, 0.16),
+      transparent 6.6%
+    ),
+    radial-gradient(
+      ellipse 54px 24px at 101% 101%,
+      rgba(255, 201, 112, 0.17),
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 88px 38px at 110% 116%,
+      rgba(230, 123, 49, 0.1),
+      transparent 74%
+    ),
+    linear-gradient(
+      150deg,
+      rgba(14, 12, 9, 0.998),
+      rgba(4, 4, 3, 0.998) 58%,
+      rgba(10, 8, 6, 0.998)
+    ),
     var(--basic2-panel-deep);
   --widget-surface-shadow:
     inset 0 0 0 1px rgba(255, 225, 160, 0.24),
     inset 0 0 0 2px rgba(62, 42, 18, 0.72),
     inset 0 1px 0 rgba(255, 242, 204, 0.16),
     inset 0 -15px 32px rgba(230, 123, 49, 0.04),
-    inset 0 -44px 76px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(238, 178, 88, 0.1);
+    inset 0 -44px 76px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(238, 178, 88, 0.1);
   --widget-surface-backdrop: blur(26px) saturate(1.16);
   --meter-primary-color: #ffffff;
 }
@@ -87,13 +115,39 @@ body[data-theme="basic2"] .widget::before {
   z-index: 0;
   opacity: 0.48;
   background:
-    radial-gradient(circle at 4.8% 8.2%, rgba(255, 234, 176, 0.2), transparent 6.2%),
-    radial-gradient(ellipse 62px 28px at 103% 104%, rgba(255, 193, 82, 0.08), transparent 72%),
-    radial-gradient(circle at 18% 26%, rgba(255, 222, 146, 0.06) 0 0.34px, transparent 0.72px),
-    radial-gradient(circle at 76% 74%, rgba(255, 185, 86, 0.05) 0 0.32px, transparent 0.76px),
+    radial-gradient(
+      circle at 4.8% 8.2%,
+      rgba(255, 234, 176, 0.2),
+      transparent 6.2%
+    ),
+    radial-gradient(
+      ellipse 62px 28px at 103% 104%,
+      rgba(255, 193, 82, 0.08),
+      transparent 72%
+    ),
+    radial-gradient(
+      circle at 18% 26%,
+      rgba(255, 222, 146, 0.06) 0 0.34px,
+      transparent 0.72px
+    ),
+    radial-gradient(
+      circle at 76% 74%,
+      rgba(255, 185, 86, 0.05) 0 0.32px,
+      transparent 0.76px
+    ),
     linear-gradient(118deg, rgba(255, 255, 255, 0.026), transparent 28%),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.004) 0 1px, transparent 1px 12px);
-  background-size: auto, auto, 32px 32px, 44px 44px, auto, auto;
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.004) 0 1px,
+      transparent 1px 12px
+    );
+  background-size:
+    auto,
+    auto,
+    32px 32px,
+    44px 44px,
+    auto,
+    auto;
 }
 
 body[data-theme="basic2"] .widget::after {
@@ -105,14 +159,47 @@ body[data-theme="basic2"] .widget::after {
   content: "";
   opacity: 0.46;
   background:
-    radial-gradient(circle at 94% 90%, rgba(255, 226, 154, 0.62) 0 0.36px, transparent 0.82px),
-    radial-gradient(circle at 88% 95%, rgba(230, 123, 49, 0.26) 0 0.34px, transparent 0.84px),
-    linear-gradient(90deg, transparent 0 95%, rgba(238, 178, 88, 0.035) 98%, rgba(255, 218, 145, 0.32) 100%),
-    linear-gradient(180deg, transparent 0 91%, rgba(238, 178, 88, 0.035) 97%, rgba(255, 218, 145, 0.34) 100%),
-    radial-gradient(ellipse 42px 20px at 101% 102%, rgba(255, 219, 145, 0.34), transparent 68%),
-    radial-gradient(ellipse 82px 36px at 110% 117%, rgba(230, 123, 49, 0.13), transparent 76%),
+    radial-gradient(
+      circle at 94% 90%,
+      rgba(255, 226, 154, 0.62) 0 0.36px,
+      transparent 0.82px
+    ),
+    radial-gradient(
+      circle at 88% 95%,
+      rgba(230, 123, 49, 0.26) 0 0.34px,
+      transparent 0.84px
+    ),
+    linear-gradient(
+      90deg,
+      transparent 0 95%,
+      rgba(238, 178, 88, 0.035) 98%,
+      rgba(255, 218, 145, 0.32) 100%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0 91%,
+      rgba(238, 178, 88, 0.035) 97%,
+      rgba(255, 218, 145, 0.34) 100%
+    ),
+    radial-gradient(
+      ellipse 42px 20px at 101% 102%,
+      rgba(255, 219, 145, 0.34),
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 82px 36px at 110% 117%,
+      rgba(230, 123, 49, 0.13),
+      transparent 76%
+    ),
     linear-gradient(180deg, rgba(255, 246, 211, 0.035), transparent 16%);
-  background-size: 38px 38px, 50px 50px, auto, auto, auto, auto, auto;
+  background-size:
+    38px 38px,
+    50px 50px,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto;
   box-shadow:
     inset 0 0 18px rgba(238, 178, 88, 0.035),
     inset 0 0 72px rgba(0, 0, 0, 0.46),
@@ -140,8 +227,12 @@ body[data-theme="basic2"] .brand {
 body[data-theme="basic2"] .traffic-light {
   width: 10px;
   height: 10px;
-  background:
-    radial-gradient(circle at 34% 28%, #fff7ce 0 20%, var(--basic2-meter-a) 21% 56%, var(--basic2-meter-c) 100%);
+  background: radial-gradient(
+    circle at 34% 28%,
+    #fff7ce 0 20%,
+    var(--basic2-meter-a) 21% 56%,
+    var(--basic2-meter-c) 100%
+  );
   box-shadow:
     0 0 0 2px rgba(242, 183, 92, 0.2),
     0 0 12px rgba(var(--basic2-meter-rgb), 0.88),
@@ -175,7 +266,11 @@ body[data-theme="basic2"] .version-badge {
   font-weight: 820;
   line-height: 11px;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 242, 202, 0.2), transparent 60%),
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 242, 202, 0.2),
+      transparent 60%
+    ),
     linear-gradient(180deg, rgba(238, 178, 88, 0.16), rgba(230, 123, 49, 0.06)),
     rgba(10, 9, 7, 0.9);
   box-shadow:
@@ -187,8 +282,16 @@ body[data-theme="basic2"] .version-badge {
 body[data-theme="basic2"] .version-badge:hover {
   color: #fff5cc;
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 245, 207, 0.23), transparent 62%),
-    linear-gradient(180deg, rgba(255, 198, 109, 0.26), rgba(255, 138, 61, 0.12)),
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 245, 207, 0.23),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 198, 109, 0.26),
+      rgba(255, 138, 61, 0.12)
+    ),
     rgba(28, 23, 16, 0.86);
 }
 
@@ -212,8 +315,16 @@ body[data-theme="basic2"] .icon-button {
   border-radius: 50%;
   color: rgba(255, 222, 170, 0.88);
   background:
-    radial-gradient(circle at 34% 22%, rgba(255, 242, 202, 0.1), transparent 32%),
-    radial-gradient(circle at 50% 112%, rgba(238, 178, 88, 0.06), transparent 56%),
+    radial-gradient(
+      circle at 34% 22%,
+      rgba(255, 242, 202, 0.1),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 50% 112%,
+      rgba(238, 178, 88, 0.06),
+      transparent 56%
+    ),
     linear-gradient(180deg, rgba(25, 22, 18, 0.97), rgba(4, 4, 3, 0.99));
   box-shadow:
     inset 0 0 0 1px rgba(238, 178, 88, 0.3),
@@ -234,8 +345,16 @@ body[data-theme="basic2"] .icon-button:hover,
 body[data-theme="basic2"] .icon-button.active {
   color: #fff0bd;
   background:
-    radial-gradient(circle at 36% 20%, rgba(255, 246, 211, 0.26), transparent 34%),
-    radial-gradient(circle at 50% 112%, rgba(237, 132, 54, 0.22), transparent 58%),
+    radial-gradient(
+      circle at 36% 20%,
+      rgba(255, 246, 211, 0.26),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 50% 112%,
+      rgba(237, 132, 54, 0.22),
+      transparent 58%
+    ),
     linear-gradient(180deg, rgba(68, 47, 22, 0.92), rgba(15, 12, 8, 0.99));
   box-shadow:
     inset 0 0 0 1px rgba(242, 183, 92, 0.76),
@@ -248,7 +367,11 @@ body[data-theme="basic2"] .icon-button.active {
 body[data-theme="basic2"] .icon-button.danger:hover {
   color: #ffe6cf;
   background:
-    radial-gradient(circle at 35% 22%, rgba(255, 232, 202, 0.22), transparent 32%),
+    radial-gradient(
+      circle at 35% 22%,
+      rgba(255, 232, 202, 0.22),
+      transparent 32%
+    ),
     linear-gradient(180deg, rgba(86, 39, 22, 0.94), rgba(24, 10, 8, 0.98));
 }
 
@@ -284,9 +407,23 @@ body[data-theme="basic2"] .basic2-meter::before {
   z-index: 4;
   opacity: 0.52;
   background:
-    repeating-conic-gradient(from -90deg, rgba(238, 178, 88, 0.42) 0deg 0.42deg, transparent 0.42deg 3.7deg),
-    radial-gradient(circle, transparent 67%, rgba(238, 178, 88, 0.1) 68%, transparent 72%);
-  -webkit-mask: radial-gradient(circle, transparent 69%, #000 70% 73%, transparent 74%);
+    repeating-conic-gradient(
+      from -90deg,
+      rgba(238, 178, 88, 0.42) 0deg 0.42deg,
+      transparent 0.42deg 3.7deg
+    ),
+    radial-gradient(
+      circle,
+      transparent 67%,
+      rgba(238, 178, 88, 0.1) 68%,
+      transparent 72%
+    );
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 69%,
+    #000 70% 73%,
+    transparent 74%
+  );
   mask: radial-gradient(circle, transparent 69%, #000 70% 73%, transparent 74%);
   filter: drop-shadow(0 0 3px rgba(238, 178, 88, 0.1));
 }
@@ -294,12 +431,21 @@ body[data-theme="basic2"] .basic2-meter::before {
 body[data-theme="basic2"] .basic2-meter::after {
   inset: 10px;
   z-index: 7;
-  background:
-    conic-gradient(from -90deg, var(--basic2-meter-a) 0deg, var(--basic2-meter-b) calc(var(--remaining-angle, 0deg) - 16deg), var(--basic2-meter-c) var(--remaining-angle, 0deg), rgba(238, 178, 88, 0.1) var(--remaining-angle, 0deg) 360deg);
-  -webkit-mask: radial-gradient(circle, transparent 70%, #000 72% 77%, transparent 80%);
+  background: conic-gradient(
+    from -90deg,
+    var(--basic2-meter-a) 0deg,
+    var(--basic2-meter-b) calc(var(--remaining-angle, 0deg) - 16deg),
+    var(--basic2-meter-c) var(--remaining-angle, 0deg),
+    rgba(238, 178, 88, 0.1) var(--remaining-angle, 0deg) 360deg
+  );
+  -webkit-mask: radial-gradient(
+    circle,
+    transparent 70%,
+    #000 72% 77%,
+    transparent 80%
+  );
   mask: radial-gradient(circle, transparent 70%, #000 72% 77%, transparent 80%);
-  filter:
-    drop-shadow(0 0 3px rgba(255, 218, 145, 0.42))
+  filter: drop-shadow(0 0 3px rgba(255, 218, 145, 0.42))
     drop-shadow(0 0 9px rgba(var(--basic2-meter-rgb), 0.24));
 }
 
@@ -309,8 +455,7 @@ body[data-theme="basic2"] .basic2-gauge {
   height: 136px;
   overflow: visible;
   color: var(--basic2-meter-a);
-  filter:
-    drop-shadow(0 0 8px rgba(var(--basic2-meter-rgb), 0.18))
+  filter: drop-shadow(0 0 8px rgba(var(--basic2-meter-rgb), 0.18))
     drop-shadow(0 9px 10px rgba(0, 0, 0, 0.42));
 }
 
@@ -322,8 +467,7 @@ body[data-theme="basic2"] .basic2-gauge-sphere {
   fill: url("#basic2GaugeSphere");
   stroke: rgba(238, 178, 88, 0.24);
   stroke-width: 1;
-  filter:
-    drop-shadow(0 0 0 rgba(255, 255, 255, 0))
+  filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0))
     drop-shadow(0 7px 9px rgba(0, 0, 0, 0.58));
 }
 
@@ -347,8 +491,7 @@ body[data-theme="basic2"] .basic2-gauge-glow {
   fill: rgba(238, 178, 88, 0.026);
   stroke: rgba(238, 178, 88, 0.28);
   stroke-width: 1;
-  filter:
-    drop-shadow(0 0 5px rgba(var(--basic2-meter-rgb), 0.28))
+  filter: drop-shadow(0 0 5px rgba(var(--basic2-meter-rgb), 0.28))
     drop-shadow(0 0 12px rgba(230, 123, 49, 0.14));
 }
 
@@ -371,8 +514,7 @@ body[data-theme="basic2"] .basic2-gauge-outer-progress {
   stroke-linecap: round;
   stroke-dasharray: 100;
   stroke-dashoffset: 100;
-  filter:
-    drop-shadow(0 0 3px rgba(255, 218, 145, 0.42))
+  filter: drop-shadow(0 0 3px rgba(255, 218, 145, 0.42))
     drop-shadow(0 0 7px rgba(var(--basic2-meter-rgb), 0.34));
   transition: stroke-dashoffset 360ms ease;
 }
@@ -397,8 +539,7 @@ body[data-theme="basic2"] .basic2-gauge-progress {
 
 body[data-theme="basic2"] .basic2-gauge-mark {
   fill: url("#basic2GaugeAccent");
-  filter:
-    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.72))
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.72))
     drop-shadow(0 0 8px rgba(var(--basic2-meter-rgb), 0.54));
 }
 
@@ -420,7 +561,9 @@ body[data-theme="basic2"] .basic2-gauge-label {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.74);
 }
 
-body[data-theme="basic2"] .basic2-meter[data-mode="panel"] .basic2-gauge-percent {
+body[data-theme="basic2"]
+  .basic2-meter[data-mode="panel"]
+  .basic2-gauge-percent {
   font-size: 33px;
   font-weight: 900;
 }
@@ -430,7 +573,9 @@ body[data-theme="basic2"] .basic2-meter[data-mode="panel"] .basic2-gauge-label {
   font-weight: 850;
 }
 
-body[data-theme="basic2"] .basic2-meter[data-mode="ball"] .basic2-gauge-percent {
+body[data-theme="basic2"]
+  .basic2-meter[data-mode="ball"]
+  .basic2-gauge-percent {
   font-size: 18px;
   font-weight: 820;
 }
@@ -439,7 +584,9 @@ body[data-theme="basic2"] .basic2-meter[data-mode="ball"] .basic2-gauge-label {
   display: none;
 }
 
-body[data-theme="basic2"] .basic2-meter[data-mode="ball"]:not([data-dock="none"]) .basic2-gauge-percent {
+body[data-theme="basic2"]
+  .basic2-meter[data-mode="ball"]:not([data-dock="none"])
+  .basic2-gauge-percent {
   font-size: 20px;
 }
 
@@ -454,8 +601,17 @@ body[data-theme="basic2"] .quota-card {
   border: 1px solid rgba(238, 178, 88, 0.46);
   border-radius: 14px;
   background:
-    radial-gradient(circle at 0% 0%, rgba(255, 222, 156, 0.065), transparent 38%),
-    linear-gradient(135deg, rgba(255, 236, 190, 0.038), rgba(238, 178, 88, 0.012) 48%, transparent),
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(255, 222, 156, 0.065),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 236, 190, 0.038),
+      rgba(238, 178, 88, 0.012) 48%,
+      transparent
+    ),
     rgba(9, 8, 7, 0.94);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
@@ -490,7 +646,11 @@ body[data-theme="basic2"] .quota-card.estimate-card .estimate-value {
 body[data-theme="basic2"] .quota-card.primary,
 body[data-theme="basic2"] .quota-card.slim {
   background:
-    radial-gradient(circle at 0% 0%, rgba(255, 222, 156, 0.075), transparent 42%),
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(255, 222, 156, 0.075),
+      transparent 42%
+    ),
     linear-gradient(135deg, rgba(238, 178, 88, 0.058), transparent 45%),
     rgba(9, 8, 7, 0.95);
 }
@@ -498,7 +658,11 @@ body[data-theme="basic2"] .quota-card.slim {
 body[data-theme="basic2"] .quota-card.slim {
   border-color: rgba(238, 178, 88, 0.56);
   background:
-    radial-gradient(circle at 0% 0%, rgba(255, 222, 156, 0.09), transparent 44%),
+    radial-gradient(
+      circle at 0% 0%,
+      rgba(255, 222, 156, 0.09),
+      transparent 44%
+    ),
     linear-gradient(135deg, rgba(238, 178, 88, 0.072), transparent 48%),
     rgba(8, 7, 6, 0.96);
   box-shadow:
@@ -517,8 +681,16 @@ body[data-theme="basic2"] .quota-icon {
   border-radius: 50%;
   color: var(--basic2-gold);
   background:
-    radial-gradient(circle at 35% 24%, rgba(255, 236, 190, 0.2), transparent 34%),
-    radial-gradient(circle at 50% 104%, rgba(230, 123, 49, 0.12), transparent 58%),
+    radial-gradient(
+      circle at 35% 24%,
+      rgba(255, 236, 190, 0.2),
+      transparent 34%
+    ),
+    radial-gradient(
+      circle at 50% 104%,
+      rgba(230, 123, 49, 0.12),
+      transparent 58%
+    ),
     rgba(238, 178, 88, 0.06);
   box-shadow:
     inset 0 0 0 1px rgba(238, 178, 88, 0.62),
@@ -559,7 +731,7 @@ body[data-theme="basic2"] .quota-card .quota-sub-value {
 }
 
 body[data-theme="basic2"] .quota-card strong {
-  max-width: 58px;
+  max-width: 95px;
   color: rgba(255, 255, 255, 0.99);
   font-size: 19px;
   font-weight: 920;
@@ -612,8 +784,16 @@ body[data-theme="basic2"][data-widget-mode="ball"] .widget {
   border-radius: 50%;
   backdrop-filter: none;
   background:
-    radial-gradient(circle at 34% 22%, rgba(255, 222, 156, 0.1), transparent 32%),
-    radial-gradient(circle at 76% 86%, rgba(230, 123, 49, 0.09), transparent 42%),
+    radial-gradient(
+      circle at 34% 22%,
+      rgba(255, 222, 156, 0.1),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 76% 86%,
+      rgba(230, 123, 49, 0.09),
+      transparent 42%
+    ),
     linear-gradient(145deg, rgba(16, 14, 11, 0.998), rgba(4, 4, 3, 0.998));
   box-shadow:
     inset 0 0 0 1px rgba(238, 178, 88, 0.34),
@@ -627,8 +807,16 @@ body[data-theme="basic2"][data-widget-mode="ball"] .widget::before {
   display: block;
   border-radius: 50%;
   background:
-    radial-gradient(circle at 35% 21%, rgba(255, 245, 207, 0.075), transparent 32%),
-    radial-gradient(circle at 50% 100%, rgba(230, 123, 49, 0.09), transparent 55%);
+    radial-gradient(
+      circle at 35% 21%,
+      rgba(255, 245, 207, 0.075),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(230, 123, 49, 0.09),
+      transparent 55%
+    );
 }
 
 body[data-theme="basic2"][data-widget-mode="ball"] .widget::after {
@@ -659,7 +847,8 @@ body[data-theme="basic2"][data-widget-mode="ball"] .basic2-gauge {
 }
 
 body[data-theme="basic2"][data-widget-mode="ball"] .basic2-gauge-outer-track,
-body[data-theme="basic2"][data-widget-mode="ball"] .basic2-gauge-outer-progress {
+body[data-theme="basic2"][data-widget-mode="ball"]
+  .basic2-gauge-outer-progress {
   stroke-width: 9.2;
 }
 

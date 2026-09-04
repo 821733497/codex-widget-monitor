@@ -9,6 +9,7 @@ export function createElements() {
     settingsBtn: document.getElementById("settingsBtn"),
     pinBtn: document.getElementById("pinBtn"),
     refreshBtn: document.getElementById("refreshBtn"),
+    themeSwitchBtn: document.getElementById("themeSwitchBtn"),
     minimizeBtn: document.getElementById("minimizeBtn"),
     closeBtn: document.getElementById("closeBtn"),
     meterHost: document.getElementById("meterHost"),
@@ -22,7 +23,9 @@ export function createElements() {
     onboardingDescription: document.getElementById("onboardingDescription"),
     onboardingPrevBtn: document.getElementById("onboardingPrevBtn"),
     onboardingNextBtn: document.getElementById("onboardingNextBtn"),
-    onboardingStepDots: Array.from(document.querySelectorAll("[data-onboarding-step-dot]")),
+    onboardingStepDots: Array.from(
+      document.querySelectorAll("[data-onboarding-step-dot]"),
+    ),
     onboardingCloseBtn: document.getElementById("onboardingCloseBtn"),
     settingsPanel: document.getElementById("settingsPanel"),
     settingsTitle: document.getElementById("settingsTitle"),
@@ -51,22 +54,37 @@ export function createElements() {
     localeSelect: document.getElementById("localeSelect"),
     meterWindowLabel: document.getElementById("meterWindowLabel"),
     meterWindowSelect: document.getElementById("meterWindowSelect"),
+    ballSizeLabel: document.getElementById("ballSizeLabel"),
+    ballSizeSelect: document.getElementById("ballSizeSelect"),
     dataBarLabels: [
       document.getElementById("dataBar1Label"),
       document.getElementById("dataBar2Label"),
-      document.getElementById("dataBar3Label")
+      document.getElementById("dataBar3Label"),
     ],
     dataBarSelects: [
       document.getElementById("dataBar1Select"),
       document.getElementById("dataBar2Select"),
-      document.getElementById("dataBar3Select")
+      document.getElementById("dataBar3Select"),
     ],
     logLevelLabel: document.getElementById("logLevelLabel"),
     logLevelSelect: document.getElementById("logLevelSelect"),
-    customSelectShells: Array.from(document.querySelectorAll(".custom-select-shell")),
+    customSelectShells: Array.from(
+      document.querySelectorAll(".custom-select-shell"),
+    ),
     settingsError: document.getElementById("settingsError"),
     cancelSettingsBtn: document.getElementById("cancelSettingsBtn"),
     saveSettingsBtn: document.getElementById("saveSettingsBtn"),
-    saveSettingsText: document.getElementById("saveSettingsText")
+    saveSettingsText: document.getElementById("saveSettingsText"),
+    sourcePickerShell: document.getElementById("sourcePickerShell"),
+    sourcePickerBtn: document.getElementById("sourcePickerBtn"),
+    sourcePickerLabel: document.getElementById("sourcePickerLabel"),
+    sourcePickerMenu: document.getElementById("sourcePickerMenu"),
+    tabBasicBtn: document.getElementById("tabBasicBtn"),
+    tabSourcesBtn: document.getElementById("tabSourcesBtn"),
+    basicSettingsScroll: document.getElementById("basicSettingsScroll"),
+    sourcesSettingsScroll: document.getElementById("sourcesSettingsScroll"),
+    sourcesContainer: document.getElementById("sourcesContainer"),
+    ballContextMenu: document.getElementById("ballContextMenu"),
+    activeSourceIndicator: document.getElementById("activeSourceIndicator"),
   };
 }

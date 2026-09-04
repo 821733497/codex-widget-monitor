@@ -1,13 +1,10 @@
-import { mount as mountDefaultMeter } from "./default-meter.js";
-import { mount as mountBasic1Meter } from "./basic1-meter.js";
-import { mount as mountBasic2Meter } from "./basic2-meter.js";
-import { mount as mountBasic3Meter } from "./basic3-meter.js";
+import { mount as mountHoloMeter } from "./holo-meter.js";
+import { mount as mountPyroMeter } from "./pyro-meter.js";
 
 const METER_FACTORIES = {
-  default: mountDefaultMeter,
-  basic1: mountBasic1Meter,
-  basic2: mountBasic2Meter,
-  basic3: mountBasic3Meter
+  default: mountHoloMeter,
+  holo: mountHoloMeter,
+  pyro: mountPyroMeter,
 };
 
 export function createMeterController(root) {

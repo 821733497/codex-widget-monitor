@@ -8,6 +8,6 @@
 body[data-widget-mode="ball"] .meter-host {
   position: absolute;
   inset: 0;
-  width: 88px;
-  height: 88px;
+  width: 100%;
+  height: 100%;
 }

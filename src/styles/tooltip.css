@@ -15,7 +15,11 @@
   pointer-events: none;
   opacity: 0;
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.04)
+    ),
     rgba(12, 20, 30, 0.88);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
@@ -38,14 +42,22 @@
 }
 
 .app-tooltip[data-placement="ball"] {
-  padding: 5px 6px;
-  border-radius: 5px;
+  padding: 4px 6px;
+  border-radius: 4px;
   font-size: 10px;
   font-weight: 700;
   line-height: 12px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     0 4px 12px rgba(0, 0, 0, 0.18);
+}
+
+body[data-ball-size="small"] .app-tooltip[data-placement="ball"] {
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  line-height: 11px;
+  letter-spacing: -0.3px;
 }
 
 .app-tooltip[data-placement="estimate"] {
@@ -63,7 +75,11 @@ body[data-theme="basic1"] .app-tooltip {
   border-color: rgba(103, 232, 249, 0.28);
   color: rgba(232, 253, 255, 0.98);
   background:
-    linear-gradient(145deg, rgba(103, 232, 249, 0.14), rgba(52, 242, 176, 0.06)),
+    linear-gradient(
+      145deg,
+      rgba(103, 232, 249, 0.14),
+      rgba(52, 242, 176, 0.06)
+    ),
     rgba(9, 18, 24, 0.9);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
@@ -80,7 +96,11 @@ body[data-theme="basic2"] .app-tooltip {
   border-color: rgba(238, 178, 88, 0.5);
   color: rgba(255, 236, 190, 0.98);
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 242, 202, 0.16), transparent 64%),
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 242, 202, 0.16),
+      transparent 64%
+    ),
     linear-gradient(180deg, rgba(238, 178, 88, 0.16), rgba(230, 123, 49, 0.06)),
     rgba(10, 9, 7, 0.92);
   box-shadow:
@@ -99,8 +119,16 @@ body[data-theme="basic3"] .app-tooltip {
   border-color: rgba(255, 82, 150, 0.42);
   color: rgba(59, 6, 20, 0.96);
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.92), transparent 62%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 184, 212, 0.32)),
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 255, 255, 0.92),
+      transparent 62%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.76),
+      rgba(255, 184, 212, 0.32)
+    ),
     rgba(255, 246, 250, 0.9);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.94),
@@ -112,4 +140,46 @@ body[data-theme="basic3"] .app-tooltip {
 body[data-theme="basic3"] .app-tooltip::after {
   border-color: rgba(255, 82, 150, 0.3);
   background: rgba(255, 238, 246, 0.94);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"]) .app-tooltip {
+  border-color: rgba(56, 189, 248, 0.4);
+  color: rgba(240, 249, 255, 0.98);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(56, 189, 248, 0.22),
+      transparent 65%
+    ),
+    rgba(8, 14, 26, 0.94);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 10px 24px rgba(0, 0, 0, 0.4),
+    0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+:is(body[data-theme="holo"], body[data-theme="default"]) .app-tooltip::after {
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(8, 14, 26, 0.94);
+}
+
+body[data-theme="pyro"] .app-tooltip {
+  border-color: rgba(245, 158, 11, 0.45);
+  color: rgba(254, 243, 199, 0.98);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(245, 158, 11, 0.25),
+      transparent 65%
+    ),
+    rgba(20, 11, 10, 0.95);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 24px rgba(0, 0, 0, 0.45),
+    0 0 16px rgba(245, 158, 11, 0.25);
+}
+
+body[data-theme="pyro"] .app-tooltip::after {
+  border-color: rgba(245, 158, 11, 0.38);
+  background: rgba(20, 11, 10, 0.95);
 }
