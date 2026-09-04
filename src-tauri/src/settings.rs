@@ -521,6 +521,7 @@ mod tests {
             panel_position: Some(WindowPosition { x: 120, y: 80 }),
             ball_position: Some(WindowPosition { x: 1800, y: 240 }),
             ball_dock: Some(BallDock::Right),
+            ball_size: BallSize::Small,
             sites: vec![],
             active_target: ActiveTarget::Official,
         };
@@ -566,6 +567,7 @@ mod tests {
             Some(WindowPosition { x: 1800, y: 240 })
         );
         assert_eq!(loaded.ball_dock, Some(BallDock::Right));
+        assert_eq!(loaded.ball_size, BallSize::Small);
     }
 
     #[test]
