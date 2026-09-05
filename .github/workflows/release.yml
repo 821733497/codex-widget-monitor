@@ -247,5 +247,10 @@ jobs:
             gh release upload "${tag}" "${assets[@]}" --repo "${GITHUB_REPOSITORY}" --clobber
           else
             version=$(node -p "require('./package.json').version")
-            gh release create "${tag}" "${assets[@]}" --repo "${GITHUB_REPOSITORY}" --title "${tag}" --notes "Codex 额度小组件 ${version}"
+            notes_file="docs/releases/${tag}.md"
+            if [ -f "${notes_file}" ]; then
+              gh release create "${tag}" "${assets[@]}" --repo "${GITHUB_REPOSITORY}" --title "${tag}" --notes-file "${notes_file}"
+            else
+              gh release create "${tag}" "${assets[@]}" --repo "${GITHUB_REPOSITORY}" --title "${tag}" --notes "Codex 额度小组件 ${version}"
+            fi
           fi

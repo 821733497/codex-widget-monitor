@@ -26,15 +26,15 @@ fn current_time_ms() -> u64 {
 #[cfg(target_os = "windows")]
 fn get_cursor_pos_physical() -> Option<(i32, i32)> {
     #[repr(C)]
-    struct POINT {
+    struct Point {
         x: i32,
         y: i32,
     }
     #[link(name = "user32")]
     extern "system" {
-        fn GetCursorPos(lpPoint: *mut POINT) -> i32;
+        fn GetCursorPos(lpPoint: *mut Point) -> i32;
     }
-    let mut pt = POINT { x: 0, y: 0 };
+    let mut pt = Point { x: 0, y: 0 };
     if unsafe { GetCursorPos(&mut pt) } != 0 {
         Some((pt.x, pt.y))
     } else {
@@ -57,7 +57,9 @@ fn spawn_hover_monitor(app: AppHandle, icon_rect: tauri::Rect, session_id: u64) 
             tokio::time::sleep(Duration::from_millis(50)).await;
 
             // 如果已经点击锁定（Pinned）或开启了新的悬停会话，退出当前监控
-            if PREVIEW_PINNED.load(Ordering::SeqCst) || HOVER_TOKEN.load(Ordering::SeqCst) != session_id {
+            if PREVIEW_PINNED.load(Ordering::SeqCst)
+                || HOVER_TOKEN.load(Ordering::SeqCst) != session_id
+            {
                 break;
             }
 
