@@ -341,19 +341,22 @@
           </div>
 
           <div class="settings-field">
-            <span id="meterWindowLabel">仪表窗口</span>
+            <span id="ballSizeLabel">悬浮球大小</span>
             <div class="custom-select-shell" data-no-drag>
               <select
-                id="meterWindowSelect"
+                id="ballSizeSelect"
                 class="settings-input settings-select"
                 data-no-drag
-                aria-labelledby="meterWindowLabel"
-              ></select>
+                aria-labelledby="ballSizeLabel"
+              >
+                <option value="small">默认 (64px)</option>
+                <option value="medium">大 (88px)</option>
+              </select>
               <button
                 class="custom-select-trigger"
                 type="button"
                 data-no-drag
-                aria-labelledby="meterWindowLabel"
+                aria-labelledby="ballSizeLabel"
               >
                 <span class="custom-select-value"></span>
                 <span class="custom-select-arrow" aria-hidden="true"></span>
@@ -385,31 +388,6 @@
           </div>
 
           <div class="settings-field">
-            <span id="ballSizeLabel">悬浮球大小</span>
-            <div class="custom-select-shell" data-no-drag>
-              <select
-                id="ballSizeSelect"
-                class="settings-input settings-select"
-                data-no-drag
-                aria-labelledby="ballSizeLabel"
-              >
-                <option value="small">默认 (64px)</option>
-                <option value="medium">大 (88px)</option>
-              </select>
-              <button
-                class="custom-select-trigger"
-                type="button"
-                data-no-drag
-                aria-labelledby="ballSizeLabel"
-              >
-                <span class="custom-select-value"></span>
-                <span class="custom-select-arrow" aria-hidden="true"></span>
-              </button>
-              <div class="custom-select-menu" data-no-drag></div>
-            </div>
-          </div>
-
-          <div class="settings-field">
             <span id="ballSnapStyleLabel">吸附样式</span>
             <div class="custom-select-shell" data-no-drag>
               <select
@@ -426,6 +404,28 @@
                 type="button"
                 data-no-drag
                 aria-labelledby="ballSnapStyleLabel"
+              >
+                <span class="custom-select-value"></span>
+                <span class="custom-select-arrow" aria-hidden="true"></span>
+              </button>
+              <div class="custom-select-menu" data-no-drag></div>
+            </div>
+          </div>
+
+          <div class="settings-field">
+            <span id="meterWindowLabel">仪表窗口</span>
+            <div class="custom-select-shell" data-no-drag>
+              <select
+                id="meterWindowSelect"
+                class="settings-input settings-select"
+                data-no-drag
+                aria-labelledby="meterWindowLabel"
+              ></select>
+              <button
+                class="custom-select-trigger"
+                type="button"
+                data-no-drag
+                aria-labelledby="meterWindowLabel"
               >
                 <span class="custom-select-value"></span>
                 <span class="custom-select-arrow" aria-hidden="true"></span>

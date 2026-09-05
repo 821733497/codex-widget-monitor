@@ -8,7 +8,8 @@ import {
   formatResetCredits,
   formatWindowLabel,
   getVisualState,
-  selectedMeterWindow
+  getWalletVisualState,
+  selectedMeterWindow,
 } from "../src/app/formatters.js";
 
 describe("展示格式化", () => {
@@ -24,11 +25,12 @@ describe("展示格式化", () => {
   it("格式化重置次数和过期剩余时间", () => {
     expect(formatResetCredits(3)).toBe("3");
     expect(formatResetCredits(-1)).toBe("--");
-    expect(formatResetCreditExpiries([
-      "2026-01-01T02:00:00Z",
-      "2026-01-01T00:01:00Z",
-      "invalid"
-    ], "success")).toBe("1m/2h");
+    expect(
+      formatResetCreditExpiries(
+        ["2026-01-01T02:00:00Z", "2026-01-01T00:01:00Z", "invalid"],
+        "success",
+      ),
+    ).toBe("1m/2h");
     expect(formatResetCreditExpiries([], "success")).toBe("--");
   });
 
@@ -42,6 +44,13 @@ describe("展示格式化", () => {
     expect(getVisualState(10)).toBe("critical");
     expect(getVisualState(49)).toBe("low");
     expect(getVisualState(50)).toBe("ready");
+    expect(getWalletVisualState(null)).toBe("unknown");
+    expect(getWalletVisualState(0)).toBe("empty");
+    expect(getWalletVisualState(-5)).toBe("empty");
+    expect(getWalletVisualState(10, false)).toBe("empty");
+    expect(getWalletVisualState(0.8)).toBe("critical");
+    expect(getWalletVisualState(3.5)).toBe("low");
+    expect(getWalletVisualState(9.17)).toBe("ready");
     expect(formatDateTimeOrPlaceholder("invalid", "zh")).toBe("--");
   });
 
@@ -55,8 +64,15 @@ describe("展示格式化", () => {
     const ready = { status: "ready", fullQuotaUsd: 104.6 };
     expect(formatQuotaEstimateUsd(ready, "zh")).toBe("$105");
     expect(formatQuotaEstimateUsd(ready, "en")).toBe("$105");
-    expect(formatQuotaEstimateUsd({ status: "collecting", fullQuotaUsd: 105 }, "zh")).toBe("--");
-    expect(formatQuotaEstimateUsd({ status: "ready", fullQuotaUsd: Number.NaN }, "zh")).toBe("--");
+    expect(
+      formatQuotaEstimateUsd({ status: "collecting", fullQuotaUsd: 105 }, "zh"),
+    ).toBe("--");
+    expect(
+      formatQuotaEstimateUsd(
+        { status: "ready", fullQuotaUsd: Number.NaN },
+        "zh",
+      ),
+    ).toBe("--");
   });
 
   it("额度估算提示包含样本指标和不可用状态", () => {
@@ -72,26 +88,30 @@ describe("展示格式化", () => {
       estimateCollecting: "仍在收集",
       estimateLoading: "正在获取数据",
       estimateWaitingCurrentUsage: "等待本周期本地使用数据",
-      estimateUnavailable: "不可用"
+      estimateUnavailable: "不可用",
     };
-    const tooltip = formatQuotaEstimateTooltip({
-      priceTableAsOf: "2026-08-25",
-      previous: {
-        status: "ready",
-        fullQuotaUsd: 104.6,
-        sampleCount: 39,
-        percentSpan: 40,
-        unpricedEventCount: 3,
-        suspectedRemoteIntervalCount: 2
+    const tooltip = formatQuotaEstimateTooltip(
+      {
+        priceTableAsOf: "2026-08-25",
+        previous: {
+          status: "ready",
+          fullQuotaUsd: 104.6,
+          sampleCount: 39,
+          percentSpan: 40,
+          unpricedEventCount: 3,
+          suspectedRemoteIntervalCount: 2,
+        },
+        current: {
+          status: "collecting",
+          sampleCount: 10,
+          percentSpan: 10,
+          unpricedEventCount: 70,
+          suspectedRemoteIntervalCount: 4,
+        },
       },
-      current: {
-        status: "collecting",
-        sampleCount: 10,
-        percentSpan: 10,
-        unpricedEventCount: 70,
-        suspectedRemoteIntervalCount: 4
-      }
-    }, text, "zh");
+      text,
+      "zh",
+    );
 
     expect(tooltip).toContain("上周：$105");
     expect(tooltip).not.toContain("R²");
@@ -99,23 +119,29 @@ describe("展示格式化", () => {
     expect(tooltip).toContain("疑似跨设备区间 2");
     expect(tooltip).toContain("疑似跨设备区间 4");
     expect(tooltip).toContain("价格表 2026-08-25");
-    const loadingTooltip = formatQuotaEstimateTooltip(null, text, "zh", { loading: true });
+    const loadingTooltip = formatQuotaEstimateTooltip(null, text, "zh", {
+      loading: true,
+    });
     expect(loadingTooltip).toContain("上周：正在获取数据");
     expect(loadingTooltip).toContain("本周：正在获取数据");
     expect(loadingTooltip).not.toContain("不可用");
     const missingTooltip = formatQuotaEstimateTooltip(null, text, "zh");
     expect(missingTooltip).toContain("上周：不可用");
     expect(missingTooltip).toContain("本周：等待本周期本地使用数据");
-    const unavailableTooltip = formatQuotaEstimateTooltip({
-      previous: null,
-      current: {
-        status: "unavailable",
-        sampleCount: 0,
-        percentSpan: 0,
-        unpricedEventCount: 8,
-        suspectedRemoteIntervalCount: 1
-      }
-    }, text, "zh");
+    const unavailableTooltip = formatQuotaEstimateTooltip(
+      {
+        previous: null,
+        current: {
+          status: "unavailable",
+          sampleCount: 0,
+          percentSpan: 0,
+          unpricedEventCount: 8,
+          suspectedRemoteIntervalCount: 1,
+        },
+      },
+      text,
+      "zh",
+    );
     expect(unavailableTooltip).toContain("本周：不可用");
     expect(unavailableTooltip).toContain("跨度 0%, 未计价 8, 疑似跨设备区间 1");
 
@@ -124,12 +150,18 @@ describe("展示格式化", () => {
       estimatePrevious: "Last",
       estimateCurrent: "Current",
       estimateWaitingCurrentUsage: "Waiting for local usage data in this cycle",
-      estimateUnavailable: "No usable local session data"
+      estimateUnavailable: "No usable local session data",
     };
-    const englishMissingTooltip = formatQuotaEstimateTooltip(null, englishText, "en");
-    expect(englishMissingTooltip).toContain("Last: No usable local session data");
+    const englishMissingTooltip = formatQuotaEstimateTooltip(
+      null,
+      englishText,
+      "en",
+    );
     expect(englishMissingTooltip).toContain(
-      "Current: Waiting for local usage data in this cycle"
+      "Last: No usable local session data",
+    );
+    expect(englishMissingTooltip).toContain(
+      "Current: Waiting for local usage data in this cycle",
     );
   });
 });

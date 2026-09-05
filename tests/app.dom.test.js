@@ -79,6 +79,37 @@ describe("应用编排", () => {
     fixture.els.themeSwitchBtn.click();
     expect(fixture.state.settings.theme).toBe("default");
   });
+
+  it("切换数据源时立即重置额度数据为初始状态并进入 loading", async () => {
+    const fixture = createFixture();
+    fixture.service.commands.switchActiveTarget = vi.fn().mockResolvedValue();
+    await fixture.app.start();
+
+    // 假设已有旧数据
+    fixture.state.quota = {
+      planType: "pro",
+      credits: { type: "sub2api", balance: 9.17 },
+    };
+    fixture.state.loading = false;
+    fixture.state.settings.sites = [
+      {
+        id: "site-1",
+        name: "测试中转",
+        keys: [{ id: "key-1", name: "Default Key" }],
+      },
+    ];
+
+    // 点击切换数据源
+    fixture.els.sourcePickerBtn.click();
+
+    expect(fixture.state.quota).toBeNull();
+    expect(fixture.state.loading).toBe(true);
+    expect(fixture.state.settings.activeTarget).toEqual({
+      type: "siteKey",
+      siteId: "site-1",
+      keyId: "key-1",
+    });
+  });
 });
 
 function createFixture({ settingsError, alwaysOnTopError } = {}) {

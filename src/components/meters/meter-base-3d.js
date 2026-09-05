@@ -162,6 +162,7 @@ export function create3DMeterBase(root, config) {
   }
 
   function update({
+    displayText,
     percent: nextPercent,
     level,
     label: nextLabel,
@@ -178,7 +179,8 @@ export function create3DMeterBase(root, config) {
     const rounded = clampedPercent !== null ? Math.round(clampedPercent) : null;
 
     targetPercent = rounded !== null ? rounded : 0;
-    const displayPercent = rounded !== null ? `${rounded}%` : "--%";
+    const displayPercent =
+      displayText || (rounded !== null ? `${rounded}%` : "--%");
     const labelText = nextLabel || "";
 
     percentEl.textContent = displayPercent;

@@ -7,6 +7,7 @@ import {
   formatDateTimeOrPlaceholder,
   formatWindowLabel,
   getVisualState,
+  getWalletVisualState,
   selectedMeterWindow,
   stateLabel,
   statusLabel,
@@ -68,12 +69,39 @@ export function createRenderer({
       activeSettings.meterWindow,
     );
     const dataBars = resolveDataBars(activeSettings.dataBars, quota?.planType);
-    const remaining =
+
+    const isSub2api = quota?.credits?.type === "sub2api";
+    const isUnrestricted =
+      isSub2api &&
+      (quota?.credits?.isUnrestricted ||
+        quota?.credits?.subType === "unrestricted" ||
+        quota?.credits?.limit === null ||
+        quota?.credits?.limit === undefined);
+
+    let remaining =
       typeof meterWindowData?.remainingPercent === "number"
         ? meterWindowData.remainingPercent
         : null;
-    const remainingValue = remaining === null ? 0 : clamp(remaining, 0, 100);
-    const visualState = getVisualState(remaining);
+    let remainingValue = remaining === null ? 0 : clamp(remaining, 0, 100);
+    let visualState = getVisualState(remaining);
+    let displayText = null;
+    let displayLabel = text.remaining;
+
+    if (isUnrestricted) {
+      const balance =
+        typeof quota?.credits?.balance === "number"
+          ? quota.credits.balance
+          : typeof quota?.credits?.remaining === "number"
+            ? quota.credits.remaining
+            : null;
+      visualState = getWalletVisualState(balance, quota?.credits?.isValid);
+      displayText =
+        typeof balance === "number" ? `$${balance.toFixed(2)}` : "--";
+      displayLabel = activeLocale === "zh" ? "余额" : "Balance";
+      remaining = visualState === "empty" ? 0 : 100;
+      remainingValue = visualState === "empty" ? 0 : 100;
+    }
+
     const error = activeError(state);
     const isInitialQuotaLoading = state.loading && !hasQuota;
     const mainState =
@@ -91,6 +119,8 @@ export function createRenderer({
       remaining,
       remainingValue,
       visualState,
+      displayText,
+      displayLabel,
       error,
       isInitialQuotaLoading,
       mainState,
@@ -190,7 +220,10 @@ export function createRenderer({
   }
 
   function renderMeter({
+    activeSettings,
     activeTheme,
+    displayText,
+    displayLabel,
     remaining,
     remainingValue,
     text,
@@ -198,13 +231,14 @@ export function createRenderer({
   }) {
     meterController.update({
       theme: activeTheme,
+      displayText,
       percent: remaining,
       angle: remainingValue * 3.6,
       level: visualState,
-      label: text.remaining,
+      label: displayLabel || text.remaining,
       mode: state.widgetMode,
       dock: state.ballDock || "none",
-      ballSize: state.settings.ballSize || "small",
+      ballSize: activeSettings?.ballSize || state.settings.ballSize || "small",
     });
   }
 
@@ -243,6 +277,11 @@ export function createRenderer({
 
   function renderSub2apiCards({ activeLocale, quota, text }) {
     const cred = quota?.credits || {};
+    const isUnrestricted =
+      cred.isUnrestricted ||
+      cred.subType === "unrestricted" ||
+      cred.limit === null ||
+      cred.limit === undefined;
 
     if (!sub2apiElements) {
       sub2apiElements = [
@@ -254,6 +293,69 @@ export function createRenderer({
         card.classList.remove("estimate-card");
         removeTooltip(card);
       });
+    }
+
+    if (isUnrestricted) {
+      // 钱包余额（按量计费）模式
+
+      // 第 1 栏：今日消耗
+      const el0 = sub2apiElements[0];
+      setText(el0.label, activeLocale === "zh" ? "今日消耗" : "Today Usage");
+      setText(el0.subLabel, activeLocale === "zh" ? "状态: " : "Status: ");
+      const statusText =
+        cred.isValid === false
+          ? activeLocale === "zh"
+            ? "失效"
+            : "invalid"
+          : cred.status || "active";
+      setText(el0.subValue, statusText);
+      setText(
+        el0.value,
+        typeof cred.todayCost === "number"
+          ? `$${cred.todayCost.toFixed(2)}`
+          : "$0.00",
+      );
+      const tip0 = `${activeLocale === "zh" ? "今日消耗" : "Today"}: $${Number(cred.todayCost || 0).toFixed(2)}`;
+      setTooltip(els.dataBarCards[0], tip0);
+
+      // 第 2 栏：钱包余额
+      const el1 = sub2apiElements[1];
+      const walletBalance =
+        typeof cred.balance === "number"
+          ? cred.balance
+          : typeof cred.remaining === "number"
+            ? cred.remaining
+            : null;
+      const title1 =
+        cred.planName ||
+        (activeLocale === "zh" ? "钱包余额" : "Wallet Balance");
+      setText(el1.label, title1);
+      setText(el1.subLabel, activeLocale === "zh" ? "总消耗: " : "Total: ");
+      setText(
+        el1.subValue,
+        typeof cred.totalCost === "number"
+          ? `$${Number(cred.totalCost).toFixed(2)}`
+          : "$0.00",
+      );
+      setText(
+        el1.value,
+        walletBalance !== null ? `$${Number(walletBalance).toFixed(2)}` : "--",
+      );
+      const tip1 = `${title1}: $${Number(walletBalance || 0).toFixed(2)}；${activeLocale === "zh" ? "累计消耗" : "Total Cost"}: $${Number(cred.totalCost || 0).toFixed(2)}`;
+      setTooltip(els.dataBarCards[1], tip1);
+
+      // 第 3 栏：计费模式
+      const el2 = sub2apiElements[2];
+      setText(el2.label, activeLocale === "zh" ? "计费模式" : "Billing Mode");
+      setText(el2.subLabel, activeLocale === "zh" ? "类型: " : "Plan: ");
+      setText(el2.subValue, activeLocale === "zh" ? "不限额" : "Unlimited");
+      setText(el2.value, activeLocale === "zh" ? "按量计费" : "Pay-as-you-go");
+      const tip2 =
+        activeLocale === "zh"
+          ? "计费模式: 按量计费（无周期限额）"
+          : "Billing Mode: Pay-as-you-go (No cycle limit)";
+      setTooltip(els.dataBarCards[2], tip2);
+      return;
     }
 
     // 第 1 栏：今日消耗

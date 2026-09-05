@@ -119,6 +119,20 @@ async fn do_usage_request(base_url: &str, api_key: &str, proxy: Option<&str>) ->
     Ok(parsed)
 }
 
+fn extract_cost(val: Option<&Value>) -> Option<f64> {
+    val.and_then(|v| {
+        if v.is_number() {
+            v.as_f64()
+        } else if let Some(obj) = v.as_object() {
+            obj.get("actual_cost")
+                .or_else(|| obj.get("cost"))
+                .and_then(Value::as_f64)
+        } else {
+            None
+        }
+    })
+}
+
 pub async fn test_connection(
     base_url: &str,
     api_key: &str,
@@ -136,30 +150,59 @@ pub async fn test_connection(
         .and_then(Value::as_array)
         .and_then(|arr| arr.first());
 
-    let limit = rate_limit
-        .and_then(|rl| rl.get("limit"))
-        .and_then(Value::as_f64);
-    let used = rate_limit
-        .and_then(|rl| rl.get("used"))
-        .and_then(Value::as_f64);
-    let remaining = rate_limit
-        .and_then(|rl| rl.get("remaining"))
-        .and_then(Value::as_f64)
-        .or_else(|| {
-            if let (Some(l), Some(u)) = (limit, used) {
-                Some((l - u).max(0.0))
-            } else {
-                None
-            }
-        });
+    let is_unrestricted = data.get("mode").and_then(Value::as_str) == Some("unrestricted")
+        || (rate_limit.is_none()
+            && (data.get("balance").is_some()
+                || data.get("planName").is_some()
+                || data.get("remaining").is_some()));
 
-    let resets_at = rate_limit
-        .and_then(|rl| rl.get("reset_at"))
-        .and_then(Value::as_str)
-        .map(ToString::to_string);
+    let balance = data
+        .get("balance")
+        .or_else(|| data.get("remaining"))
+        .and_then(Value::as_f64);
+
+    let limit = if is_unrestricted {
+        None
+    } else {
+        rate_limit.and_then(|rl| rl.get("limit")).and_then(Value::as_f64)
+    };
+
+    let used = if is_unrestricted {
+        None
+    } else {
+        rate_limit.and_then(|rl| rl.get("used")).and_then(Value::as_f64)
+    };
+
+    let remaining = if is_unrestricted {
+        balance
+    } else {
+        rate_limit
+            .and_then(|rl| rl.get("remaining"))
+            .and_then(Value::as_f64)
+            .or_else(|| {
+                if let (Some(l), Some(u)) = (limit, used) {
+                    Some((l - u).max(0.0))
+                } else {
+                    None
+                }
+            })
+    };
+
+    let resets_at = if is_unrestricted {
+        None
+    } else {
+        rate_limit
+            .and_then(|rl| rl.get("reset_at"))
+            .and_then(Value::as_str)
+            .map(ToString::to_string)
+    };
 
     let summary_msg = if let Some(rem) = remaining {
-        format!("连接成功！状态: {status}，当前剩余: ${rem:.2}")
+        if is_unrestricted {
+            format!("连接成功！状态: {status}，当前余额: ${rem:.2}")
+        } else {
+            format!("连接成功！状态: {status}，当前剩余: ${rem:.2}")
+        }
     } else {
         format!("连接成功！状态: {status}")
     };
@@ -184,67 +227,122 @@ pub async fn fetch_quota(
 ) -> Result<QuotaSnapshot> {
     let data = do_usage_request(base_url, api_key, proxy).await?;
 
+    let is_valid = data.get("isValid").and_then(Value::as_bool);
     let status = data
         .get("status")
         .and_then(Value::as_str)
-        .unwrap_or("active")
-        .to_string();
+        .map(ToString::to_string)
+        .unwrap_or_else(|| {
+            if is_valid == Some(false) {
+                "disabled".to_string()
+            } else {
+                "active".to_string()
+            }
+        });
 
     let rate_limit = data
         .get("rate_limits")
         .and_then(Value::as_array)
         .and_then(|arr| arr.first());
 
-    let limit = rate_limit
-        .and_then(|rl| rl.get("limit"))
-        .and_then(Value::as_f64)
-        .unwrap_or(0.0);
-    let used = rate_limit
-        .and_then(|rl| rl.get("used"))
-        .and_then(Value::as_f64)
-        .unwrap_or(0.0);
-    let remaining = rate_limit
-        .and_then(|rl| rl.get("remaining"))
-        .and_then(Value::as_f64)
-        .unwrap_or_else(|| (limit - used).max(0.0));
+    let is_unrestricted = data.get("mode").and_then(Value::as_str) == Some("unrestricted")
+        || (rate_limit.is_none()
+            && (data.get("balance").is_some()
+                || data.get("planName").is_some()
+                || data.get("remaining").is_some()));
 
-    let resets_at = rate_limit
-        .and_then(|rl| rl.get("reset_at"))
+    let balance = data
+        .get("balance")
+        .or_else(|| data.get("remaining"))
+        .and_then(Value::as_f64);
+
+    let plan_name = data
+        .get("planName")
         .and_then(Value::as_str)
         .map(ToString::to_string);
 
-    let remaining_percent = if limit > 0.0 {
+    let unit = data
+        .get("unit")
+        .and_then(Value::as_str)
+        .unwrap_or("USD")
+        .to_string();
+
+    let limit = if is_unrestricted {
+        0.0
+    } else {
+        rate_limit
+            .and_then(|rl| rl.get("limit"))
+            .and_then(Value::as_f64)
+            .unwrap_or(0.0)
+    };
+
+    // 提取今日消费和总消费
+    let today_cost = data
+        .get("usage")
+        .and_then(|u| {
+            extract_cost(u.get("today")).or_else(|| extract_cost(u.get("today_cost")))
+        })
+        .or_else(|| {
+            data.get("daily_usage")
+                .and_then(Value::as_array)
+                .and_then(|arr| arr.last())
+                .and_then(|last| extract_cost(Some(last)))
+        });
+
+    let total_cost = data
+        .get("usage")
+        .and_then(|u| {
+            extract_cost(u.get("total")).or_else(|| extract_cost(u.get("total_cost")))
+        });
+
+    let used = if is_unrestricted {
+        total_cost.unwrap_or(0.0)
+    } else {
+        rate_limit
+            .and_then(|rl| rl.get("used"))
+            .and_then(Value::as_f64)
+            .unwrap_or(0.0)
+    };
+
+    let remaining = if is_unrestricted {
+        balance.unwrap_or(0.0)
+    } else {
+        rate_limit
+            .and_then(|rl| rl.get("remaining"))
+            .and_then(Value::as_f64)
+            .unwrap_or_else(|| (limit - used).max(0.0))
+    };
+
+    let resets_at = if is_unrestricted {
+        None
+    } else {
+        rate_limit
+            .and_then(|rl| rl.get("reset_at"))
+            .and_then(Value::as_str)
+            .map(ToString::to_string)
+    };
+
+    let remaining_percent = if is_unrestricted {
+        100
+    } else if limit > 0.0 {
         ((remaining / limit) * 100.0).round().clamp(0.0, 100.0) as u8
     } else {
         100
     };
     let used_percent = 100u8.saturating_sub(remaining_percent);
 
-    // 提取今日消费和总消费
-    let today_cost = data
-        .get("usage")
-        .and_then(|u| u.get("today_cost").or_else(|| u.get("today")))
-        .and_then(Value::as_f64)
-        .or_else(|| {
-            data.get("daily_usage")
-                .and_then(Value::as_array)
-                .and_then(|arr| arr.last())
-                .and_then(|last| last.get("actual_cost").or_else(|| last.get("cost")))
-                .and_then(Value::as_f64)
-        });
-
-    let total_cost = data
-        .get("usage")
-        .and_then(|u| u.get("total_cost").or_else(|| u.get("total")))
-        .and_then(Value::as_f64);
-
     let credits_obj = serde_json::json!({
         "type": "sub2api",
-        "currency": "USD",
-        "limit": limit,
+        "subType": if is_unrestricted { "unrestricted" } else { "cycle" },
+        "isUnrestricted": is_unrestricted,
+        "currency": unit,
+        "limit": if is_unrestricted { None } else { Some(limit) },
         "used": used,
         "remaining": remaining,
+        "balance": balance,
         "status": status,
+        "planName": plan_name,
+        "isValid": is_valid,
         "todayCost": today_cost,
         "totalCost": total_cost,
     });
@@ -252,7 +350,7 @@ pub async fn fetch_quota(
     let secondary_window = QuotaWindow {
         used_percent,
         remaining_percent,
-        window_duration_mins: Some(10080),
+        window_duration_mins: if is_unrestricted { None } else { Some(10080) },
         resets_at: resets_at.clone(),
     };
 

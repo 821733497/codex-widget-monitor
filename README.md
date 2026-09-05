@@ -2,13 +2,13 @@
 
 [English](README.en.md)
 
-一个运行在本机的 Codex 额度监控桌面小组件。它支持读取本机已登录的 Codex CLI，也支持配置兼容 `sub2api` 用量接口的第三方供应商，并通过完整面板或悬浮球展示额度状态。
+一个运行在本机的 Codex 额度监控桌面小组件。它支持读取本机已登录的 Codex CLI，也支持配置兼容 `sub2api` 用量接口的第三方供应商，并通过完整面板或悬浮球展示额度状态。第三方数据源同时支持周期限额和余额按量计费模式。
 
 > 本项目不是 OpenAI 官方产品，也不代表任何第三方供应商。截图中的域名、金额和 Key 均为示例数据。
 
 ## 项目来源与二次开发说明
 
-本仓库 Fork 自 [359956085/codex-widget](https://github.com/359956085/codex-widget)，在原项目 MIT License 的基础上进行二次开发。当前版本重点加入了第三方供应商用量监控、多站点/多 Key 管理、连接测试和数据源切换。
+本仓库 Fork 自 [359956085/codex-widget](https://github.com/359956085/codex-widget)，在原项目 MIT License 的基础上进行二次开发。当前版本重点加入了第三方供应商用量监控、周期限额与余额按量计费、多站点/多 Key 管理、连接测试和数据源切换。
 
 MIT 许可允许使用、修改和再发布，但发布二开版本时请保持以下事项：
 
@@ -23,10 +23,11 @@ MIT 许可允许使用、修改和再发布，但发布二开版本时请保持�
 
 相对上游项目，本仓库聚焦并增强了以下能力：
 
-- **第三方供应商适配**：接入兼容 `sub2api` 的用量接口，自动读取今日消耗、周期额度和周窗口数据。
+- **第三方供应商适配**：接入兼容 `sub2api` 的用量接口，自动读取今日消耗、周期额度和周窗口数据，并根据响应识别计费模式。
 - **多站点与多 Key 管理**：支持添加多个供应商站点并自动规范化 `/v1/usage` 请求地址；每个站点可配置多个 API Key，支持脱敏展示、编辑、删除与激活切换。
 - **连接测试与即时切换**：在保存或切换前一键测试接口联通性与凭据鉴权；切换数据源实现即时响应与后台异步静默刷新。
-- **第三方额度卡片**：针对供应商返回的数据展示“今日消耗 / 周期额度 / 周窗口”，独立呈现第三方用量体系。
+- **第三方额度卡片**：周期模式展示“今日消耗 / 周期额度 / 周窗口”，独立呈现第三方用量体系。
+- **余额按量计费模式**：识别无周期限额的数据源，展示钱包余额、今日消耗、累计消耗和计费模式；余额不足或数据源失效时使用独立的视觉状态提示。
 - **统一右键快捷菜单（Quick Menu）**：悬浮球与主面板右键统一唤起极简暗黑毛玻璃快捷菜单，支持快速刷新、一键切换数据源、一键切换主题、设置及退出。
 - **托盘悬浮用量概览（Tray Preview）**：鼠标悬停系统托盘图标即时呼出额度概览卡片，快速查看发光运行状态、当前站点与额度卡片，无需唤起主面板。
 - **悬浮球吸附形态切换（竖向微型进度条）**：悬浮球贴边吸附支持在“半球贴边”与“竖向微型进度条”之间自由切换，具备左右贴边感知、流光刻度与自适应尺寸，极致节省桌面空间。
@@ -38,26 +39,7 @@ MIT 许可允许使用、修改和再发布，但发布二开版本时请保持�
 
 ## 功能截图
 
-以下展示当前版本的核心功能界面、快捷交互与主题示例：
-
-### 核心功能与设置
-
-<table>
-  <tr>
-    <td width="50%"><strong>中转站与 Key 管理</strong><br><img src="docs/assets/provider-settings.png" alt="中转站与 Key 管理页面" width="100%"></td>
-    <td width="50%"><strong>分类设置页（修改立即生效）</strong><br><img src="docs/assets/settings-expanded.png" alt="分类设置页面" width="100%"></td>
-  </tr>
-</table>
-
-### 便捷交互与贴边形态
-
-<table>
-  <tr>
-    <td width="33%"><strong>统一右键快捷菜单</strong><br><img src="docs/assets/quick-menu.png" alt="统一右键快捷菜单" width="100%"></td>
-    <td width="33%"><strong>托盘悬浮用量概览</strong><br><img src="docs/assets/tray-preview.png" alt="托盘悬浮用量概览" width="100%"></td>
-    <td width="34%"><strong>竖向进度条吸附形态</strong><br><img src="docs/assets/dock-bar.png" alt="竖向进度条贴边吸附" width="100%"></td>
-  </tr>
-</table>
+以下展示当前版本的核心功能界面、快捷交互、两种计费模式与主题示例：
 
 ### 多种主题的悬浮球
 
@@ -65,6 +47,38 @@ MIT 许可允许使用、修改和再发布，但发布二开版本时请保持�
   <tr>
     <td width="50%"><strong>全息 3D 核心悬浮球</strong><br><img src="docs/assets/floating-ball-holo.png" alt="全息 3D 核心主题悬浮球" width="100%"></td>
     <td width="50%"><strong>烈焰熔核悬浮球</strong><br><img src="docs/assets/floating-ball-pyro.png" alt="烈焰熔核主题悬浮球" width="100%"></td>
+  </tr>
+</table>
+
+### 托盘预览与计费模式
+
+<table>
+  <tr>
+    <td width="33%"><strong>余额按量计费</strong><br><img src="docs/assets/tray-preview.png" alt="余额按量计费托盘预览" width="100%"></td>
+    <td width="33%"><strong>周期额度模式</strong><br><img src="docs/assets/tray-preview-cycle.png" alt="周期额度托盘预览" width="100%"></td>
+    <td width="34%"><strong>PLUS 周期额度</strong><br><img src="docs/assets/tray-preview-plus.png" alt="PLUS 周期额度托盘预览" width="100%"></td>
+  </tr>
+</table>
+
+### 便捷交互与贴边形态
+
+<table>
+  <tr>
+    <td width="50%"><strong>统一右键快捷菜单</strong><br><img src="docs/assets/quick-menu.png" alt="统一右键快捷菜单" width="100%"></td>
+    <td width="50%"><strong>竖向进度条吸附形态</strong><br><img src="docs/assets/dock-bar.png" alt="竖向进度条贴边吸附" width="100%"></td>
+  </tr>
+</table>
+
+### 核心功能与设置
+
+<table>
+  <tr>
+    <td width="50%"><strong>中转站与 Key 管理</strong><br><img src="docs/assets/provider-settings.png" alt="中转站与 Key 管理页面" width="100%"></td>
+    <td width="50%"><strong>外观与显示设置（修改立即生效）</strong><br><img src="docs/assets/settings-expanded.png" alt="外观与显示设置页面" width="100%"></td>
+  </tr>
+  <tr>
+    <td width="50%"><strong>主题选择与预览</strong><br><img src="docs/assets/settings-theme-picker.png" alt="主题选择下拉菜单" width="100%"></td>
+    <td width="50%"><strong>系统设置</strong><br><img src="docs/assets/settings-system.png" alt="系统设置页面" width="100%"></td>
   </tr>
 </table>
 
@@ -87,9 +101,9 @@ MIT 许可允许使用、修改和再发布，但发布二开版本时请保持�
    - Base URL 以 `/v1` 结尾时，请求 `${BaseURL}/usage`；
    - 其他情况，请求 `${BaseURL}/v1/usage`。
 3. 在站点下添加一个或多个 API Key，使用“测试连接”确认接口和凭据有效。
-4. 点击“使用”激活目标；回到主面板即可查看第三方返回的今日消耗、周期额度和周窗口。
+4. 点击“使用”激活目标；回到主面板即可查看第三方返回的数据。周期模式显示今日消耗、周期额度和周窗口，余额模式显示钱包余额、今日消耗、累计消耗和按量计费状态。
 
-供应商接口需要返回 JSON 用量数据，至少应能提供 `status`、`rate_limits` 或 `usage` 中的一项；具体字段以 [`src-tauri/src/quota/sub2api.rs`](src-tauri/src/quota/sub2api.rs) 的解析规则为准。请求会携带 `Authorization: Bearer <API_KEY>` 和 `X-API-Key` 请求头。
+供应商接口需要返回 JSON 用量数据，至少应能提供 `status`、`rate_limits` 或 `usage` 中的一项；具体字段以 [`src-tauri/src/quota/sub2api.rs`](src-tauri/src/quota/sub2api.rs) 的解析规则为准。返回 `mode: "unrestricted"`，或在没有 `rate_limits` 时提供 `balance`、`remaining` 或 `planName`，会被识别为余额按量计费模式；该模式不显示周期百分比。请求会携带 `Authorization: Bearer <API_KEY>` 和 `X-API-Key` 请求头。
 
 ## 配置与隐私
 
@@ -117,8 +131,11 @@ npm run build:frontend
 # Rust 检查与测试
 cargo test --locked --manifest-path src-tauri/Cargo.toml
 
-# 一键检查（包含前端审计、Rust fmt/clippy/test）
+# 一键检查（前端 lint/test/build + Rust fmt/clippy/test）
 npm run check
+
+# 依赖安全审计
+npm run audit:ci
 ```
 
 发布前建议至少确认：

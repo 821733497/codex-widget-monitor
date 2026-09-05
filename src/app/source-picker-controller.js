@@ -26,42 +26,6 @@ export function createSourcePickerController({
     closePanelMenu();
   }
 
-  let switchToastTimer = null;
-  function showSwitchToast(text) {
-    if (!els.widget) return;
-    const existing = els.widget.querySelector(".ball-switch-toast");
-    if (existing) existing.remove();
-    if (switchToastTimer) clearTimeout(switchToastTimer);
-
-    const toast = document.createElement("div");
-    toast.className = "ball-switch-toast";
-    toast.textContent = text;
-    els.widget.append(toast);
-
-    switchToastTimer = setTimeout(() => {
-      toast.remove();
-      switchToastTimer = null;
-    }, 1200);
-  }
-
-  function resolveSourceLabel(target) {
-    const locale = getLocale ? getLocale() : "zh";
-    if (!target || target.type === "official") {
-      return locale === "en" ? "Official Codex CLI" : "官方 Codex CLI";
-    }
-    if (target.type === "siteKey") {
-      const sites = state.settings.sites || [];
-      const site = sites.find((s) => s.id === target.siteId);
-      const key = site?.keys?.find((k) => k.id === target.keyId);
-      if (key) {
-        return site?.name
-          ? `${site.name} · ${key.name || "Key"}`
-          : key.name || "Key";
-      }
-    }
-    return locale === "en" ? "Custom Source" : "自定义数据源";
-  }
-
   async function cycleToNextSource(event) {
     event?.preventDefault?.();
     event?.stopPropagation?.();
@@ -71,10 +35,6 @@ export function createSourcePickerController({
 
     const items = buildSourceItems();
     if (!items || items.length <= 1) {
-      const locale = getLocale ? getLocale() : "zh";
-      showSwitchToast(
-        locale === "en" ? "Only 1 source configured" : "暂无更多数据源",
-      );
       return;
     }
 
@@ -83,7 +43,7 @@ export function createSourcePickerController({
     const nextIndex = (currentIndex + 1) % items.length;
     const nextItem = items[nextIndex];
 
-    await switchSource(nextItem.target, { showToast: true });
+    await switchSource(nextItem.target);
   }
 
   function togglePanelMenu(event) {
@@ -118,17 +78,17 @@ export function createSourcePickerController({
     }
   }
 
-  async function switchSource(target, { showToast = true } = {}) {
+  async function switchSource(target) {
     closePanelMenu();
 
     state.settings.activeTarget = target;
     state.settingsDraft.activeTarget = target;
+    state.quota = null;
+    state.loading = true;
+    state.errors.quota = "";
+    state.resetCreditExpiries = [];
+    state.resetCreditExpiriesStatus = "idle";
     render();
-
-    if (showToast) {
-      const label = resolveSourceLabel(target);
-      showSwitchToast(label);
-    }
 
     if (service.isAvailable()) {
       try {

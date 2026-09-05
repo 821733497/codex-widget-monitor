@@ -534,19 +534,52 @@ export function createSettingsController({
 
   function renderSourcesTab(text) {
     if (!els.sourcesContainer) return;
-    els.sourcesContainer.replaceChildren();
 
-    if (activeTab !== "sources") return;
+    if (activeTab !== "sources") {
+      els.sourcesContainer.replaceChildren();
+      return;
+    }
 
     if (editingSite) {
+      const existingForm = els.sourcesContainer.querySelector(
+        ".source-inline-form[data-form-type='site']",
+      );
+      if (existingForm && existingForm.dataset.siteId === editingSite.id) {
+        const title = existingForm.querySelector(".source-form-title");
+        if (title) {
+          title.textContent =
+            editingSite.id &&
+            state.settingsDraft.sites?.some((s) => s.id === editingSite.id)
+              ? text.editSite || "编辑站点"
+              : text.addSite || "添加中转站点";
+        }
+        return;
+      }
+      els.sourcesContainer.replaceChildren();
       renderSiteForm(text);
       return;
     }
 
     if (editingKey) {
+      const existingForm = els.sourcesContainer.querySelector(
+        ".source-inline-form[data-form-type='key']",
+      );
+      if (existingForm && existingForm.dataset.keyId === editingKey.id) {
+        const title = existingForm.querySelector(".source-form-title");
+        if (title) {
+          const site = state.settingsDraft.sites?.find(
+            (s) => s.id === editingKey.siteId,
+          );
+          title.textContent = `${text.addKey || "添加 Key"} (${site?.name || "未知站点"})`;
+        }
+        return;
+      }
+      els.sourcesContainer.replaceChildren();
       renderKeyForm(text);
       return;
     }
+
+    els.sourcesContainer.replaceChildren();
 
     const sites = state.settingsDraft.sites || [];
 
@@ -806,8 +839,11 @@ export function createSettingsController({
   function renderSiteForm(text) {
     const form = document.createElement("div");
     form.className = "source-inline-form";
+    form.dataset.formType = "site";
+    form.dataset.siteId = editingSite.id || "";
 
     const title = document.createElement("strong");
+    title.className = "source-form-title";
     title.style.fontSize = "12px";
     title.style.color = "#fff";
     title.textContent =
@@ -817,15 +853,25 @@ export function createSettingsController({
         : text.addSite || "添加中转站点";
 
     const nameInput = document.createElement("input");
+    nameInput.type = "text";
     nameInput.className = "settings-input";
+    nameInput.setAttribute("data-no-drag", "");
     nameInput.placeholder = text.siteName || "站点名称 (如: fcodex 中转站)";
     nameInput.value = editingSite.name || "";
+    nameInput.addEventListener("input", () => {
+      editingSite.name = nameInput.value;
+    });
 
     const urlInput = document.createElement("input");
+    urlInput.type = "text";
     urlInput.className = "settings-input";
+    urlInput.setAttribute("data-no-drag", "");
     urlInput.placeholder =
       text.siteBaseUrl || "Base URL (如: https://fcodex.top/v1)";
     urlInput.value = editingSite.baseUrl || "https://";
+    urlInput.addEventListener("input", () => {
+      editingSite.baseUrl = urlInput.value;
+    });
 
     const btnRow = document.createElement("div");
     btnRow.style.display = "flex";
@@ -843,15 +889,13 @@ export function createSettingsController({
       render();
     });
 
-    const saveBtn = document.createElement("button");
-    saveBtn.type = "button";
-    saveBtn.className = "primary-button";
-    saveBtn.style.padding = "4px 12px";
-    saveBtn.textContent = text.save || "保存";
-    saveBtn.addEventListener("click", () => {
+    function submitSiteSave() {
       const name = nameInput.value.trim();
       const baseUrl = urlInput.value.trim();
-      if (!baseUrl || baseUrl === "https://") return;
+      if (!baseUrl || baseUrl === "https://") {
+        urlInput.focus();
+        return;
+      }
 
       const sites = state.settingsDraft.sites
         ? [...state.settingsDraft.sites]
@@ -871,7 +915,28 @@ export function createSettingsController({
       editingSite = null;
       render();
       saveSettings();
-    });
+    }
+
+    const handleInputKeyDown = (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        submitSiteSave();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        editingSite = null;
+        render();
+      }
+    };
+    nameInput.addEventListener("keydown", handleInputKeyDown);
+    urlInput.addEventListener("keydown", handleInputKeyDown);
+
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "button";
+    saveBtn.className = "primary-button";
+    saveBtn.style.padding = "4px 12px";
+    saveBtn.textContent = text.save || "保存";
+    saveBtn.addEventListener("click", submitSiteSave);
 
     btnRow.append(cancelBtn, saveBtn);
     form.append(title, nameInput, urlInput, btnRow);
@@ -881,25 +946,38 @@ export function createSettingsController({
   function renderKeyForm(text) {
     const form = document.createElement("div");
     form.className = "source-inline-form";
+    form.dataset.formType = "key";
+    form.dataset.keyId = editingKey.id || "";
 
     const site = state.settingsDraft.sites?.find(
       (s) => s.id === editingKey.siteId,
     );
 
     const title = document.createElement("strong");
+    title.className = "source-form-title";
     title.style.fontSize = "12px";
     title.style.color = "#fff";
     title.textContent = `${text.addKey || "添加 Key"} (${site?.name || "未知站点"})`;
 
     const nameInput = document.createElement("input");
+    nameInput.type = "text";
     nameInput.className = "settings-input";
+    nameInput.setAttribute("data-no-drag", "");
     nameInput.placeholder = text.keyName || "备注名称 (如: 公司、个人自用)";
     nameInput.value = editingKey.name || "";
+    nameInput.addEventListener("input", () => {
+      editingKey.name = nameInput.value;
+    });
 
     const keyInput = document.createElement("input");
+    keyInput.type = "text";
     keyInput.className = "settings-input";
+    keyInput.setAttribute("data-no-drag", "");
     keyInput.placeholder = text.apiKey || "API Key (sk-...)";
     keyInput.value = editingKey.key || "";
+    keyInput.addEventListener("input", () => {
+      editingKey.key = keyInput.value;
+    });
 
     const btnRow = document.createElement("div");
     btnRow.style.display = "flex";
@@ -917,15 +995,13 @@ export function createSettingsController({
       render();
     });
 
-    const saveBtn = document.createElement("button");
-    saveBtn.type = "button";
-    saveBtn.className = "primary-button";
-    saveBtn.style.padding = "4px 12px";
-    saveBtn.textContent = text.save || "保存";
-    saveBtn.addEventListener("click", () => {
+    function submitKeySave() {
       const name = nameInput.value.trim();
       const key = keyInput.value.trim();
-      if (!key) return;
+      if (!key) {
+        keyInput.focus();
+        return;
+      }
 
       if (site) {
         site.keys = site.keys || [];
@@ -945,7 +1021,28 @@ export function createSettingsController({
       editingKey = null;
       render();
       saveSettings();
-    });
+    }
+
+    const handleKeyInputKeyDown = (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        submitKeySave();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        editingKey = null;
+        render();
+      }
+    };
+    nameInput.addEventListener("keydown", handleKeyInputKeyDown);
+    keyInput.addEventListener("keydown", handleKeyInputKeyDown);
+
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "button";
+    saveBtn.className = "primary-button";
+    saveBtn.style.padding = "4px 12px";
+    saveBtn.textContent = text.save || "保存";
+    saveBtn.addEventListener("click", submitKeySave);
 
     btnRow.append(cancelBtn, saveBtn);
     form.append(title, nameInput, keyInput, btnRow);
