@@ -2,27 +2,39 @@ import { RESET_CREDIT_EXPIRY_DISPLAY_LIMIT } from "./constants.js";
 
 export function selectedMeterWindow(quota, meterWindow) {
   if (!quota) return null;
-  return meterWindow === "secondary" ? quota.secondary || null : quota.primary || null;
+  return meterWindow === "secondary"
+    ? quota.secondary || null
+    : quota.primary || null;
 }
 
 export function formatResetCredits(availableCount) {
-  if (typeof availableCount === "number" && Number.isInteger(availableCount) && availableCount >= 0) {
+  if (
+    typeof availableCount === "number" &&
+    Number.isInteger(availableCount) &&
+    availableCount >= 0
+  ) {
     return String(availableCount);
   }
   return "--";
 }
 
 export function formatQuotaEstimateUsd(estimate, locale) {
-  const value = estimate?.status === "ready" ? Number(estimate.fullQuotaUsd) : Number.NaN;
+  const value =
+    estimate?.status === "ready" ? Number(estimate.fullQuotaUsd) : Number.NaN;
   if (!Number.isFinite(value) || value <= 0) return "--";
 
   const amount = new Intl.NumberFormat(locale === "zh" ? "zh-CN" : "en-US", {
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(Math.round(value));
   return `$${amount}`;
 }
 
-export function formatQuotaEstimateTooltip(estimate, text, locale, { loading = false } = {}) {
+export function formatQuotaEstimateTooltip(
+  estimate,
+  text,
+  locale,
+  { loading = false } = {},
+) {
   const separator = locale === "zh" ? "；" : "; ";
   const parts = [text.estimateDisclaimer];
   if (loading) {
@@ -31,14 +43,23 @@ export function formatQuotaEstimateTooltip(estimate, text, locale, { loading = f
     parts.push(`${text.estimateCurrent}${delimiter}${text.estimateLoading}`);
     return parts.join(separator);
   }
-  parts.push(formatEstimateCycleDetails(text.estimatePrevious, estimate?.previous, text, locale));
-  parts.push(formatEstimateCycleDetails(
-    text.estimateCurrent,
-    estimate?.current,
-    text,
-    locale,
-    text.estimateWaitingCurrentUsage
-  ));
+  parts.push(
+    formatEstimateCycleDetails(
+      text.estimatePrevious,
+      estimate?.previous,
+      text,
+      locale,
+    ),
+  );
+  parts.push(
+    formatEstimateCycleDetails(
+      text.estimateCurrent,
+      estimate?.current,
+      text,
+      locale,
+      text.estimateWaitingCurrentUsage,
+    ),
+  );
   if (estimate?.priceTableAsOf) {
     parts.push(`${text.estimatePriceTable} ${estimate.priceTableAsOf}`);
   }
@@ -46,7 +67,11 @@ export function formatQuotaEstimateTooltip(estimate, text, locale, { loading = f
 }
 
 export function formatResetCreditExpiries(expiries, status) {
-  if (status !== "success" || !Array.isArray(expiries) || expiries.length === 0) {
+  if (
+    status !== "success" ||
+    !Array.isArray(expiries) ||
+    expiries.length === 0
+  ) {
     return "--";
   }
 
@@ -60,7 +85,8 @@ export function formatResetCreditExpiries(expiries, status) {
 }
 
 export function formatWindowLabel(minutes, fallbackLabel, text, locale) {
-  if (typeof minutes !== "number" || !Number.isFinite(minutes) || minutes <= 0) return fallbackLabel;
+  if (typeof minutes !== "number" || !Number.isFinite(minutes) || minutes <= 0)
+    return fallbackLabel;
   if (minutes % 10080 === 0) {
     const value = minutes / 10080;
     if (locale === "zh") return value === 1 ? "周窗口" : `${value}周窗口`;
@@ -91,6 +117,16 @@ export function getVisualState(remaining) {
   return "ready";
 }
 
+export function getWalletVisualState(balance, isValid = true) {
+  if (isValid === false) return "empty";
+  if (typeof balance !== "number" || !Number.isFinite(balance))
+    return "unknown";
+  if (balance <= 0) return "empty";
+  if (balance <= 1) return "critical";
+  if (balance <= 5) return "low";
+  return "ready";
+}
+
 export function stateLabel(visualState, text) {
   if (visualState === "empty") return text.empty;
   if (visualState === "critical") return text.critical;
@@ -104,7 +140,7 @@ export function formatDate(value, locale) {
   if (Number.isNaN(date.getTime())) return "";
   return new Intl.DateTimeFormat(locale === "zh" ? "zh-CN" : "en-US", {
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   }).format(date);
 }
 
@@ -123,7 +159,7 @@ function formatMonthDayTime(value, locale) {
     month: locale === "zh" ? "numeric" : "short",
     day: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   }).format(date);
 }
 
@@ -146,7 +182,7 @@ function formatEstimateCycleDetails(
   estimate,
   text,
   locale,
-  missingText = text.estimateUnavailable
+  missingText = text.estimateUnavailable,
 ) {
   const delimiter = locale === "zh" ? "：" : ": ";
   if (!estimate) {
@@ -155,11 +191,13 @@ function formatEstimateCycleDetails(
 
   const details = [
     `${text.estimateSamples} ${formatEstimateMetric(estimate.sampleCount)}`,
-    `${text.estimateSpan} ${formatEstimateMetric(estimate.percentSpan)}%`
+    `${text.estimateSpan} ${formatEstimateMetric(estimate.percentSpan)}%`,
   ];
-  details.push(`${text.estimateUnpriced} ${formatEstimateMetric(estimate.unpricedEventCount)}`);
   details.push(
-    `${text.estimateSuspectedRemote} ${formatEstimateMetric(estimate.suspectedRemoteIntervalCount)}`
+    `${text.estimateUnpriced} ${formatEstimateMetric(estimate.unpricedEventCount)}`,
+  );
+  details.push(
+    `${text.estimateSuspectedRemote} ${formatEstimateMetric(estimate.suspectedRemoteIntervalCount)}`,
   );
 
   if (estimate.status === "unavailable") {
@@ -173,5 +211,7 @@ function formatEstimateCycleDetails(
 
 function formatEstimateMetric(value) {
   const number = Number(value);
-  return Number.isFinite(number) && number >= 0 ? String(Math.round(number)) : "0";
+  return Number.isFinite(number) && number >= 0
+    ? String(Math.round(number))
+    : "0";
 }

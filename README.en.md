@@ -2,13 +2,13 @@
 
 [简体中文](README.md)
 
-A local desktop quota widget for Codex. It can read a signed-in local Codex CLI, or query a third-party provider that exposes a compatible `sub2api` usage endpoint. Quota data is shown in a full panel or a floating ball.
+A local desktop quota widget for Codex. It can read a signed-in local Codex CLI, or query a third-party provider that exposes a compatible `sub2api` usage endpoint. Quota data is shown in a full panel or a floating ball. Third-party sources support both cycle-limit and balance-based pay-as-you-go billing.
 
 > This is not an official OpenAI product and is not endorsed by any provider. Domains, amounts, and keys in the screenshots are sample data.
 
 ## Upstream and secondary-development notice
 
-This repository is forked from [359956085/codex-widget](https://github.com/359956085/codex-widget) and is developed under the upstream MIT License. The current fork adds third-party usage monitoring, multi-provider/multi-key management, connection testing, and source switching.
+This repository is forked from [359956085/codex-widget](https://github.com/359956085/codex-widget) and is developed under the upstream MIT License. The current fork adds third-party usage monitoring, cycle-limit and balance-based pay-as-you-go billing, multi-provider/multi-key management, connection testing, and source switching.
 
 MIT permits use, modification, and redistribution. When publishing a derived version:
 
@@ -23,10 +23,11 @@ The upstream instructions that still apply—installation, Codex CLI path select
 
 Compared with the upstream project, this fork focuses on these additions and improvements:
 
-- **Third-party provider adapter**: reads today cost, cycle quota, and weekly-window data from a compatible `sub2api` usage endpoint.
+- **Third-party provider adapter**: reads today cost, cycle quota, and weekly-window data from a compatible `sub2api` usage endpoint and detects the billing mode from the response.
 - **Multi-site & multi-key management**: configure multiple provider sites and normalize `/v1/usage` request URLs; store multiple API keys per site with masking, editing, deletion, and activation.
 - **Connection testing & instant switching**: validate providers before saving or switching; data source switching responds immediately with silent background refresh.
-- **Provider-specific quota cards**: render “today cost / cycle quota / weekly window” without applying the official CLI estimate logic.
+- **Provider-specific quota cards**: render “today cost / cycle quota / weekly window” for cycle-limit sources without applying the official CLI estimate logic.
+- **Balance-based pay-as-you-go mode**: detects sources without a cycle limit and displays wallet balance, today cost, total cost, and billing mode, with dedicated visual states for low, empty, or invalid balances.
 - **Unified Quick Menu**: right-clicking either the floating ball or main panel invokes a sleek dark-glass quick menu to refresh data, switch sources, switch themes, open settings, or quit.
 - **System tray preview**: hover over the tray icon to reveal an instant glowing quota preview card with status indicators, active provider name, and live quota cards without opening the full window.
 - **Floating ball docking modes (Vertical mini dock bar)**: switch edge docking between hemispherical snap and a slender vertical mini progress bar with left/right edge awareness, dynamic glow, and adaptive sizing.
@@ -38,26 +39,7 @@ Upstream panel, floating ball, theme rendering, auto-refresh, and desktop founda
 
 ## Screenshots
 
-Below are screenshots of core features, quick interactions, and available themes:
-
-### Core features & settings
-
-<table>
-  <tr>
-    <td width="50%"><strong>Provider & key management</strong><br><img src="docs/assets/provider-settings.png" alt="Provider and key management page" width="100%"></td>
-    <td width="50%"><strong>Categorized settings (changes apply immediately)</strong><br><img src="docs/assets/settings-expanded.png" alt="Expanded categorized settings page" width="100%"></td>
-  </tr>
-</table>
-
-### Quick interactions & docking styles
-
-<table>
-  <tr>
-    <td width="33%"><strong>Unified Quick Menu</strong><br><img src="docs/assets/quick-menu.png" alt="Unified Quick Menu" width="100%"></td>
-    <td width="33%"><strong>Tray quota preview</strong><br><img src="docs/assets/tray-preview.png" alt="Tray quota preview" width="100%"></td>
-    <td width="34%"><strong>Vertical dock bar snap</strong><br><img src="docs/assets/dock-bar.png" alt="Vertical dock bar snap" width="100%"></td>
-  </tr>
-</table>
+Below are screenshots of core features, quick interactions, both billing modes, and available themes:
 
 ### Floating balls across themes
 
@@ -65,6 +47,38 @@ Below are screenshots of core features, quick interactions, and available themes
   <tr>
     <td width="50%"><strong>Holo 3D Core floating ball</strong><br><img src="docs/assets/floating-ball-holo.png" alt="Holo 3D Core floating ball" width="100%"></td>
     <td width="50%"><strong>Pyro Core floating ball</strong><br><img src="docs/assets/floating-ball-pyro.png" alt="Pyro Core floating ball" width="100%"></td>
+  </tr>
+</table>
+
+### Tray previews & billing modes
+
+<table>
+  <tr>
+    <td width="33%"><strong>Balance-based pay-as-you-go</strong><br><img src="docs/assets/tray-preview.png" alt="Balance-based pay-as-you-go tray preview" width="100%"></td>
+    <td width="33%"><strong>Cycle-limit quota</strong><br><img src="docs/assets/tray-preview-cycle.png" alt="Cycle-limit tray preview" width="100%"></td>
+    <td width="34%"><strong>PLUS cycle quota</strong><br><img src="docs/assets/tray-preview-plus.png" alt="PLUS cycle quota tray preview" width="100%"></td>
+  </tr>
+</table>
+
+### Quick interactions & docking styles
+
+<table>
+  <tr>
+    <td width="50%"><strong>Unified Quick Menu</strong><br><img src="docs/assets/quick-menu.png" alt="Unified Quick Menu" width="100%"></td>
+    <td width="50%"><strong>Vertical dock bar snap</strong><br><img src="docs/assets/dock-bar.png" alt="Vertical dock bar snap" width="100%"></td>
+  </tr>
+</table>
+
+### Core features & settings
+
+<table>
+  <tr>
+    <td width="50%"><strong>Provider & key management</strong><br><img src="docs/assets/provider-settings.png" alt="Provider and key management page" width="100%"></td>
+    <td width="50%"><strong>Appearance & display settings (apply immediately)</strong><br><img src="docs/assets/settings-expanded.png" alt="Appearance and display settings page" width="100%"></td>
+  </tr>
+  <tr>
+    <td width="50%"><strong>Theme selection and preview</strong><br><img src="docs/assets/settings-theme-picker.png" alt="Theme selection menu" width="100%"></td>
+    <td width="50%"><strong>System settings</strong><br><img src="docs/assets/settings-system.png" alt="System settings page" width="100%"></td>
   </tr>
 </table>
 
@@ -87,9 +101,9 @@ These images are rendered from the current branch’s frontend components and st
    - a Base URL ending in `/v1` uses `${BaseURL}/usage`;
    - any other Base URL uses `${BaseURL}/v1/usage`.
 3. Add one or more API keys and click **测试连接** to validate the endpoint and credentials.
-4. Click **使用** to activate a target. The main panel then shows the provider’s today cost, cycle quota, and weekly reset window.
+4. Click **使用** to activate a target. Cycle-limit sources show today cost, cycle quota, and weekly reset windows; balance sources show wallet balance, today cost, total cost, and pay-as-you-go status.
 
-The provider must return JSON usage data containing at least one of `status`, `rate_limits`, or `usage`. See [`src-tauri/src/quota/sub2api.rs`](src-tauri/src/quota/sub2api.rs) for the exact parser. Requests include both `Authorization: Bearer <API_KEY>` and `X-API-Key` headers.
+The provider must return JSON usage data containing at least one of `status`, `rate_limits`, or `usage`. A response with `mode: "unrestricted"`, or with `balance`, `remaining`, or `planName` and no `rate_limits`, is treated as balance-based pay-as-you-go and does not show a cycle percentage. See [`src-tauri/src/quota/sub2api.rs`](src-tauri/src/quota/sub2api.rs) for the exact parser. Requests include both `Authorization: Bearer <API_KEY>` and `X-API-Key` headers.
 
 ## Configuration and privacy
 
@@ -117,8 +131,11 @@ npm run build:frontend
 # Rust tests
 cargo test --locked --manifest-path src-tauri/Cargo.toml
 
-# Full check (frontend audit + Rust fmt/clippy/test)
+# Full check (frontend lint/test/build + Rust fmt/clippy/test)
 npm run check
+
+# Dependency security audit
+npm run audit:ci
 ```
 
 Before publishing, verify that:

@@ -283,6 +283,75 @@ describe("设置面板", () => {
     expect(setWidgetMode).not.toHaveBeenCalled();
     expect(fixture.adjustWindowForSettings).toHaveBeenCalledWith(false);
   });
+
+  it("外观设置中吸附样式位于悬浮球大小下方且仪表窗口位于右下角", () => {
+    const fixture = createFixture(vi.fn().mockResolvedValue({}));
+    fixture.open();
+
+    const fields = Array.from(
+      fixture.els.basicSettingsScroll.querySelectorAll(".settings-field"),
+    );
+    const labels = fields.map((f) => f.querySelector("span")?.textContent?.trim());
+
+    // 验证 2 列网格中的顺序：主题, 数据栏 1, 语言, 数据栏 2, 悬浮球大小, 数据栏 3, 吸附样式, 仪表窗口
+    expect(labels).toEqual([
+      "主题",
+      "数据栏 1",
+      "语言",
+      "数据栏 2",
+      "悬浮球大小",
+      "数据栏 3",
+      "吸附样式",
+      "仪表窗口",
+    ]);
+  });
+
+  it("添加中转站时输入名称并保持渲染状态稳定，保存站点成功", async () => {
+    const fixture = createFixture(vi.fn().mockResolvedValue({}));
+    fixture.open();
+
+    fixture.els.tabSourcesBtn.click();
+    expect(fixture.els.sourcesContainer.hidden).toBe(false);
+
+    const addBtn = fixture.els.sourcesContainer.querySelector(".add-block-btn");
+    expect(addBtn).not.toBeNull();
+    addBtn.click();
+
+    const nameInput = fixture.els.sourcesContainer.querySelector(
+      "input.settings-input[placeholder*='站点名称']",
+    );
+    const urlInput = fixture.els.sourcesContainer.querySelector(
+      "input.settings-input[placeholder*='Base URL']",
+    );
+    expect(nameInput).not.toBeNull();
+    expect(urlInput).not.toBeNull();
+
+    nameInput.value = "测试中转站";
+    nameInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+    fixture.controller.renderSettingsPanel(i18n.zh);
+
+    const nameInputAfterRender = fixture.els.sourcesContainer.querySelector(
+      "input.settings-input[placeholder*='站点名称']",
+    );
+    expect(nameInputAfterRender).toBe(nameInput);
+    expect(nameInputAfterRender.value).toBe("测试中转站");
+
+    urlInput.value = "https://api.example.com/v1";
+    urlInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+    const saveBtn = fixture.els.sourcesContainer.querySelector("button.primary-button");
+    saveBtn.click();
+
+    await vi.waitFor(() =>
+      expect(fixture.persistSettings).toHaveBeenCalledOnce(),
+    );
+    const [updateSettings] = fixture.persistSettings.mock.calls[0];
+    const saved = updateSettings(fixture.state.settings);
+    expect(saved.sites).toHaveLength(1);
+    expect(saved.sites[0].name).toBe("测试中转站");
+    expect(saved.sites[0].baseUrl).toBe("https://api.example.com/v1");
+  });
 });
 
 function createFixture(
