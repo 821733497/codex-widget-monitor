@@ -5,33 +5,33 @@ const ONBOARDING_STEPS = [
   {
     titleKey: "onboardingModeTitle",
     descriptionKey: "onboardingModeDescription",
-    target: "mode"
+    target: "mode",
   },
   {
     titleKey: "onboardingSettingsTitle",
     descriptionKey: "onboardingSettingsDescription",
-    target: "settings"
+    target: "settings",
   },
   {
     titleKey: "onboardingRefreshTitle",
     descriptionKey: "onboardingRefreshDescription",
-    target: "refresh"
+    target: "refresh",
   },
   {
     titleKey: "onboardingUpdateTitle",
     descriptionKey: "onboardingUpdateDescription",
-    target: "version"
-  }
+    target: "version",
+  },
 ];
 
 export function createOnboardingController({
   els,
   state,
   renderLocale,
-  renderTheme,
+  renderTheme: _renderTheme,
   applyNormalizedSettings,
   saveCurrentSettings,
-  i18n
+  i18n,
 }) {
   let initialized = false;
   let completed = false;
@@ -39,7 +39,7 @@ export function createOnboardingController({
   const focusManager = createDialogFocusManager({
     dialog: els.onboardingOverlay,
     initialFocus: els.onboardingNextBtn,
-    onEscape: () => void completeOnboarding()
+    onEscape: () => void completeOnboarding(),
   });
 
   function bindEvents() {
@@ -67,7 +67,7 @@ export function createOnboardingController({
     if (initialized || state.settings.onboardingSeen) return;
     initialized = true;
 
-    if (state.widgetMode !== WIDGET_MODES.PANEL || renderTheme() !== "default") {
+    if (state.widgetMode !== WIDGET_MODES.PANEL) {
       await completeOnboarding({ show: false });
       return;
     }
@@ -102,7 +102,9 @@ export function createOnboardingController({
       els.onboardingPrevBtn.disabled = currentStepIndex === 0;
     }
     if (els.onboardingNextBtn) {
-      els.onboardingNextBtn.textContent = isLastStep ? text.onboardingDone : text.onboardingNext;
+      els.onboardingNextBtn.textContent = isLastStep
+        ? text.onboardingDone
+        : text.onboardingNext;
     }
     els.onboardingStepDots?.forEach((dot, index) => {
       dot.classList.toggle("active", index === currentStepIndex);
@@ -122,20 +124,37 @@ export function createOnboardingController({
 
     const overlayRect = overlay.getBoundingClientRect();
     const targetRect = target.getBoundingClientRect();
-    if (!overlayRect.width || !overlayRect.height || !targetRect.width || !targetRect.height) return;
+    if (
+      !overlayRect.width ||
+      !overlayRect.height ||
+      !targetRect.width ||
+      !targetRect.height
+    )
+      return;
 
     const centerX = targetRect.left - overlayRect.left + targetRect.width / 2;
     const centerY = targetRect.top - overlayRect.top + targetRect.height / 2;
-    overlay.style.setProperty("--onboarding-target-x", `${roundCssPixel(centerX)}px`);
-    overlay.style.setProperty("--onboarding-target-y", `${roundCssPixel(centerY)}px`);
+    overlay.style.setProperty(
+      "--onboarding-target-x",
+      `${roundCssPixel(centerX)}px`,
+    );
+    overlay.style.setProperty(
+      "--onboarding-target-y",
+      `${roundCssPixel(centerY)}px`,
+    );
   }
 
   function getStepTarget(step) {
     if (step.target === "mode") return els.modeBtn;
-    if (step.target === "settings") return els.settingsBtn;
+    if (step.target === "settings") return els.settingsBtn || els.widget;
     if (step.target === "refresh") return els.refreshBtn;
     if (step.target === "version") {
-      return els.versionBtn || document.getElementById("versionBtn") || document.querySelector(".version-badge") || els.brandName;
+      return (
+        els.versionBtn ||
+        document.getElementById("versionBtn") ||
+        document.querySelector(".version-badge") ||
+        els.brandName
+      );
     }
     return null;
   }
@@ -165,7 +184,10 @@ export function createOnboardingController({
     if (completed) return;
     completed = true;
     if (show) hideOnboarding();
-    applyNormalizedSettings({ ...state.settings, onboardingSeen: true }, { syncDraft: !state.settingsOpen });
+    applyNormalizedSettings(
+      { ...state.settings, onboardingSeen: true },
+      { syncDraft: !state.settingsOpen },
+    );
     await saveCurrentSettings({ silent: true });
   }
 
@@ -178,6 +200,6 @@ export function createOnboardingController({
 
   return {
     bindEvents,
-    runInitialOnboarding
+    runInitialOnboarding,
   };
 }

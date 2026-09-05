@@ -61,7 +61,6 @@ export function createWindowController({
     state,
     service,
     render,
-    setWidgetMode,
     positionController,
     logWindowError,
   });
@@ -179,7 +178,6 @@ export function createWindowController({
     const previousDock = state.ballDock;
     let previousPosition = null;
 
-    ballController.clearBallClickTimer();
     positionController.clearPositionSaveTimer();
     state.ballPress = null;
     state.ballDrag = null;
@@ -289,7 +287,16 @@ export function createWindowController({
     if (!area) throw new Error("无法获取悬浮球所在工作区。");
 
     if (targetPosition) {
-      if (isBallAtInternalWorkAreaEdge(targetPosition, size, area, monitors)) {
+      const snapStyle = settings.ballSnapStyle;
+      if (
+        isBallAtInternalWorkAreaEdge(
+          targetPosition,
+          size,
+          area,
+          monitors,
+          snapStyle,
+        )
+      ) {
         await service.window.setPosition(targetPosition);
         return {
           mode: WIDGET_MODES.BALL,
@@ -300,13 +307,14 @@ export function createWindowController({
       }
 
       const dock = settings.ballDock
-        ? resolveSafeBallDock(targetPosition, size, area, monitors)
+        ? resolveSafeBallDock(targetPosition, size, area, monitors, snapStyle)
         : null;
       const nextPosition = clampBallPositionToWorkArea(
         targetPosition,
         size,
         area,
         dock,
+        snapStyle,
       );
       await service.window.setPosition(nextPosition);
       return {
@@ -444,73 +452,87 @@ export function createWindowController({
   }
 
   let preSettingsPosition = null;
-  let appliedSettingsPosition = null;
 
   async function adjustWindowForSettings(isOpen) {
-    if (!service?.isAvailable?.() || state.widgetMode !== WIDGET_MODES.PANEL)
-      return;
+    if (!service?.isAvailable?.()) return;
 
     try {
-      const targetSize = isOpen ? SETTINGS_PANEL_SIZE : PANEL_SIZE;
+      const ballPx = resolveBallSize(state.settings?.ballSize);
+      const scaleFactor = (await service.window?.scaleFactor?.()) || 1.0;
+      const physicalPanelSize = {
+        width: Math.round(SETTINGS_PANEL_SIZE.width * scaleFactor),
+        height: Math.round(SETTINGS_PANEL_SIZE.height * scaleFactor),
+      };
+      const physicalBallSize = Math.round(ballPx * scaleFactor);
+      const physicalBallSizeObj = {
+        width: physicalBallSize,
+        height: physicalBallSize,
+      };
+
       const currentPos = await service.window?.outerPosition?.();
 
-      if (isOpen && currentPos) {
-        preSettingsPosition = { ...currentPos };
-      }
+      if (isOpen) {
+        if (currentPos) {
+          preSettingsPosition = { ...currentPos };
+        }
+        const area = await workAreaForTargetPosition(
+          currentPos,
+          physicalPanelSize,
+        );
 
-      await service.window?.setSize?.(targetSize);
-
-      const currentSize = await service.window?.outerSize?.();
-      if (currentSize) {
-        let candidatePos = currentPos;
-        const area = await workAreaForTargetPosition(currentPos, currentSize);
-
+        let targetPos = currentPos;
         if (area) {
-          if (isOpen && currentPos) {
-            const centerX = currentPos.x + PANEL_SIZE.width / 2;
-            const areaCenterX = area.position.x + area.size.width / 2;
-            const deltaWidth = SETTINGS_PANEL_SIZE.width - PANEL_SIZE.width;
-            // 如果窗口在屏幕右半侧，优先向左侧展开，保持右侧边缘视觉稳定
-            if (centerX > areaCenterX) {
-              candidatePos = {
-                x: currentPos.x - deltaWidth,
-                y: currentPos.y,
-              };
-            }
-          } else if (!isOpen) {
-            // 如果用户在打开设置期间主动拖动了窗口，则以当前拖动位置为准，不强行复原旧位置
-            const userDragged =
-              appliedSettingsPosition &&
-              currentPos &&
-              (Math.abs(currentPos.x - appliedSettingsPosition.x) > 10 ||
-                Math.abs(currentPos.y - appliedSettingsPosition.y) > 10);
+          targetPos = {
+            x: Math.round(
+              area.position.x + (area.size.width - physicalPanelSize.width) / 2,
+            ),
+            y: Math.round(
+              area.position.y +
+                (area.size.height - physicalPanelSize.height) / 2,
+            ),
+          };
+          targetPos = clampPositionToWorkArea(
+            targetPos,
+            physicalPanelSize,
+            area,
+          );
+        } else if (currentPos) {
+          targetPos = {
+            x: Math.round(currentPos.x - physicalPanelSize.width / 2),
+            y: Math.round(currentPos.y - physicalPanelSize.height / 2),
+          };
+        }
 
-            if (!userDragged && preSettingsPosition) {
-              candidatePos = preSettingsPosition;
-            } else {
-              candidatePos = currentPos;
-            }
-            preSettingsPosition = null;
-            appliedSettingsPosition = null;
-          }
+        if (targetPos) {
+          await service.window?.setPosition?.(targetPos);
+        }
+        await service.window?.setSize?.(SETTINGS_PANEL_SIZE);
+      } else {
+        const ballSize = { width: ballPx, height: ballPx };
+        // 恢复悬浮球打开设置面板前记录的原始位置，移动设置页不影响悬浮球位置
+        let targetBallPos = preSettingsPosition || currentPos;
 
-          if (candidatePos) {
-            const clamped = clampPositionToWorkArea(
-              candidatePos,
-              currentSize,
-              area,
-            );
-            if (
-              !currentPos ||
-              clamped.x !== currentPos.x ||
-              clamped.y !== currentPos.y
-            ) {
-              await service.window?.setPosition?.(clamped);
-            }
-            if (isOpen) {
-              appliedSettingsPosition = { ...clamped };
-            }
-          }
+        const area = await workAreaForTargetPosition(
+          targetBallPos,
+          physicalBallSizeObj,
+        );
+        if (area && targetBallPos) {
+          const snapStyle = state.settings?.ballSnapStyle;
+          const dock = state.settings?.ballDock;
+          targetBallPos = clampBallPositionToWorkArea(
+            targetBallPos,
+            physicalBallSizeObj,
+            area,
+            dock,
+            snapStyle,
+          );
+        }
+
+        preSettingsPosition = null;
+
+        await service.window?.setSize?.(ballSize);
+        if (targetBallPos) {
+          await service.window?.setPosition?.(targetBallPos);
         }
       }
     } catch (error) {
@@ -524,6 +546,7 @@ export function createWindowController({
     bindEvents,
     clearPanelClick: panelController.clearPanelClick,
     closeApp,
+    hideWindow,
     mergeWindowPosition: positionController.mergeWindowPosition,
     readCurrentWindowPosition: positionController.readCurrentWindowPosition,
     registerWindowMoveSave: positionController.registerWindowMoveSave,

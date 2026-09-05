@@ -4,10 +4,14 @@ import { DEFAULT_SETTINGS } from "../src/app/constants.js";
 import {
   normalizeBallDock,
   normalizeBallSize,
+  normalizeBallSnapStyle,
   normalizeDataBars,
   normalizeInputValue,
   normalizeSettings,
+  normalizeTheme,
   normalizeWindowPosition,
+  resolveActiveSourceName,
+  resolveActiveThemeName,
   resolveDataBars,
 } from "../src/app/settings-model.js";
 
@@ -92,11 +96,100 @@ describe("设置标准化", () => {
     ).toEqual(["fiveHour", "fiveHour", "fiveHour"]);
   });
 
-  it("悬浮球尺寸仅允许 small 或 medium，非法值回退 medium", () => {
+  it("悬浮球尺寸仅允许 small 或 medium，非法值回退 small", () => {
     expect(normalizeBallSize("small")).toBe("small");
     expect(normalizeBallSize("medium")).toBe("medium");
-    expect(normalizeBallSize("invalid")).toBe("medium");
-    expect(normalizeSettings({ ballSize: "small" }).ballSize).toBe("small");
-    expect(normalizeSettings({ ballSize: "large" }).ballSize).toBe("medium");
+    expect(normalizeBallSize("invalid")).toBe("small");
+    expect(normalizeSettings({ ballSize: "medium" }).ballSize).toBe("medium");
+    expect(normalizeSettings({ ballSize: "large" }).ballSize).toBe("small");
+  });
+
+  it("正确解析数据源名称（官方与自定义站点Key）", () => {
+    // 官方默认
+    expect(resolveActiveSourceName({})).toBe("官方 Codex CLI");
+    expect(resolveActiveSourceName({}, { format: "short" })).toBe("官方");
+    expect(resolveActiveSourceName({}, { locale: "en" })).toBe(
+      "Official Codex CLI",
+    );
+    expect(resolveActiveSourceName({}, { format: "short", locale: "en" })).toBe(
+      "Official",
+    );
+
+    // 中转站站点与Key
+    const customSettings = {
+      activeTarget: { type: "siteKey", siteId: "site-1", keyId: "key-1" },
+      sites: [
+        {
+          id: "site-1",
+          name: "DeepSeek",
+          keys: [{ id: "key-1", name: "MainKey" }],
+        },
+      ],
+    };
+    expect(resolveActiveSourceName(customSettings)).toBe("DeepSeek · MainKey");
+    expect(resolveActiveSourceName(customSettings, { format: "short" })).toBe(
+      "MainKey",
+    );
+
+    // 缺少 Key 时的回退
+    const fallbackSettings = {
+      activeTarget: {
+        type: "siteKey",
+        siteId: "site-1",
+        keyId: "non-existent",
+      },
+      sites: [{ id: "site-1", name: "DeepSeek", keys: [] }],
+    };
+    expect(resolveActiveSourceName(fallbackSettings)).toBe("DeepSeek · Key");
+    expect(resolveActiveSourceName(fallbackSettings, { format: "short" })).toBe(
+      "DeepSeek",
+    );
+  });
+
+  it("吸附样式仅允许 ball 或 bar，非法值回退 ball", () => {
+    expect(normalizeBallSnapStyle("ball")).toBe("ball");
+    expect(normalizeBallSnapStyle("bar")).toBe("bar");
+    expect(normalizeBallSnapStyle("invalid")).toBe("ball");
+    expect(normalizeBallSnapStyle(undefined)).toBe("ball");
+    expect(normalizeSettings({ ballSnapStyle: "bar" }).ballSnapStyle).toBe(
+      "bar",
+    );
+    expect(normalizeSettings({ ballSnapStyle: "bad" }).ballSnapStyle).toBe(
+      "ball",
+    );
+    expect(normalizeSettings({}).ballSnapStyle).toBe("ball");
+  });
+
+  it("主题标准化支持 7 套主题并兼容 holo/非法值回退", () => {
+    expect(normalizeTheme("default")).toBe("default");
+    expect(normalizeTheme("holo")).toBe("default");
+    expect(normalizeTheme("pyro")).toBe("pyro");
+    expect(normalizeTheme("emerald")).toBe("emerald");
+    expect(normalizeTheme("cyber")).toBe("cyber");
+    expect(normalizeTheme("obsidian")).toBe("obsidian");
+    expect(normalizeTheme("crimson")).toBe("crimson");
+    expect(normalizeTheme("sakura")).toBe("sakura");
+    expect(normalizeTheme("unknown")).toBe("default");
+    expect(normalizeTheme(undefined)).toBe("default");
+    expect(normalizeSettings({ theme: "emerald" }).theme).toBe("emerald");
+    expect(normalizeSettings({ theme: "cyber" }).theme).toBe("cyber");
+    expect(normalizeSettings({ theme: "obsidian" }).theme).toBe("obsidian");
+    expect(normalizeSettings({ theme: "crimson" }).theme).toBe("crimson");
+    expect(normalizeSettings({ theme: "sakura" }).theme).toBe("sakura");
+    expect(normalizeSettings({ theme: "unknown" }).theme).toBe("default");
+  });
+
+  it("主题名称解析支持中英文纯颜色展示", () => {
+    expect(resolveActiveThemeName("default", "zh")).toBe("天青");
+    expect(resolveActiveThemeName("default", "en")).toBe("Azure");
+    expect(resolveActiveThemeName("holo", "zh")).toBe("天青");
+    expect(resolveActiveThemeName("pyro", "zh")).toBe("赤金");
+    expect(resolveActiveThemeName("emerald", "zh")).toBe("碧翠");
+    expect(resolveActiveThemeName("cyber", "zh")).toBe("幻紫");
+    expect(resolveActiveThemeName("obsidian", "zh")).toBe("曜金");
+    expect(resolveActiveThemeName("crimson", "zh")).toBe("绯红");
+    expect(resolveActiveThemeName("sakura", "zh")).toBe("落樱");
+    expect(resolveActiveThemeName("sakura", "en")).toBe("Sakura Pink");
+    expect(resolveActiveThemeName("invalid", "zh")).toBe("天青");
   });
 });

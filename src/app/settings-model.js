@@ -17,9 +17,9 @@ export const OTHER_DEFAULT_DATA_BARS = [
 export function normalizeSettings(settings) {
   const refreshIntervalMinutes = Number(settings?.refreshIntervalMinutes);
   const widgetMode =
-    settings?.widgetMode === WIDGET_MODES.BALL
-      ? WIDGET_MODES.BALL
-      : WIDGET_MODES.PANEL;
+    settings?.widgetMode === WIDGET_MODES.PANEL
+      ? WIDGET_MODES.PANEL
+      : WIDGET_MODES.BALL;
   return {
     codexCliPath:
       typeof settings?.codexCliPath === "string" ? settings.codexCliPath : "",
@@ -57,6 +57,7 @@ export function normalizeSettings(settings) {
     ballPosition: normalizeWindowPosition(settings?.ballPosition),
     ballDock: normalizeBallDock(settings?.ballDock),
     ballSize: normalizeBallSize(settings?.ballSize),
+    ballSnapStyle: normalizeBallSnapStyle(settings?.ballSnapStyle),
     sites: normalizeSites(settings?.sites),
     activeTarget: normalizeActiveTarget(
       settings?.activeTarget,
@@ -125,7 +126,11 @@ export function normalizeBallDock(dock) {
 }
 
 export function normalizeBallSize(ballSize) {
-  return ballSize === "small" ? "small" : "medium";
+  return ballSize === "medium" ? "medium" : "small";
+}
+
+export function normalizeBallSnapStyle(snapStyle) {
+  return snapStyle === "bar" ? "bar" : "ball";
 }
 
 export function normalizeTheme(theme) {
@@ -167,4 +172,42 @@ export function resolveDataBars(dataBars, planType) {
 export function normalizeInputValue(value) {
   const text = value.trim();
   return text ? text : null;
+}
+
+export function resolveActiveSourceName(
+  settings,
+  { format = "full", locale = "zh" } = {},
+) {
+  const activeTarget = settings?.activeTarget || { type: "official" };
+  const isOfficial = !activeTarget || activeTarget.type === "official";
+
+  if (isOfficial) {
+    if (format === "short") {
+      return locale === "en" ? "Official" : "官方";
+    }
+    return locale === "en" ? "Official Codex CLI" : "官方 Codex CLI";
+  }
+
+  if (activeTarget.type === "siteKey") {
+    const sites = settings?.sites || [];
+    const site = sites.find((s) => s.id === activeTarget.siteId);
+    const key = site?.keys?.find((k) => k.id === activeTarget.keyId);
+    const siteName = site?.name || (locale === "en" ? "Relay" : "中转站");
+    const keyName = key?.name || "Key";
+
+    if (format === "short") {
+      return key?.name || siteName;
+    }
+    return `${siteName} · ${keyName}`;
+  }
+
+  return locale === "en" ? "Official" : "官方";
+}
+
+export function resolveActiveThemeName(theme, locale = "zh") {
+  const normalized = normalizeTheme(theme);
+  const themeItem = THEMES[normalized] || THEMES.default;
+  return locale === "en"
+    ? themeItem.label?.en || "Azure"
+    : themeItem.label?.zh || "天青";
 }

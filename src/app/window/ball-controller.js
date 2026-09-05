@@ -1,11 +1,11 @@
-import { CLICK_DELAY_MS, WIDGET_MODES } from "../constants.js";
+import { WIDGET_MODES } from "../constants.js";
 import {
   clamp,
   clampBallPositionToWorkArea,
   isBallAtInternalWorkAreaEdge,
   resolveSafeBallDock,
   workAreaBounds,
-  workAreaForBallPosition
+  workAreaForBallPosition,
 } from "../geometry.js";
 import { createLatestPositionWriter } from "./position-writer.js";
 
@@ -14,13 +14,12 @@ export function createBallController({
   state,
   service,
   render,
-  setWidgetMode,
   positionController,
-  logWindowError
+  logWindowError,
 }) {
   const positionWriter = createLatestPositionWriter(
     (position) => service.window.setPosition(position),
-    (error) => logWindowError("移动悬浮球失败", error)
+    (error) => logWindowError("移动悬浮球失败", error),
   );
   // 收尾包含最终吸附；新拖动必须等它完成，避免读取半完成位置。
   let dragCompletion = Promise.resolve();
@@ -33,7 +32,7 @@ export function createBallController({
       startScreenY: event.screenY,
       currentScreenX: event.screenX,
       currentScreenY: event.screenY,
-      moved: false
+      moved: false,
     };
 
     if (!service.isAvailable()) return;
@@ -42,7 +41,10 @@ export function createBallController({
       await dragCompletion;
       await positionWriter.whenIdle();
       els.widget.setPointerCapture?.(event.pointerId);
-      const [position, scaleFactor] = await Promise.all([service.window.outerPosition(), service.window.scaleFactor()]);
+      const [position, scaleFactor] = await Promise.all([
+        service.window.outerPosition(),
+        service.window.scaleFactor(),
+      ]);
       const press = state.ballPress;
       if (!press || press.pointerId !== event.pointerId) return;
 
@@ -57,8 +59,12 @@ export function createBallController({
         scaleFactor,
         moved: press.moved,
         frame: null,
-        nextX: Math.round(position.x + press.currentScreenX * scaleFactor - startPointerX),
-        nextY: Math.round(position.y + press.currentScreenY * scaleFactor - startPointerY)
+        nextX: Math.round(
+          position.x + press.currentScreenX * scaleFactor - startPointerX,
+        ),
+        nextY: Math.round(
+          position.y + press.currentScreenY * scaleFactor - startPointerY,
+        ),
       };
       render();
     } catch (error) {
@@ -73,21 +79,32 @@ export function createBallController({
 
     press.currentScreenX = event.screenX;
     press.currentScreenY = event.screenY;
-    if (!press.moved && Math.hypot(event.screenX - press.startScreenX, event.screenY - press.startScreenY) > 4) {
+    if (
+      !press.moved &&
+      Math.hypot(
+        event.screenX - press.startScreenX,
+        event.screenY - press.startScreenY,
+      ) > 4
+    ) {
       markBallPressMoved(press);
     }
 
     const drag = state.ballDrag;
     if (!drag || event.pointerId !== drag.pointerId) return;
 
-    const nextX = drag.startX + event.screenX * drag.scaleFactor - drag.startPointerX;
-    const nextY = drag.startY + event.screenY * drag.scaleFactor - drag.startPointerY;
+    const nextX =
+      drag.startX + event.screenX * drag.scaleFactor - drag.startPointerX;
+    const nextY =
+      drag.startY + event.screenY * drag.scaleFactor - drag.startPointerY;
     drag.nextX = Math.round(nextX);
     drag.nextY = Math.round(nextY);
 
     if (press.moved) {
       drag.moved = true;
-    } else if (!drag.moved && Math.hypot(drag.nextX - drag.startX, drag.nextY - drag.startY) > 4) {
+    } else if (
+      !drag.moved &&
+      Math.hypot(drag.nextX - drag.startX, drag.nextY - drag.startY) > 4
+    ) {
       drag.moved = true;
       markBallPressMoved(press);
     }
@@ -114,9 +131,11 @@ export function createBallController({
       // 指针捕获可能已由系统释放，这里只需要保证拖动状态被清理。
     }
 
-    dragCompletion = dragCompletion.then(() => completeBallDrag(event, press, drag)).catch((error) => {
-      logWindowError("结束悬浮球拖动失败", error);
-    });
+    dragCompletion = dragCompletion
+      .then(() => completeBallDrag(event, press, drag))
+      .catch((error) => {
+        logWindowError("结束悬浮球拖动失败", error);
+      });
     return dragCompletion;
   }
 
@@ -141,7 +160,6 @@ export function createBallController({
 
   function markBallPressMoved(press) {
     press.moved = true;
-    clearBallClickTimer();
     state.ballDock = null;
     render();
   }
@@ -149,30 +167,9 @@ export function createBallController({
   async function handleBallPressClick() {
     if (state.widgetMode !== WIDGET_MODES.BALL) return;
 
-    if (state.ballClickTimer) {
-      clearBallClickTimer();
-      await restorePanelFromBall();
-      return;
+    if (state.ballDock) {
+      await expandBallFromDock();
     }
-
-    state.ballClickTimer = window.setTimeout(() => {
-      state.ballClickTimer = null;
-      if (state.widgetMode === WIDGET_MODES.BALL && state.ballDock) {
-        expandBallFromDock();
-      }
-    }, CLICK_DELAY_MS);
-  }
-
-  async function restorePanelFromBall() {
-    if (state.widgetMode !== WIDGET_MODES.BALL) return;
-    clearBallClickTimer();
-    await setWidgetMode(WIDGET_MODES.PANEL);
-  }
-
-  function clearBallClickTimer() {
-    if (!state.ballClickTimer) return;
-    window.clearTimeout(state.ballClickTimer);
-    state.ballClickTimer = null;
   }
 
   async function snapBallAfterDrag(targetPosition = null) {
@@ -182,25 +179,54 @@ export function createBallController({
       const [monitors, position, size] = await Promise.all([
         service.window.availableMonitors(),
         service.window.outerPosition(),
-        service.window.outerSize()
+        service.window.outerSize(),
       ]);
       const dragPosition = targetPosition || position;
       const area = workAreaForBallPosition(dragPosition, size, monitors);
       if (!area) return;
 
-      if (isBallAtInternalWorkAreaEdge(dragPosition, size, area, monitors)) {
+      const snapStyle = state.settings.ballSnapStyle;
+      if (
+        isBallAtInternalWorkAreaEdge(
+          dragPosition,
+          size,
+          area,
+          monitors,
+          snapStyle,
+        )
+      ) {
         state.ballDock = null;
         await service.window.setPosition(dragPosition);
-        await positionController.persistWindowPosition(dragPosition, WIDGET_MODES.BALL, null);
+        await positionController.persistWindowPosition(
+          dragPosition,
+          WIDGET_MODES.BALL,
+          null,
+        );
         render();
         return;
       }
 
-      const dock = resolveSafeBallDock(dragPosition, size, area, monitors);
-      const nextPosition = clampBallPositionToWorkArea(dragPosition, size, area, dock);
+      const dock = resolveSafeBallDock(
+        dragPosition,
+        size,
+        area,
+        monitors,
+        snapStyle,
+      );
+      const nextPosition = clampBallPositionToWorkArea(
+        dragPosition,
+        size,
+        area,
+        dock,
+        snapStyle,
+      );
       state.ballDock = dock;
       await service.window.setPosition(nextPosition);
-      await positionController.persistWindowPosition(nextPosition, WIDGET_MODES.BALL, dock);
+      await positionController.persistWindowPosition(
+        nextPosition,
+        WIDGET_MODES.BALL,
+        dock,
+      );
       render();
     } catch (error) {
       logWindowError("悬浮球吸附失败", error);
@@ -214,18 +240,27 @@ export function createBallController({
       const [monitor, position, size] = await Promise.all([
         service.window.currentMonitor(),
         service.window.outerPosition(),
-        service.window.outerSize()
+        service.window.outerSize(),
       ]);
       const area = monitor?.workArea;
       if (!area) return;
 
       const bounds = workAreaBounds(area);
-      const x = state.ballDock === "left" ? bounds.left : bounds.right - size.width;
-      const y = clamp(position.y, bounds.top, Math.max(bounds.top, bounds.bottom - size.height));
+      const x =
+        state.ballDock === "left" ? bounds.left : bounds.right - size.width;
+      const y = clamp(
+        position.y,
+        bounds.top,
+        Math.max(bounds.top, bounds.bottom - size.height),
+      );
       const nextPosition = { x: Math.round(x), y: Math.round(y) };
       state.ballDock = null;
       await service.window.setPosition(nextPosition);
-      await positionController.persistWindowPosition(nextPosition, WIDGET_MODES.BALL, null);
+      await positionController.persistWindowPosition(
+        nextPosition,
+        WIDGET_MODES.BALL,
+        null,
+      );
       render();
     } catch (error) {
       logWindowError("展开悬浮球失败", error);
@@ -233,11 +268,10 @@ export function createBallController({
   }
 
   return {
-    clearBallClickTimer,
     expandBallFromDock,
     finishBallDrag,
     moveBallDrag,
     snapBallAfterDrag,
-    startBallDrag
+    startBallDrag,
   };
 }

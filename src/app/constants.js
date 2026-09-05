@@ -11,11 +11,12 @@ export const DEFAULT_SETTINGS = {
   autoStartEnabled: false,
   hideDockIcon: false,
   onboardingSeen: false,
-  widgetMode: "panel",
+  widgetMode: "ball",
   panelPosition: null,
   ballPosition: null,
   ballDock: null,
-  ballSize: "medium",
+  ballSize: "small",
+  ballSnapStyle: "ball",
   sites: [],
   activeTarget: { type: "official" },
 };
@@ -26,17 +27,56 @@ export const WIDGET_MODES = {
   PANEL: "panel",
   BALL: "ball",
 };
+export const IPC_EVENTS = {
+  QUICK_MENU_ACTION: "quick-menu:action",
+  QUICK_MENU_SYNC: "quick-menu:sync",
+  TRAY_PREVIEW_UPDATE: "quota:tray-preview-update",
+  TRAY_PREVIEW_READY: "tray-preview:ready",
+  TRAY_PREVIEW_MODE_CHANGED: "tray-preview:mode-changed",
+  TRAY_PREVIEW_KEEP_OPEN: "tray-preview:keep-open",
+  ALWAYS_ON_TOP_CHANGED: "window:always-on-top-changed",
+};
 export const THEMES = {
   default: {
     label: {
-      zh: "全息 3D 核心",
-      en: "Holo 3D Core",
+      zh: "天青",
+      en: "Azure",
     },
   },
   pyro: {
     label: {
-      zh: "烈焰熔核",
-      en: "Pyro Core",
+      zh: "赤金",
+      en: "Flame Gold",
+    },
+  },
+  emerald: {
+    label: {
+      zh: "碧翠",
+      en: "Emerald",
+    },
+  },
+  cyber: {
+    label: {
+      zh: "幻紫",
+      en: "Neon Violet",
+    },
+  },
+  obsidian: {
+    label: {
+      zh: "曜金",
+      en: "Obsidian Gold",
+    },
+  },
+  crimson: {
+    label: {
+      zh: "绯红",
+      en: "Crimson Red",
+    },
+  },
+  sakura: {
+    label: {
+      zh: "落樱",
+      en: "Sakura Pink",
     },
   },
 };
@@ -57,19 +97,36 @@ export const METER_WINDOWS = {
 };
 
 export const BALL_SIZE_OPTIONS = {
-  medium: {
-    label: {
-      zh: "默认 (88px)",
-      en: "Default (88px)",
-    },
-  },
   small: {
     label: {
-      zh: "小 (64px)",
-      en: "Small (64px)",
+      zh: "默认 (64px)",
+      en: "Default (64px)",
+    },
+  },
+  medium: {
+    label: {
+      zh: "大 (88px)",
+      en: "Large (88px)",
     },
   },
 };
+
+export const BALL_SNAP_STYLE_OPTIONS = {
+  ball: {
+    label: {
+      zh: "半球贴边",
+      en: "Half-ball dock",
+    },
+  },
+  bar: {
+    label: {
+      zh: "竖向进度条",
+      en: "Vertical bar",
+    },
+  },
+};
+
+export const BAR_DOCK_VISIBLE_WIDTH = 14;
 
 export const DATA_BAR_CONTENTS = {
   fiveHour: {
@@ -144,9 +201,9 @@ export const BALL_SIZES = {
   small: 64,
 };
 export function resolveBallSize(sizeKey) {
-  return BALL_SIZES[sizeKey] || BALL_SIZES.medium;
+  return BALL_SIZES[sizeKey] || BALL_SIZES.small;
 }
-export const BALL_SIZE = 88;
+export const BALL_SIZE = 64;
 export const SNAP_DISTANCE = 24;
 export const CLICK_DELAY_MS = 220;
 export const PANEL_DOUBLE_CLICK_MS = 320;
@@ -221,8 +278,12 @@ export const i18n = {
     language: "语言",
     meterWindow: "仪表窗口",
     ballSize: "悬浮球大小",
-    ballSizeDefault: "默认 (88px)",
+    ballSizeDefault: "默认 (64px)",
+    ballSizeLarge: "大 (88px)",
     ballSizeSmall: "小 (64px)",
+    ballSnapStyle: "吸附样式",
+    ballSnapStyleBall: "半球贴边",
+    ballSnapStyleBar: "竖向进度条",
     dataBar1: "数据栏 1",
     dataBar2: "数据栏 2",
     dataBar3: "数据栏 3",
@@ -245,8 +306,9 @@ export const i18n = {
     onboardingModeDescription:
       "在完整面板和悬浮球之间切换，按使用场景选择显示方式。",
     onboardingSettings: "打开设置，配置主题、语言等",
-    onboardingSettingsTitle: "打开设置",
-    onboardingSettingsDescription: "配置主题、语言等个性化选项，打造专属体验。",
+    onboardingSettingsTitle: "右键快捷菜单",
+    onboardingSettingsDescription:
+      "右键单击悬浮球或面板，可快捷打开设置、切换数据源、切换主题或放至托盘。",
     onboardingRefresh: "手动刷新额度",
     onboardingRefreshTitle: "手动刷新额度",
     onboardingRefreshDescription: "立即重新读取 Codex CLI 额度，获取最新状态。",
@@ -257,8 +319,10 @@ export const i18n = {
     onboardingPrev: "上一步",
     onboardingNext: "下一步",
     onboardingDone: "完成",
-    tabBasic: "基础设置",
+    tabBasic: "外观显示",
+    tabAppearance: "外观显示",
     tabSources: "中转站",
+    tabSystem: "系统设置",
     officialSource: "官方 Codex CLI",
     addSite: "添加中转站点",
     editSite: "编辑站点",
@@ -343,8 +407,12 @@ export const i18n = {
     language: "Language",
     meterWindow: "Meter window",
     ballSize: "Ball size",
-    ballSizeDefault: "Default (88px)",
+    ballSizeDefault: "Default (64px)",
+    ballSizeLarge: "Large (88px)",
     ballSizeSmall: "Small (64px)",
+    ballSnapStyle: "Snap style",
+    ballSnapStyleBall: "Half-ball dock",
+    ballSnapStyleBar: "Vertical bar",
     dataBar1: "Data bar 1",
     dataBar2: "Data bar 2",
     dataBar3: "Data bar 3",
@@ -370,9 +438,9 @@ export const i18n = {
     onboardingModeDescription:
       "Switch between full panel and floating ball for different workflows.",
     onboardingSettings: "Open settings for theme, language, and more",
-    onboardingSettingsTitle: "Open settings",
+    onboardingSettingsTitle: "Quick Menu",
     onboardingSettingsDescription:
-      "Configure theme, language, and other personal preferences.",
+      "Right-click the floating ball or panel to access settings, switch data sources, toggle themes, or minimize to tray.",
     onboardingRefresh: "Refresh quota manually",
     onboardingRefreshTitle: "Refresh quota manually",
     onboardingRefreshDescription:
@@ -385,8 +453,10 @@ export const i18n = {
     onboardingPrev: "Previous",
     onboardingNext: "Next",
     onboardingDone: "Done",
-    tabBasic: "General",
+    tabBasic: "Appearance",
+    tabAppearance: "Appearance",
     tabSources: "Relay Sites",
+    tabSystem: "System",
     officialSource: "Official Codex CLI",
     addSite: "Add Provider",
     editSite: "Edit Provider",

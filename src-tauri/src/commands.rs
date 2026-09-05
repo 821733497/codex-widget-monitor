@@ -2,7 +2,7 @@ use std::path::Path;
 use std::process::Command;
 use std::sync::atomic::Ordering;
 
-use tauri::{AppHandle, State, WebviewWindow};
+use tauri::{AppHandle, Manager, State, WebviewWindow};
 
 use crate::app_state::AppState;
 use crate::autostart::{read_auto_start_enabled, sync_auto_start};
@@ -112,6 +112,48 @@ pub(crate) fn set_skip_taskbar(window: WebviewWindow, skip: bool) -> Result<bool
 #[tauri::command]
 pub(crate) fn close_app(app: AppHandle) {
     app.exit(0);
+}
+
+#[tauri::command]
+pub(crate) fn update_tray_icon(
+    app: AppHandle,
+    rgba: Vec<u8>,
+    width: u32,
+    height: u32,
+) -> Result<(), String> {
+    crate::tray::update_tray_icon_image(&app, rgba, width, height)
+        .map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub(crate) fn show_quick_menu(app: AppHandle, x: f64, y: f64) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window(crate::tray::QUICK_MENU_LABEL) {
+        let window: WebviewWindow = window;
+        let _ = window.set_shadow(false);
+        let _ = window.set_always_on_top(true);
+        let _ = window.set_position(tauri::Position::Physical(tauri::PhysicalPosition {
+            x: x.round() as i32,
+            y: y.round() as i32,
+        }));
+        let _ = window.show();
+        let _ = window.set_focus();
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub(crate) fn hide_quick_menu(app: AppHandle) -> Result<(), String> {
+    if let Some(window) = app.get_webview_window(crate::tray::QUICK_MENU_LABEL) {
+        let window: WebviewWindow = window;
+        let _ = window.hide();
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub(crate) fn hide_tray_preview(app: AppHandle) -> Result<(), String> {
+    crate::tray::hide_tray_preview(&app);
+    Ok(())
 }
 
 #[tauri::command]

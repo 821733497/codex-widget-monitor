@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, i18n } from "./constants.js";
+import { DEFAULT_SETTINGS, THEMES, i18n } from "./constants.js";
 import { createElements } from "./dom.js";
 import { initializeActionIcons } from "./icons.js";
 import { createLogger } from "./logger.js";
@@ -16,6 +16,8 @@ import {
 } from "./state.js";
 import { createTauriService } from "./tauri-service.js";
 import { createSourcePickerController } from "./source-picker-controller.js";
+import { createContextMenuController } from "./context-menu-controller.js";
+import { createTrayPresentationManager } from "./tray-presentation.js";
 import { createTooltipController } from "./tooltip-controller.js";
 import { createUpdateController } from "./update-controller.js";
 import { createWindowController } from "./window-controller.js";
@@ -149,6 +151,7 @@ export function createApp(dependencies = {}) {
     logger,
     clearPanelClick: windowController.clearPanelClick,
     adjustWindowForSettings: windowController.adjustWindowForSettings,
+    setWidgetMode: windowController.setWidgetMode,
   });
 
   const sourcePickerController = (
@@ -165,6 +168,14 @@ export function createApp(dependencies = {}) {
     getLocale: () => renderLocale(state),
   });
 
+  const trayPresentationManager = (
+    factories.createTrayPresentationManager || createTrayPresentationManager
+  )({
+    service,
+    state,
+    logger,
+  });
+
   const renderer = (factories.createRenderer || createRenderer)({
     els,
     state,
@@ -174,12 +185,29 @@ export function createApp(dependencies = {}) {
     settingsView: settingsController,
     sourcePickerView: sourcePickerController,
   });
-  render = renderer.render;
+  render = () => {
+    renderer.render();
+    trayPresentationManager.update();
+  };
+
+  const contextMenuController = (
+    factories.createContextMenuController || createContextMenuController
+  )({
+    state,
+    service,
+    openSettings: settingsController.openSettingsPanel,
+    sourcePickerController,
+    refreshQuota: quotaController.refreshQuota,
+    cycleTheme,
+    hideWindow: windowController.hideWindow,
+    logger,
+  });
 
   function bindEvents() {
     windowController.bindEvents();
     settingsController.bindEvents();
     sourcePickerController.bindEvents();
+    contextMenuController.bindEvents();
     onboardingController.bindEvents();
     tooltipController.bindEvents();
     els.pinBtn.addEventListener("click", toggleAlwaysOnTop);
@@ -187,13 +215,23 @@ export function createApp(dependencies = {}) {
       quotaController.refreshQuota(),
     );
     els.themeSwitchBtn?.addEventListener("click", cycleTheme);
+
+    if (service.isAvailable() && service.events?.listen) {
+      service.events.listen("settings:open-requested", () => {
+        void settingsController.openSettingsPanel("basic");
+      });
+    }
   }
 
   async function cycleTheme() {
     try {
-      const currentTheme =
-        state.settings?.theme === "pyro" ? "pyro" : "default";
-      const nextTheme = currentTheme === "default" ? "pyro" : "default";
+      const themeKeys = Object.keys(THEMES);
+      const currentTheme = renderTheme(state);
+      const currentIndex = themeKeys.indexOf(currentTheme);
+      const nextTheme =
+        currentIndex >= 0
+          ? themeKeys[(currentIndex + 1) % themeKeys.length]
+          : themeKeys[0];
       state.settings = {
         ...state.settings,
         theme: nextTheme,
@@ -202,6 +240,7 @@ export function createApp(dependencies = {}) {
         state.settingsDraft.theme = nextTheme;
       }
       render();
+      contextMenuController.syncQuickMenuState?.();
       await persistSettings((currentSettings) => ({
         ...currentSettings,
         theme: nextTheme,

@@ -5,6 +5,7 @@ body[data-theme="pyro"] {
   --pyro-accent: #f59e0b;
   --pyro-accent-deep: #b45309;
   --pyro-accent-rgb: 245, 158, 11;
+  --dock-glow-rgb: var(--pyro-accent-rgb);
   --pyro-panel: rgba(20, 11, 10, 0.95);
   --pyro-card: rgba(35, 18, 16, 0.65);
   --pyro-card-strong: rgba(48, 24, 20, 0.82);
@@ -16,10 +17,6 @@ body[data-theme="pyro"] {
   --settings-accent-soft: rgba(var(--pyro-accent-rgb), 0.22);
   --settings-text-color: var(--pyro-text);
   --settings-muted-color: var(--pyro-muted);
-}
-
-body[data-theme="pyro"] .settings-panel {
-  background: #140b0a !important;
 }
 
 body[data-theme="pyro"] {
@@ -124,8 +121,12 @@ body[data-theme="pyro"] .status-dot {
 /* =========================================================
    悬浮球模式下的全局穿透重置（彻底消除黑底盘与正方形切边）
    ========================================================= */
-body[data-theme="pyro"][data-widget-mode="ball"] .widget,
-body[data-theme="pyro"] .widget[data-widget-mode="ball"] {
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget:not(:has(.settings-panel:not([hidden]))),
+body[data-theme="pyro"]
+  .widget[data-widget-mode="ball"]:not(:has(.settings-panel:not([hidden]))) {
   position: relative !important;
   box-sizing: border-box !important;
   width: var(--ball-size, 88px) !important;
@@ -141,16 +142,37 @@ body[data-theme="pyro"] .widget[data-widget-mode="ball"] {
   mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
 }
 
-body[data-theme="pyro"][data-widget-mode="ball"] .widget::before,
-body[data-theme="pyro"][data-widget-mode="ball"] .widget::after,
-body[data-theme="pyro"][data-widget-mode="ball"] .titlebar,
-body[data-theme="pyro"][data-widget-mode="ball"] .quota-panel,
-body[data-theme="pyro"][data-widget-mode="ball"] .status,
-body[data-theme="pyro"][data-widget-mode="ball"] .settings-panel {
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::before,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::after,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .titlebar,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .quota-panel,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .status,
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .settings-panel {
   display: none !important;
 }
 
-body[data-theme="pyro"][data-widget-mode="ball"] .content {
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .content {
   position: absolute !important;
   inset: 0 !important;
   display: flex !important;
@@ -162,7 +184,10 @@ body[data-theme="pyro"][data-widget-mode="ball"] .content {
   cursor: grab;
 }
 
-body[data-theme="pyro"][data-widget-mode="ball"] .meter-host {
+body[data-theme="pyro"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .meter-host {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -419,4 +444,29 @@ body[data-ball-size="small"]
 .pyro-meter[data-level="low"] .pyro-label {
   color: rgba(254, 226, 226, 0.95);
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+}
+
+/* =========================================================
+   赤金主题 - 竖向进度条专属配色
+   ========================================================= */
+body[data-theme="pyro"] .dock-bar-fill {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      transparent 45%,
+      rgba(0, 0, 0, 0.12) 100%
+    ),
+    linear-gradient(to top, #b45309 0%, #d97706 35%, #f59e0b 68%, #fde68a 100%);
+  box-shadow:
+    0 0 8px rgba(245, 158, 11, 0.85),
+    0 0 18px rgba(180, 83, 9, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.4);
+}
+
+body[data-theme="pyro"] .dock-bar-glow {
+  background: rgba(255, 243, 196, 0.95);
+  box-shadow:
+    0 0 6px rgba(255, 255, 220, 1),
+    0 0 12px rgba(245, 158, 11, 0.9);
 }

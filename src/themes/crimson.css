@@ -1,0 +1,553 @@
+body[data-theme="crimson"] {
+  --crimson-rose: #fb7185;
+  --crimson-vivid: #f43f5e;
+  --crimson-deep: #be123c;
+  --crimson-accent: #e11d48;
+  --crimson-accent-deep: #9f1239;
+  --crimson-accent-rgb: 225, 29, 72;
+  --dock-glow-rgb: var(--crimson-accent-rgb);
+  --crimson-panel: rgba(26, 8, 14, 0.95);
+  --crimson-card: rgba(45, 14, 25, 0.65);
+  --crimson-card-strong: rgba(62, 18, 33, 0.82);
+  --crimson-line: rgba(244, 63, 94, 0.22);
+  --crimson-text: rgba(255, 241, 242, 0.96);
+  --crimson-muted: rgba(254, 205, 211, 0.72);
+  --crimson-faint: rgba(253, 164, 175, 0.45);
+  --settings-accent-color: var(--crimson-accent);
+  --settings-accent-soft: rgba(var(--crimson-accent-rgb), 0.22);
+  --settings-text-color: var(--crimson-text);
+  --settings-muted-color: var(--crimson-muted);
+}
+
+body[data-theme="crimson"] {
+  --widget-surface-background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(244, 63, 94, 0.18),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 80% 85%,
+      rgba(190, 18, 60, 0.16),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(35, 10, 18, 0.96),
+      rgba(22, 6, 12, 0.98) 60%,
+      rgba(12, 3, 6, 1)
+    );
+  --widget-surface-shadow:
+    inset 0 0 0 1px rgba(244, 63, 94, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.5), 0 0 24px rgba(244, 63, 94, 0.14);
+  --widget-surface-backdrop: blur(28px) saturate(1.35);
+  --meter-primary-color: #ffffff;
+}
+
+body[data-theme="crimson"][data-state="low"] {
+  --crimson-accent: #f97316;
+  --crimson-accent-deep: #c2410c;
+  --crimson-accent-rgb: 249, 115, 22;
+}
+
+body[data-theme="crimson"][data-state="critical"],
+body[data-theme="crimson"][data-state="empty"],
+body[data-theme="crimson"][data-state="error"] {
+  --crimson-accent: #ef4444;
+  --crimson-accent-deep: #b91c1c;
+  --crimson-accent-rgb: 239, 68, 68;
+}
+
+/* 标题栏与文字 */
+body[data-theme="crimson"] .titlebar h1 {
+  color: var(--crimson-text);
+  text-shadow: 0 0 12px rgba(244, 63, 94, 0.45);
+}
+
+body[data-theme="crimson"] .titlebar p {
+  color: var(--crimson-accent);
+}
+
+/* 卡片样式 */
+body[data-theme="crimson"] .quota-card {
+  background: var(--crimson-card);
+  border: 1px solid var(--crimson-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 12px rgba(20, 4, 10, 0.35);
+}
+
+body[data-theme="crimson"] .quota-card:hover {
+  border-color: rgba(244, 63, 94, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 6px 16px rgba(225, 29, 72, 0.2);
+}
+
+body[data-theme="crimson"] .quota-card-label {
+  color: var(--crimson-muted);
+}
+
+body[data-theme="crimson"] .quota-card-val {
+  color: var(--crimson-text);
+}
+
+body[data-theme="crimson"] .quota-card-val.accent {
+  color: var(--crimson-vivid);
+  text-shadow: 0 0 10px rgba(244, 63, 94, 0.5);
+}
+
+body[data-theme="crimson"] .quota-card-sub {
+  color: var(--crimson-faint);
+}
+
+/* 状态标签 */
+body[data-theme="crimson"] .tag-normal {
+  background: rgba(225, 29, 72, 0.15);
+  color: #fda4af;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+body[data-theme="crimson"] .tag-low {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fdba74;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+body[data-theme="crimson"] .tag-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* 状态栏 */
+body[data-theme="crimson"] .status {
+  border-top: 1px solid rgba(244, 63, 94, 0.18);
+  color: var(--crimson-muted);
+}
+
+body[data-theme="crimson"] .status-dot {
+  background: var(--crimson-accent);
+  box-shadow: 0 0 8px var(--crimson-accent);
+}
+
+/* 悬浮球模式下的穿透重置 */
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget:not(:has(.settings-panel:not([hidden]))),
+body[data-theme="crimson"]
+  .widget[data-widget-mode="ball"]:not(:has(.settings-panel:not([hidden]))) {
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: var(--ball-size, 88px) !important;
+  height: var(--ball-size, 88px) !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  overflow: hidden !important;
+  -webkit-mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+  mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+}
+
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::before,
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::after,
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .titlebar,
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .quota-panel,
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .status,
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .settings-panel {
+  display: none !important;
+}
+
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .content {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  cursor: grab;
+}
+
+body[data-theme="crimson"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .meter-host {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 按钮样式 */
+body[data-theme="crimson"] .btn {
+  background: var(--crimson-card-strong);
+  border: 1px solid var(--crimson-line);
+  color: var(--crimson-text);
+}
+
+body[data-theme="crimson"] .btn:hover {
+  background: rgba(225, 29, 72, 0.22);
+  border-color: var(--crimson-accent);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.3);
+}
+
+body[data-theme="crimson"] .btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--crimson-accent),
+    var(--crimson-accent-deep)
+  );
+  border-color: var(--crimson-rose);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.4);
+}
+
+body[data-theme="crimson"] .btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--crimson-rose),
+    var(--crimson-accent)
+  );
+  box-shadow: 0 0 22px rgba(244, 63, 94, 0.55);
+}
+
+/* 图标按钮 */
+body[data-theme="crimson"] .icon-btn {
+  color: var(--crimson-muted);
+}
+
+body[data-theme="crimson"] .icon-btn:hover {
+  color: var(--crimson-text);
+  background: rgba(225, 29, 72, 0.16);
+}
+
+/* 设置抽屉与输入框 */
+body[data-theme="crimson"] .settings-toggle {
+  color: var(--crimson-muted);
+}
+
+body[data-theme="crimson"] .settings-toggle:hover {
+  color: var(--crimson-text);
+  background: rgba(225, 29, 72, 0.18);
+}
+
+body[data-theme="crimson"] .settings-panel-wrapper {
+  background: var(--crimson-panel);
+  border: 1px solid var(--crimson-line);
+}
+
+body[data-theme="crimson"] .settings-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--crimson-line);
+  color: var(--crimson-text);
+}
+
+body[data-theme="crimson"] .settings-input:focus {
+  border-color: var(--crimson-accent);
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.4);
+}
+
+/* 进度条与电量计 */
+body[data-theme="crimson"] .progress-bar-bg {
+  background: rgba(225, 29, 72, 0.12);
+  border: 1px solid rgba(225, 29, 72, 0.2);
+}
+
+body[data-theme="crimson"] .progress-bar-fill {
+  background: linear-gradient(
+    90deg,
+    var(--crimson-accent-deep),
+    var(--crimson-vivid)
+  );
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
+}
+
+/* =========================================================
+   3D 绯红能量流体专属球体样式 (Crimson Meter)
+   ========================================================= */
+.crimson-meter {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.crimson-meter-glow {
+  position: absolute;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(225, 29, 72, 0.42) 0%,
+    rgba(244, 63, 94, 0.14) 50%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+  animation: crimsonGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes crimsonGlowPulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+.crimson-sphere-container {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 24px rgba(225, 29, 72, 0.52),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(159, 18, 57, 0.45);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(244, 63, 94, 0.14) 0%,
+    rgba(190, 18, 60, 0.22) 65%,
+    rgba(136, 19, 55, 0.42) 100%
+  );
+}
+
+.crimson-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.crimson-glass-reflect {
+  position: absolute;
+  top: 3px;
+  left: 15%;
+  width: 70%;
+  height: 42%;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(254, 205, 211, 0.2) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(0.5px);
+}
+
+.crimson-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.crimson-percent {
+  font-family: ui-monospace, "SF Pro Display", "SF Mono", monospace;
+  font-size: 27px;
+  font-weight: 850;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow:
+    0 0 16px rgba(225, 29, 72, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.crimson-label {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(254, 205, 211, 0.92);
+  letter-spacing: 1px;
+  text-shadow:
+    0 0 10px rgba(225, 29, 72, 0.7),
+    0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* 悬浮球模式适配 */
+.crimson-meter[data-mode="ball"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.crimson-meter[data-mode="ball"] .crimson-meter-glow {
+  display: none !important;
+}
+
+.crimson-meter[data-mode="ball"] .crimson-sphere-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset 0 0 20px rgba(225, 29, 72, 0.52),
+    inset 0 1.5px 4px rgba(255, 255, 255, 0.45),
+    inset 0 -10px 20px rgba(159, 18, 57, 0.4) !important;
+}
+
+.crimson-meter[data-mode="ball"] .crimson-percent {
+  font-size: 20px;
+}
+
+.crimson-meter[data-mode="ball"] .crimson-label {
+  font-size: 10px;
+}
+
+body[data-ball-size="small"] .crimson-meter[data-mode="ball"] .crimson-percent {
+  font-size: 15px !important;
+}
+
+body[data-ball-size="small"] .crimson-meter[data-mode="ball"] .crimson-label {
+  font-size: 9px !important;
+}
+
+.crimson-meter[data-mode="ball"][data-dock="right"] .crimson-content {
+  transform: translateX(-18px);
+}
+
+.crimson-meter[data-mode="ball"][data-dock="left"] .crimson-content {
+  transform: translateX(18px);
+}
+
+.crimson-meter[data-mode="ball"]:not([data-dock="none"]) .crimson-percent {
+  font-size: 16px !important;
+}
+
+.crimson-meter[data-mode="ball"]:not([data-dock="none"]) .crimson-label {
+  font-size: 9px !important;
+}
+
+body[data-ball-size="small"]
+  .crimson-meter[data-mode="ball"][data-dock="right"]
+  .crimson-content {
+  transform: translateX(-15px);
+}
+
+body[data-ball-size="small"]
+  .crimson-meter[data-mode="ball"][data-dock="left"]
+  .crimson-content {
+  transform: translateX(15px);
+}
+
+body[data-ball-size="small"]
+  .crimson-meter[data-mode="ball"]:not([data-dock="none"])
+  .crimson-percent {
+  font-size: 12px !important;
+  letter-spacing: -0.5px;
+}
+
+body[data-ball-size="small"]
+  .crimson-meter[data-mode="ball"]:not([data-dock="none"])
+  .crimson-label {
+  font-size: 8px !important;
+}
+
+/* 低电量警报 */
+.crimson-meter[data-level="low"] .crimson-meter-glow {
+  background: radial-gradient(
+    circle,
+    rgba(249, 115, 22, 0.48) 0%,
+    rgba(249, 115, 22, 0.16) 50%,
+    transparent 72%
+  );
+}
+
+.crimson-meter[data-level="low"] .crimson-sphere-container {
+  box-shadow:
+    inset 0 0 24px rgba(249, 115, 22, 0.58),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(154, 52, 18, 0.45),
+    0 0 28px rgba(249, 115, 22, 0.4);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(249, 115, 22, 0.16) 0%,
+    rgba(194, 65, 12, 0.28) 65%,
+    rgba(124, 45, 18, 0.42) 100%
+  );
+}
+
+.crimson-meter[data-level="low"] .crimson-percent {
+  text-shadow:
+    0 0 18px rgba(249, 115, 22, 0.98),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.crimson-meter[data-level="low"] .crimson-label {
+  color: rgba(254, 215, 170, 0.95);
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+}
+
+/* 绯红主题 - 竖向进度条专属配色 */
+body[data-theme="crimson"] .dock-bar-fill {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      transparent 45%,
+      rgba(0, 0, 0, 0.12) 100%
+    ),
+    linear-gradient(to top, #881337 0%, #9f1239 35%, #e11d48 68%, #fb7185 100%);
+  box-shadow:
+    0 0 8px rgba(225, 29, 72, 0.85),
+    0 0 18px rgba(159, 18, 57, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.4);
+}
+
+body[data-theme="crimson"] .dock-bar-glow {
+  background: rgba(255, 241, 242, 0.95);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 1),
+    0 0 12px rgba(225, 29, 72, 0.9);
+}

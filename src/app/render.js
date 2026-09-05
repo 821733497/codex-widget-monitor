@@ -48,6 +48,7 @@ export function createRenderer({
     renderActions(context);
     renderStatus(context);
     renderMeter(context);
+    renderDockBar(context);
     renderQuotaCards(context);
     settingsView.renderSettingsPanel(context.text);
   }
@@ -82,6 +83,7 @@ export function createRenderer({
     return {
       activeLocale,
       activeTheme,
+      activeSettings,
       text,
       quota,
       dataBars,
@@ -96,13 +98,28 @@ export function createRenderer({
     };
   }
 
-  function renderDocumentState({ activeLocale, activeTheme, mainState }) {
+  function renderDocumentState({
+    activeLocale,
+    activeTheme,
+    activeSettings,
+    mainState,
+  }) {
     document.documentElement.lang = activeLocale === "zh" ? "zh-CN" : "en";
     setDatasetValue(els.body, "state", mainState);
     setDatasetValue(els.body, "widgetMode", state.widgetMode);
     setDatasetValue(els.body, "ballDock", state.ballDock || "none");
-    setDatasetValue(els.body, "ballSize", state.settings.ballSize || "medium");
+    setDatasetValue(els.body, "ballSize", state.settings.ballSize || "small");
+    setDatasetValue(
+      els.body,
+      "ballSnapStyle",
+      activeSettings.ballSnapStyle || "ball",
+    );
     setDatasetValue(els.body, "theme", activeTheme);
+    setDatasetValue(
+      els.body,
+      "settingsOpen",
+      state.settingsOpen ? "true" : "false",
+    );
   }
 
   function renderHeader({ text }) {
@@ -187,8 +204,20 @@ export function createRenderer({
       label: text.remaining,
       mode: state.widgetMode,
       dock: state.ballDock || "none",
-      ballSize: state.settings.ballSize || "medium",
+      ballSize: state.settings.ballSize || "small",
     });
+  }
+
+  function renderDockBar({ remainingValue, remaining, text, visualState }) {
+    if (!els.dockBarHost || !els.dockBarFill) return;
+
+    const percent = Math.round(remainingValue);
+    els.dockBarFill.style.height = `${percent}%`;
+    const label =
+      remaining !== null ? `${percent}% ${text.remaining}` : text.loading;
+    els.dockBarHost.setAttribute("data-tooltip", label);
+    els.dockBarHost.setAttribute("aria-label", label);
+    setDatasetValue(els.dockBarHost, "level", visualState);
   }
 
   let isSub2apiMode = false;
@@ -322,13 +351,9 @@ export function createRenderer({
 
   function renderWidgetHint(text) {
     if (state.widgetMode === WIDGET_MODES.BALL) {
-      const hint =
-        state.settings.ballSize === "small"
-          ? text.ballRestoreHintSmall || text.ballRestoreHint
-          : text.ballRestoreHint;
-      setTooltip(els.widget, hint);
+      removeTooltip(els.widget);
       removeAttribute(els.widget, "title");
-      setAttribute(els.widget, "aria-label", hint);
+      setAttribute(els.widget, "aria-label", text?.ballMode || "悬浮球");
       setAttribute(els.widget, "role", "button");
       setAttribute(els.widget, "tabindex", "0");
       return;

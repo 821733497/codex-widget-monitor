@@ -1,5 +1,3 @@
-import { WIDGET_MODES } from "./constants.js";
-
 export function createSourcePickerController({
   els,
   state,
@@ -15,7 +13,6 @@ export function createSourcePickerController({
     els.sourcePickerBtn?.addEventListener("click", cycleToNextSource);
     els.activeSourceIndicator?.addEventListener("click", togglePanelMenu);
     document.addEventListener("click", handleDocumentClick);
-    document.addEventListener("contextmenu", handleContextMenu);
   }
 
   function handleDocumentClick(event) {
@@ -47,6 +44,24 @@ export function createSourcePickerController({
     }, 1200);
   }
 
+  function resolveSourceLabel(target) {
+    const locale = getLocale ? getLocale() : "zh";
+    if (!target || target.type === "official") {
+      return locale === "en" ? "Official Codex CLI" : "官方 Codex CLI";
+    }
+    if (target.type === "siteKey") {
+      const sites = state.settings.sites || [];
+      const site = sites.find((s) => s.id === target.siteId);
+      const key = site?.keys?.find((k) => k.id === target.keyId);
+      if (key) {
+        return site?.name
+          ? `${site.name} · ${key.name || "Key"}`
+          : key.name || "Key";
+      }
+    }
+    return locale === "en" ? "Custom Source" : "自定义数据源";
+  }
+
   async function cycleToNextSource(event) {
     event?.preventDefault?.();
     event?.stopPropagation?.();
@@ -68,17 +83,7 @@ export function createSourcePickerController({
     const nextIndex = (currentIndex + 1) % items.length;
     const nextItem = items[nextIndex];
 
-    await switchSource(nextItem.target);
-    const toastLabel = nextItem.group
-      ? `${nextItem.group} · ${nextItem.label}`
-      : nextItem.label;
-    showSwitchToast(toastLabel);
-  }
-
-  async function handleContextMenu(event) {
-    event.preventDefault();
-    if (state.widgetMode !== WIDGET_MODES.BALL) return;
-    await cycleToNextSource(event);
+    await switchSource(nextItem.target, { showToast: true });
   }
 
   function togglePanelMenu(event) {
@@ -113,12 +118,17 @@ export function createSourcePickerController({
     }
   }
 
-  async function switchSource(target) {
+  async function switchSource(target, { showToast = true } = {}) {
     closePanelMenu();
 
     state.settings.activeTarget = target;
     state.settingsDraft.activeTarget = target;
     render();
+
+    if (showToast) {
+      const label = resolveSourceLabel(target);
+      showSwitchToast(label);
+    }
 
     if (service.isAvailable()) {
       try {
@@ -127,7 +137,8 @@ export function createSourcePickerController({
         state.errors.quota = String(err?.message || err);
       }
     }
-    await refreshQuota();
+    // 异步拉取最新额度，不阻塞切换指示与界面反馈
+    void refreshQuota();
   }
 
   function buildSourceItems() {
@@ -272,5 +283,8 @@ export function createSourcePickerController({
     bindEvents,
     closePanelMenu,
     updatePickerLabel,
+    buildSourceItems,
+    switchSource,
+    cycleToNextSource,
   };
 }

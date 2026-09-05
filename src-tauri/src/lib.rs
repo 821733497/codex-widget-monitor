@@ -14,9 +14,10 @@ use tauri_plugin_autostart::MacosLauncher;
 use app_state::AppState;
 use autostart::reconcile_auto_start;
 use commands::{
-    close_app, get_always_on_top, get_quota, get_reset_credit_expiries, get_settings, hide_window,
-    open_codex, save_settings, set_always_on_top, set_skip_taskbar, switch_active_target,
-    test_sub2api_connection, write_frontend_log,
+    close_app, get_always_on_top, get_quota, get_reset_credit_expiries, get_settings,
+    hide_quick_menu, hide_tray_preview, hide_window, open_codex, save_settings, set_always_on_top,
+    set_skip_taskbar, show_quick_menu, switch_active_target, test_sub2api_connection,
+    update_tray_icon, write_frontend_log,
 };
 use dock::set_dock_icon_hidden;
 use logging::LogLevel;
@@ -66,8 +67,14 @@ pub fn run() {
             let window = app
                 .get_webview_window(MAIN_WINDOW_LABEL)
                 .expect("主窗口不存在");
-            // Windows 的无边框原生阴影会附带 1px 白边，容错设置避免因 HWND 句柄状态 panic。
+            // Windows 的无边框原生阴影会附带 1px 白边/透明矩形框，全部显式禁用原生阴影。
             let _ = window.set_shadow(false);
+            if let Some(w) = app.get_webview_window(crate::tray::QUICK_MENU_LABEL) {
+                let _ = w.set_shadow(false);
+            }
+            if let Some(w) = app.get_webview_window(crate::tray::TRAY_PREVIEW_LABEL) {
+                let _ = w.set_shadow(false);
+            }
             if let Ok(icon) = load_app_icon() {
                 let _ = window.set_icon(icon);
             }
@@ -119,7 +126,11 @@ pub fn run() {
             save_settings,
             switch_active_target,
             test_sub2api_connection,
-            write_frontend_log
+            write_frontend_log,
+            update_tray_icon,
+            show_quick_menu,
+            hide_quick_menu,
+            hide_tray_preview,
         ])
         .run(tauri::generate_context!())
         .expect("运行 Tauri 应用失败");

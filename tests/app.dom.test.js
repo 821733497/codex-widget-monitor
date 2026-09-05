@@ -9,22 +9,32 @@ import { loadApplicationMarkup } from "./dom-test-utils.js";
 
 describe("应用编排", () => {
   it("损坏设置安全回退，监听失败不阻断核心任务", async () => {
-    const fixture = createFixture({ settingsError: new Error("settings.json 已损坏") });
+    const fixture = createFixture({
+      settingsError: new Error("settings.json 已损坏"),
+    });
 
     await fixture.app.start();
 
     expect(fixture.state.settings.theme).toBe("default");
     expect(fixture.state.errors.settings).toBe("settings.json 已损坏");
-    expect(fixture.controllers.window.applyWidgetModeWindow).toHaveBeenCalledOnce();
-    expect(fixture.controllers.window.registerWindowMoveSave).toHaveBeenCalledOnce();
+    expect(
+      fixture.controllers.window.applyWidgetModeWindow,
+    ).toHaveBeenCalledOnce();
+    expect(
+      fixture.controllers.window.registerWindowMoveSave,
+    ).toHaveBeenCalledOnce();
     expect(fixture.controllers.quota.refreshQuota).toHaveBeenCalledOnce();
-    expect(fixture.controllers.quota.scheduleAutoRefresh).toHaveBeenCalledOnce();
-    expect(fixture.controllers.update.scheduleUpdateChecks).toHaveBeenCalledOnce();
-    expect(fixture.service.events.listen).toHaveBeenCalledTimes(2);
+    expect(
+      fixture.controllers.quota.scheduleAutoRefresh,
+    ).toHaveBeenCalledOnce();
+    expect(
+      fixture.controllers.update.scheduleUpdateChecks,
+    ).toHaveBeenCalledOnce();
+    expect(fixture.service.events.listen).toHaveBeenCalledTimes(6);
     expect(fixture.logger.error).toHaveBeenCalledWith(
       "监听托盘刷新事件失败",
       expect.any(Error),
-      "frontend.events"
+      "frontend.events",
     );
   });
 
@@ -33,10 +43,41 @@ describe("应用编排", () => {
     await fixture.app.start();
 
     fixture.els.pinBtn.click();
-    await vi.waitFor(() => expect(fixture.state.errors.window).toBe("置顶失败"));
+    await vi.waitFor(() =>
+      expect(fixture.state.errors.window).toBe("置顶失败"),
+    );
 
     expect(fixture.state.errors.settings).toBe("");
     expect(fixture.state.errors.quota).toBe("");
+  });
+
+  it("点击切换主题按钮按顺序循环遍历所有主题", async () => {
+    const fixture = createFixture();
+    await fixture.app.start();
+
+    expect(fixture.state.settings.theme).toBe("default");
+
+    // 依次点击切换主题
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("pyro");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("emerald");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("cyber");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("obsidian");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("crimson");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("sakura");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("default");
   });
 });
 
@@ -56,14 +97,15 @@ function createFixture({ settingsError, alwaysOnTopError } = {}) {
     commands: {
       getSettings,
       getAlwaysOnTop: vi.fn().mockResolvedValue(true),
-      setAlwaysOnTop
+      setAlwaysOnTop,
     },
     events: {
       listen: vi.fn(async (eventName) => {
-        if (eventName === "quota:refresh-requested") throw new Error("监听失败");
+        if (eventName === "quota:refresh-requested")
+          throw new Error("监听失败");
         return () => {};
-      })
-    }
+      }),
+    },
   };
   const controllers = {
     window: {
@@ -72,25 +114,25 @@ function createFixture({ settingsError, alwaysOnTopError } = {}) {
       registerWindowMoveSave: vi.fn().mockResolvedValue(undefined),
       readCurrentWindowPosition: vi.fn(),
       mergeWindowPosition: vi.fn(),
-      clearPanelClick: vi.fn()
+      clearPanelClick: vi.fn(),
     },
     quota: {
       refreshQuota: vi.fn().mockResolvedValue(undefined),
-      scheduleAutoRefresh: vi.fn()
+      scheduleAutoRefresh: vi.fn(),
     },
     update: {
       scheduleUpdateChecks: vi.fn(),
       setUpdateStatus: vi.fn(),
-      checkForUpdates: vi.fn()
+      checkForUpdates: vi.fn(),
     },
     onboarding: {
       bindEvents: vi.fn(),
-      runInitialOnboarding: vi.fn().mockResolvedValue(undefined)
+      runInitialOnboarding: vi.fn().mockResolvedValue(undefined),
     },
     settings: {
       bindEvents: vi.fn(),
-      renderSettingsPanel: vi.fn()
-    }
+      renderSettingsPanel: vi.fn(),
+    },
   };
   const render = vi.fn();
   const factories = {
@@ -101,7 +143,7 @@ function createFixture({ settingsError, alwaysOnTopError } = {}) {
     createUpdateController: () => controllers.update,
     createOnboardingController: () => controllers.onboarding,
     createSettingsController: () => controllers.settings,
-    createRenderer: () => ({ render })
+    createRenderer: () => ({ render }),
   };
   const app = createApp({
     els,
@@ -109,7 +151,7 @@ function createFixture({ settingsError, alwaysOnTopError } = {}) {
     service,
     logger,
     factories,
-    initializeActionIcons: vi.fn()
+    initializeActionIcons: vi.fn(),
   });
   return { app, controllers, els, logger, service, state };
 }

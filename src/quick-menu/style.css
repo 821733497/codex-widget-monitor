@@ -1,0 +1,421 @@
+@import "../styles/base.css";
+@import "../themes.css";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+:root {
+  --text-primary: #f0f6fc;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --accent-color: #38bdf8;
+  --accent-dim: rgba(56, 189, 248, 0.16);
+  --accent-hover-dim: rgba(56, 189, 248, 0.28);
+  --item-hover-bg: rgba(56, 189, 248, 0.12);
+  --item-active-bg: rgba(56, 189, 248, 0.22);
+  --separator-color: rgba(56, 189, 248, 0.14);
+}
+
+/* 烈焰核心 (Pyro) 主题联动 */
+:is([data-theme="pyro"], body[data-theme="pyro"]) {
+  --text-primary: #fef3c7;
+  --text-secondary: rgba(253, 230, 138, 0.65);
+  --accent-color: #fbbf24;
+  --accent-dim: rgba(245, 158, 11, 0.18);
+  --accent-hover-dim: rgba(245, 158, 11, 0.32);
+  --item-hover-bg: rgba(245, 158, 11, 0.14);
+  --item-active-bg: rgba(245, 158, 11, 0.24);
+  --separator-color: rgba(245, 158, 11, 0.15);
+}
+
+/* 翡翠核心 (Emerald) 主题联动 */
+:is([data-theme="emerald"], body[data-theme="emerald"]) {
+  --text-primary: #ecfdf5;
+  --text-secondary: rgba(167, 243, 208, 0.65);
+  --accent-color: #10b981;
+  --accent-dim: rgba(16, 185, 129, 0.18);
+  --accent-hover-dim: rgba(16, 185, 129, 0.32);
+  --item-hover-bg: rgba(16, 185, 129, 0.14);
+  --item-active-bg: rgba(16, 185, 129, 0.24);
+  --separator-color: rgba(16, 185, 129, 0.15);
+}
+
+/* 幻紫核心 (Cyber) 主题联动 */
+:is([data-theme="cyber"], body[data-theme="cyber"]) {
+  --text-primary: #faf5ff;
+  --text-secondary: rgba(233, 213, 255, 0.65);
+  --accent-color: #a855f7;
+  --accent-dim: rgba(168, 85, 247, 0.18);
+  --accent-hover-dim: rgba(168, 85, 247, 0.32);
+  --item-hover-bg: rgba(168, 85, 247, 0.14);
+  --item-active-bg: rgba(168, 85, 247, 0.24);
+  --separator-color: rgba(168, 85, 247, 0.15);
+}
+
+/* 暗金 (Obsidian) 主题联动 */
+:is([data-theme="obsidian"], body[data-theme="obsidian"]) {
+  --text-primary: #fefce8;
+  --text-secondary: rgba(254, 240, 138, 0.65);
+  --accent-color: #eab308;
+  --accent-dim: rgba(234, 179, 8, 0.18);
+  --accent-hover-dim: rgba(234, 179, 8, 0.32);
+  --item-hover-bg: rgba(234, 179, 8, 0.14);
+  --item-active-bg: rgba(234, 179, 8, 0.24);
+  --separator-color: rgba(234, 179, 8, 0.15);
+}
+
+/* 绯红 (Crimson) 主题联动 */
+:is([data-theme="crimson"], body[data-theme="crimson"]) {
+  --text-primary: #fff1f2;
+  --text-secondary: rgba(254, 205, 211, 0.65);
+  --accent-color: #f43f5e;
+  --accent-dim: rgba(244, 63, 94, 0.18);
+  --accent-hover-dim: rgba(244, 63, 94, 0.32);
+  --item-hover-bg: rgba(244, 63, 94, 0.14);
+  --item-active-bg: rgba(244, 63, 94, 0.24);
+  --separator-color: rgba(244, 63, 94, 0.15);
+}
+
+/* 落樱 (Sakura) 主题联动 */
+:is([data-theme="sakura"], body[data-theme="sakura"]) {
+  --text-primary: #fdf2f8;
+  --text-secondary: rgba(251, 207, 232, 0.65);
+  --accent-color: #ec4899;
+  --accent-dim: rgba(236, 72, 153, 0.18);
+  --accent-hover-dim: rgba(236, 72, 153, 0.32);
+  --item-hover-bg: rgba(236, 72, 153, 0.14);
+  --item-active-bg: rgba(236, 72, 153, 0.24);
+  --separator-color: rgba(236, 72, 153, 0.15);
+}
+
+html,
+body.quick-menu-body {
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+  overflow: hidden !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  color: var(--text-primary);
+}
+
+.quick-menu-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--widget-surface-background);
+  backdrop-filter: var(--widget-surface-backdrop);
+  -webkit-backdrop-filter: var(--widget-surface-backdrop);
+  border-radius: 12px;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* 默认 / 全息主题边框与内发光 */
+body[data-theme="default"] .quick-menu-container,
+body:not([data-theme]) .quick-menu-container {
+  border: 1px solid rgba(56, 189, 248, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.4),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Pyro 烈焰熔核主题边框与内发光 */
+body[data-theme="pyro"] .quick-menu-container {
+  border: 1px solid rgba(245, 158, 11, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* 翡翠核心边框与内发光 */
+body[data-theme="emerald"] .quick-menu-container {
+  border: 1px solid rgba(16, 185, 129, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* 幻紫核心边框与内发光 */
+body[data-theme="cyber"] .quick-menu-container {
+  border: 1px solid rgba(168, 85, 247, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* 暗金核心边框与内发光 */
+body[data-theme="obsidian"] .quick-menu-container {
+  border: 1px solid rgba(234, 179, 8, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* 绯红核心边框与内发光 */
+body[data-theme="crimson"] .quick-menu-container {
+  border: 1px solid rgba(244, 63, 94, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* 落樱核心边框与内发光 */
+body[data-theme="sakura"] .quick-menu-container {
+  border: 1px solid rgba(236, 72, 153, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -14px 28px rgba(0, 0, 0, 0.5),
+    0 8px 32px rgba(0, 0, 0, 0.55);
+}
+
+/* 复刻主面板与概览卡片的水晶微光渐变层 */
+.quick-menu-container::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  border-radius: 12px;
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(126, 211, 255, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(69, 244, 176, 0.1), transparent 35%);
+}
+
+body[data-theme="pyro"] .quick-menu-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(245, 158, 11, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(239, 68, 68, 0.12), transparent 35%);
+}
+
+body[data-theme="emerald"] .quick-menu-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(16, 185, 129, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(5, 150, 105, 0.12), transparent 35%);
+}
+
+body[data-theme="cyber"] .quick-menu-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(168, 85, 247, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 20% 90%,
+      rgba(236, 72, 153, 0.12),
+      transparent 35%
+    );
+}
+
+body[data-theme="obsidian"] .quick-menu-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(234, 179, 8, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(161, 98, 7, 0.12), transparent 35%);
+}
+
+body[data-theme="crimson"] .quick-menu-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(244, 63, 94, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(190, 18, 60, 0.12), transparent 35%);
+}
+
+body[data-theme="sakura"] .quick-menu-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(236, 72, 153, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 20% 90%,
+      rgba(219, 39, 119, 0.12),
+      transparent 35%
+    );
+}
+
+/* 菜单列表（提升层级在渐变层之上） */
+.menu-list {
+  position: relative;
+  z-index: 1;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+
+/* 每一行菜单项 */
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0 9px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  text-align: left;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+  white-space: nowrap;
+}
+
+.menu-item:hover {
+  background: var(--item-hover-bg);
+}
+
+.menu-item:active {
+  background: var(--item-active-bg);
+}
+
+/* 图标容器：所有选项统一拥有圆角磁贴背景，全部跟随主题主色调 */
+.menu-item-icon {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 5px;
+  color: var(--accent-color);
+  background: var(--accent-dim);
+  transition:
+    color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.menu-item:hover .menu-item-icon {
+  background: var(--accent-hover-dim);
+  transform: scale(1.06);
+}
+
+/* 标签 */
+.menu-item-label {
+  flex: 1;
+}
+
+/* 数据源胶囊微型标签 */
+.source-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+  max-width: 68px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:is([data-theme="pyro"], body[data-theme="pyro"]) .source-badge {
+  color: var(--pyro-muted, #fde68a);
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.22);
+}
+
+:is([data-theme="emerald"], body[data-theme="emerald"]) .source-badge {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.22);
+}
+
+:is([data-theme="cyber"], body[data-theme="cyber"]) .source-badge {
+  color: #e9d5ff;
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.22);
+}
+
+:is([data-theme="obsidian"], body[data-theme="obsidian"]) .source-badge {
+  color: #fef08a;
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.22);
+}
+
+:is([data-theme="crimson"], body[data-theme="crimson"]) .source-badge {
+  color: #fda4af;
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.22);
+}
+
+:is([data-theme="sakura"], body[data-theme="sakura"]) .source-badge {
+  color: #fbcfe8;
+  background: rgba(236, 72, 153, 0.12);
+  border-color: rgba(236, 72, 153, 0.22);
+}
+
+/* 分割线 */
+.menu-separator {
+  height: 1px;
+  margin: 3px 6px;
+  background: var(--separator-color);
+}
+
+/* 刷新旋转动画 */
+.spinning {
+  animation: spinAnim 0.75s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes spinAnim {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

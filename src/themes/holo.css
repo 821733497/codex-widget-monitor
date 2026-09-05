@@ -4,6 +4,7 @@
   --holo-accent: #38bdf8;
   --holo-accent-deep: #0369a1;
   --holo-accent-rgb: 56, 189, 248;
+  --dock-glow-rgb: var(--holo-accent-rgb);
   --holo-panel: rgba(8, 14, 26, 0.94);
   --holo-card: rgba(14, 25, 45, 0.62);
   --holo-card-strong: rgba(18, 33, 58, 0.78);
@@ -128,10 +129,10 @@
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
-  .widget,
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
+  .widget:not(:has(.settings-panel:not([hidden]))),
 :is(body[data-theme="holo"], body[data-theme="default"])
-  .widget[data-widget-mode="ball"] {
+  .widget[data-widget-mode="ball"]:not(:has(.settings-panel:not([hidden]))) {
   position: relative !important;
   box-sizing: border-box !important;
   width: var(--ball-size, 88px) !important;
@@ -150,32 +151,32 @@
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .widget::before,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .widget::after,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .titlebar,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .quota-panel,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .status,
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .settings-panel {
   display: none !important;
 }
@@ -183,7 +184,7 @@
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .content {
   position: absolute !important;
   inset: 0 !important;
@@ -199,7 +200,7 @@
 :is(
     body[data-theme="holo"],
     body[data-theme="default"]
-  )[data-widget-mode="ball"]
+  )[data-widget-mode="ball"]:not([data-settings-open="true"])
   .meter-host {
   position: absolute !important;
   inset: 0 !important;
@@ -453,4 +454,33 @@ body[data-ball-size="small"]
 .holo-meter[data-level="low"] .holo-label {
   color: rgba(254, 226, 226, 0.95);
   text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+}
+
+/* =========================================================
+   全息主题 - 竖向进度条专属配色
+   ========================================================= */
+body[data-theme="default"] .dock-bar-fill,
+body[data-theme="holo"] .dock-bar-fill,
+body:not([data-theme]) .dock-bar-fill {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      transparent 45%,
+      rgba(0, 0, 0, 0.12) 100%
+    ),
+    linear-gradient(to top, #0369a1 0%, #0284c7 35%, #00b4d8 68%, #7dd3fc 100%);
+  box-shadow:
+    0 0 8px rgba(0, 180, 216, 0.85),
+    0 0 18px rgba(2, 132, 199, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.4);
+}
+
+body[data-theme="default"] .dock-bar-glow,
+body[data-theme="holo"] .dock-bar-glow,
+body:not([data-theme]) .dock-bar-glow {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 1),
+    0 0 12px rgba(0, 210, 255, 0.9);
 }

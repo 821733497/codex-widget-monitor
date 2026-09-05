@@ -34,6 +34,11 @@ pub enum ThemeMode {
     Basic3,
     Holo,
     Pyro,
+    Emerald,
+    Cyber,
+    Obsidian,
+    Crimson,
+    Sakura,
 }
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -57,8 +62,8 @@ pub enum DataBarContent {
 #[serde(rename_all = "lowercase")]
 pub enum WidgetMode {
     #[default]
-    Panel,
     Ball,
+    Panel,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -72,8 +77,16 @@ pub enum BallDock {
 #[serde(rename_all = "lowercase")]
 pub enum BallSize {
     #[default]
-    Medium,
     Small,
+    Medium,
+}
+
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum BallSnapStyle {
+    #[default]
+    Ball,
+    Bar,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -155,6 +168,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub ball_size: BallSize,
     #[serde(default)]
+    pub ball_snap_style: BallSnapStyle,
+    #[serde(default)]
     pub sites: Vec<SiteConfig>,
     #[serde(default)]
     pub active_target: ActiveTarget,
@@ -181,6 +196,7 @@ impl Default for AppSettings {
             ball_position: None,
             ball_dock: None,
             ball_size: BallSize::default(),
+            ball_snap_style: BallSnapStyle::default(),
             sites: Vec::new(),
             active_target: ActiveTarget::default(),
         }
@@ -517,6 +533,7 @@ mod tests {
             ball_position: Some(WindowPosition { x: 1800, y: 240 }),
             ball_dock: Some(BallDock::Right),
             ball_size: BallSize::Small,
+            ball_snap_style: BallSnapStyle::Bar,
             sites: vec![],
             active_target: ActiveTarget::Official,
         };
@@ -563,6 +580,8 @@ mod tests {
         );
         assert_eq!(loaded.ball_dock, Some(BallDock::Right));
         assert_eq!(loaded.ball_size, BallSize::Small);
+        assert_eq!(loaded.ball_snap_style, BallSnapStyle::Bar);
+        assert_eq!(persisted["ballSnapStyle"], "bar");
     }
 
     #[test]
@@ -586,6 +605,32 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(fs::read_to_string(&path).unwrap(), original_text);
         assert_eq!(load_from_path(&path).unwrap(), original);
+    }
+
+    #[test]
+    fn 新增主题模式能正确序列化与反序列化() {
+        let dir = temp_test_dir("new-theme-modes");
+        let path = dir.join("settings.json");
+        fs::create_dir_all(&dir).unwrap();
+
+        for (theme_mode, theme_str) in [
+            (ThemeMode::Emerald, "emerald"),
+            (ThemeMode::Cyber, "cyber"),
+            (ThemeMode::Obsidian, "obsidian"),
+            (ThemeMode::Crimson, "crimson"),
+            (ThemeMode::Sakura, "sakura"),
+        ] {
+            let settings = AppSettings {
+                theme: theme_mode,
+                ..AppSettings::default()
+            };
+            save_to_path(&path, settings.clone()).unwrap();
+            let loaded = load_from_path(&path).unwrap();
+            assert_eq!(loaded.theme, theme_mode);
+
+            let content = fs::read_to_string(&path).unwrap();
+            assert!(content.contains(&format!("\"theme\": \"{theme_str}\"")));
+        }
     }
 
     #[test]
@@ -615,7 +660,7 @@ mod tests {
         assert!(settings.meter_window_migrated);
         assert_eq!(settings.data_bars, None);
         assert_eq!(settings.log_level, LogLevel::Off);
-        assert_eq!(settings.widget_mode, WidgetMode::Panel);
+        assert_eq!(settings.widget_mode, WidgetMode::Ball);
         assert_eq!(settings.panel_position, None);
         assert_eq!(settings.ball_position, None);
         assert_eq!(settings.ball_dock, None);

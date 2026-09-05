@@ -1,5 +1,6 @@
 import {
   BALL_SIZE_OPTIONS,
+  BALL_SNAP_STYLE_OPTIONS,
   DATA_BAR_CONTENTS,
   DEFAULT_SETTINGS,
   LOG_LEVELS,
@@ -12,6 +13,7 @@ import { detectMacOS } from "./platform.js";
 import { syncSettingsDraftFromSettings } from "./state.js";
 import {
   normalizeBallSize,
+  normalizeBallSnapStyle,
   normalizeDataBarContent,
   normalizeDataBars,
   normalizeInputValue,
@@ -38,6 +40,7 @@ export function createSettingsController({
   logger,
   clearPanelClick,
   adjustWindowForSettings,
+  setWidgetMode: _setWidgetMode,
   isMacOS = detectMacOS(),
 }) {
   const customSelects = createCustomSelectController({
@@ -55,6 +58,7 @@ export function createSettingsController({
     localeSelect: selectSettingsLocale,
     meterWindowSelect: selectMeterWindow,
     ballSizeSelect: selectBallSize,
+    ballSnapStyleSelect: selectBallSnapStyle,
     dataBar1Select: (value) => selectDataBar(0, value),
     dataBar2Select: (value) => selectDataBar(1, value),
     dataBar3Select: (value) => selectDataBar(2, value),
@@ -76,6 +80,12 @@ export function createSettingsController({
       registry: BALL_SIZE_OPTIONS,
       currentValue: () => normalizeBallSize(state.settingsDraft.ballSize),
     },
+    {
+      select: els.ballSnapStyleSelect,
+      registry: BALL_SNAP_STYLE_OPTIONS,
+      currentValue: () =>
+        normalizeBallSnapStyle(state.settingsDraft.ballSnapStyle),
+    },
     ...els.dataBarSelects.map((select, index) => ({
       select,
       registry: DATA_BAR_CONTENTS,
@@ -93,7 +103,7 @@ export function createSettingsController({
 
   function bindEvents() {
     focusManager.bindEvents();
-    els.settingsBtn.addEventListener("click", openSettingsPanel);
+    els.settingsBtn?.addEventListener("click", openSettingsPanel);
     els.settingsCloseBtn.addEventListener("click", closeSettingsPanel);
     els.cancelSettingsBtn?.addEventListener("click", closeSettingsPanel);
     els.saveSettingsBtn?.addEventListener("click", saveSettings);
@@ -109,6 +119,7 @@ export function createSettingsController({
     els.codexPathInput?.addEventListener("blur", syncCodexPath);
     els.tabBasicBtn?.addEventListener("click", () => switchTab("basic"));
     els.tabSourcesBtn?.addEventListener("click", () => switchTab("sources"));
+    els.tabSystemBtn?.addEventListener("click", () => switchTab("system"));
     customSelects.bindEvents();
   }
 
@@ -135,6 +146,13 @@ export function createSettingsController({
         String(activeTab === "sources"),
       );
     }
+    if (els.tabSystemBtn) {
+      els.tabSystemBtn.classList.toggle("active", activeTab === "system");
+      els.tabSystemBtn.setAttribute(
+        "aria-selected",
+        String(activeTab === "system"),
+      );
+    }
     if (els.basicSettingsScroll) {
       els.basicSettingsScroll.hidden = activeTab !== "basic";
       els.basicSettingsScroll.style.display =
@@ -145,14 +163,21 @@ export function createSettingsController({
       els.sourcesSettingsScroll.style.display =
         activeTab === "sources" ? "grid" : "none";
     }
+    if (els.systemSettingsScroll) {
+      els.systemSettingsScroll.hidden = activeTab !== "system";
+      els.systemSettingsScroll.style.display =
+        activeTab === "system" ? "grid" : "none";
+    }
     render();
   }
 
-  function openSettingsPanel(tab = "basic") {
+  async function openSettingsPanel(tab = "basic") {
     clearPanelClick();
     syncSettingsDraftFromSettings(state);
     state.settingsOpen = true;
-    switchTab(tab === "sources" ? "sources" : "basic");
+    switchTab(
+      tab === "sources" ? "sources" : tab === "system" ? "system" : "basic",
+    );
     fillSettingsForm();
     render();
     focusManager.activate();
@@ -186,7 +211,7 @@ export function createSettingsController({
     }
   }
 
-  function closeSettingsPanel() {
+  async function closeSettingsPanel() {
     if (state.settingsOpen) {
       syncInputsOnClose();
     }
@@ -197,6 +222,7 @@ export function createSettingsController({
     customSelects.close();
     render();
     focusManager.deactivate();
+
     adjustWindowForSettings?.(false);
   }
 
@@ -223,9 +249,12 @@ export function createSettingsController({
   function renderSettingsLabels(text) {
     els.settingsTitle.textContent = text.settings;
     if (els.tabBasicBtn)
-      els.tabBasicBtn.textContent = text.tabBasic || "基础设置";
+      els.tabBasicBtn.textContent =
+        text.tabAppearance || text.tabBasic || "外观显示";
     if (els.tabSourcesBtn)
       els.tabSourcesBtn.textContent = text.tabSources || "中转站";
+    if (els.tabSystemBtn)
+      els.tabSystemBtn.textContent = text.tabSystem || "系统设置";
     els.codexPathLabel.textContent = text.codexPath;
     els.autoUpdateLabel.textContent = text.autoUpdate;
     els.autoUpdateHint.textContent = text.autoUpdateHint;
@@ -240,6 +269,8 @@ export function createSettingsController({
     els.languageLabel.textContent = text.language;
     els.meterWindowLabel.textContent = text.meterWindow;
     if (els.ballSizeLabel) els.ballSizeLabel.textContent = text.ballSize;
+    if (els.ballSnapStyleLabel)
+      els.ballSnapStyleLabel.textContent = text.ballSnapStyle;
     els.dataBarLabels.forEach((label, index) => {
       label.textContent = text[`dataBar${index + 1}`];
     });
@@ -371,6 +402,12 @@ export function createSettingsController({
     saveSettings();
   }
 
+  function selectBallSnapStyle(ballSnapStyle) {
+    state.settingsDraft.ballSnapStyle = normalizeBallSnapStyle(ballSnapStyle);
+    render();
+    saveSettings();
+  }
+
   function selectDataBar(index, content) {
     const normalized = normalizeDataBarContent(content);
     if (!normalized) return;
@@ -481,6 +518,9 @@ export function createSettingsController({
       ballDock: state.settings.ballDock,
       ballSize: normalizeBallSize(
         state.settingsDraft.ballSize || els.ballSizeSelect?.value,
+      ),
+      ballSnapStyle: normalizeBallSnapStyle(
+        state.settingsDraft.ballSnapStyle || els.ballSnapStyleSelect?.value,
       ),
       sites: state.settingsDraft.sites || [],
       activeTarget: state.settingsDraft.activeTarget || { type: "official" },
@@ -914,6 +954,7 @@ export function createSettingsController({
 
   function renderSelectOptionGroups(locale) {
     selectOptionConfigs.forEach(({ select, registry, currentValue }) => {
+      if (!select) return;
       renderSelectOptions(select, registry, currentValue(), locale);
     });
   }

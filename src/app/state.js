@@ -11,7 +11,7 @@ export function createAppState() {
     errors: {
       settings: "",
       window: "",
-      quota: ""
+      quota: "",
     },
     resetCreditExpiries: [],
     resetCreditExpiriesStatus: "idle",
@@ -30,23 +30,29 @@ export function createAppState() {
     panelClick: null,
     ballPress: null,
     ballDrag: null,
-    ballClickTimer: null,
     positionSaveTimer: null,
     windowMoveUnlisten: null,
-    isApplyingWindowMode: false
+    isApplyingWindowMode: false,
   };
 }
 
 export function activeError(state) {
-  return state.errors.settings || state.errors.window || state.errors.quota || "";
+  return (
+    state.errors.settings || state.errors.window || state.errors.quota || ""
+  );
 }
 
-export function applyNormalizedSettings(state, settings, { syncDraft = true } = {}) {
+export function applyNormalizedSettings(
+  state,
+  settings,
+  { syncDraft = true } = {},
+) {
   const normalized = normalizeSettings(settings);
   state.settings = normalized;
   state.locale = normalized.locale;
   state.widgetMode = normalized.widgetMode;
-  state.ballDock = normalized.widgetMode === WIDGET_MODES.BALL ? normalized.ballDock : null;
+  state.ballDock =
+    normalized.widgetMode === WIDGET_MODES.BALL ? normalized.ballDock : null;
   if (syncDraft) {
     syncSettingsDraftFromSettings(state);
   }
@@ -56,7 +62,7 @@ export function applyNormalizedSettings(state, settings, { syncDraft = true } = 
 export function syncSettingsDraftFromSettings(state) {
   state.settingsDraft = {
     ...state.settings,
-    dataBars: state.settings.dataBars ? [...state.settings.dataBars] : null
+    dataBars: state.settings.dataBars ? [...state.settings.dataBars] : null,
   };
 }
 
@@ -66,6 +72,8 @@ export function renderLocale(state) {
 }
 
 export function renderTheme(state) {
-  const theme = state.settingsOpen ? state.settingsDraft.theme : state.settings.theme;
+  const theme = state.settingsOpen
+    ? state.settingsDraft.theme
+    : state.settings.theme;
   return normalizeTheme(theme);
 }
