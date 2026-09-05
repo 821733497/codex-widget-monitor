@@ -4,7 +4,16 @@ import { describe, expect, it } from "vitest";
 
 import { createMeterController } from "../src/components/meters/meter-controller.js";
 
-const THEMES = ["default", "holo", "pyro"];
+const THEMES = [
+  "default",
+  "holo",
+  "pyro",
+  "emerald",
+  "cyber",
+  "obsidian",
+  "crimson",
+  "sakura",
+];
 const BASE_UPDATE = {
   theme: "default",
   percent: 42,

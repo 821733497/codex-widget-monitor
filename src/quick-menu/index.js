@@ -11,6 +11,7 @@ const elements = {
   btnMinimizeToTray: document.getElementById("btnMinimizeToTray"),
   refreshIconSvg: document.getElementById("refreshIconSvg"),
   currentSourceBadge: document.getElementById("currentSourceBadge"),
+  currentThemeBadge: document.getElementById("currentThemeBadge"),
 };
 
 async function hideMenu() {
@@ -65,10 +66,13 @@ function init() {
 
   // 接收外部同步的主题与数据源信息
   listen(IPC_EVENTS.QUICK_MENU_SYNC, (event) => {
-    const { theme, sourceName } = event.payload || {};
+    const { theme, themeName, sourceName } = event.payload || {};
     if (theme) {
       document.documentElement.setAttribute("data-theme", theme);
       document.body.dataset.theme = theme;
+    }
+    if (themeName && elements.currentThemeBadge) {
+      elements.currentThemeBadge.textContent = themeName;
     }
     if (sourceName && elements.currentSourceBadge) {
       elements.currentSourceBadge.textContent = sourceName;

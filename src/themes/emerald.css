@@ -1,0 +1,453 @@
+body[data-theme="emerald"] {
+  --emerald-mint: #34d399;
+  --emerald-forest: #059669;
+  --emerald-deep: #064e3b;
+  --emerald-accent: #10b981;
+  --emerald-accent-deep: #047857;
+  --emerald-accent-rgb: 16, 185, 129;
+  --dock-glow-rgb: var(--emerald-accent-rgb);
+  --emerald-panel: rgba(6, 22, 16, 0.95);
+  --emerald-card: rgba(10, 36, 26, 0.65);
+  --emerald-card-strong: rgba(14, 48, 35, 0.82);
+  --emerald-line: rgba(16, 185, 129, 0.22);
+  --emerald-text: rgba(236, 253, 245, 0.96);
+  --emerald-muted: rgba(167, 243, 208, 0.72);
+  --emerald-faint: rgba(110, 231, 183, 0.45);
+  --settings-accent-color: var(--emerald-accent);
+  --settings-accent-soft: rgba(var(--emerald-accent-rgb), 0.22);
+  --settings-text-color: var(--emerald-text);
+  --settings-muted-color: var(--emerald-muted);
+}
+
+body[data-theme="emerald"] {
+  --widget-surface-background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(16, 185, 129, 0.18),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 80% 85%,
+      rgba(5, 150, 105, 0.16),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(8, 30, 22, 0.96),
+      rgba(5, 18, 14, 0.98) 60%,
+      rgba(3, 10, 8, 1)
+    );
+  --widget-surface-shadow:
+    inset 0 0 0 1px rgba(16, 185, 129, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.5), 0 0 24px rgba(16, 185, 129, 0.14);
+  --widget-surface-backdrop: blur(28px) saturate(1.35);
+  --meter-primary-color: #ffffff;
+}
+
+body[data-theme="emerald"][data-state="low"] {
+  --emerald-accent: #f97316;
+  --emerald-accent-deep: #c2410c;
+  --emerald-accent-rgb: 249, 115, 22;
+}
+
+body[data-theme="emerald"][data-state="critical"],
+body[data-theme="emerald"][data-state="empty"],
+body[data-theme="emerald"][data-state="error"] {
+  --emerald-accent: #ef4444;
+  --emerald-accent-deep: #b91c1c;
+  --emerald-accent-rgb: 239, 68, 68;
+}
+
+/* 标题栏与文字 */
+body[data-theme="emerald"] .titlebar h1 {
+  color: var(--emerald-text);
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.45);
+}
+
+body[data-theme="emerald"] .titlebar p {
+  color: var(--emerald-accent);
+}
+
+/* 卡片样式 */
+body[data-theme="emerald"] .quota-card {
+  background: var(--emerald-card);
+  border: 1px solid var(--emerald-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 12px rgba(2, 12, 8, 0.38);
+}
+
+body[data-theme="emerald"] .quota-card:hover {
+  background: var(--emerald-card-strong);
+  border-color: rgba(52, 211, 153, 0.45);
+}
+
+body[data-theme="emerald"] .quota-card strong {
+  max-width: 95px;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 850;
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+body[data-theme="emerald"] .quota-card .quota-icon {
+  color: var(--emerald-accent);
+}
+
+body[data-theme="emerald"] .quota-card .quota-copy span {
+  color: var(--emerald-text);
+}
+
+body[data-theme="emerald"] .quota-card .quota-subtext {
+  color: var(--emerald-muted);
+}
+
+body[data-theme="emerald"] .quota-card .quota-sub-value {
+  color: var(--emerald-accent);
+}
+
+/* 状态栏 */
+body[data-theme="emerald"] .status {
+  border-top: 1px solid rgba(16, 185, 129, 0.18);
+  color: var(--emerald-muted);
+}
+
+body[data-theme="emerald"] .status-dot {
+  background: var(--emerald-accent);
+  box-shadow: 0 0 8px var(--emerald-accent);
+}
+
+/* 悬浮球模式下的穿透重置 */
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget:not(:has(.settings-panel:not([hidden]))),
+body[data-theme="emerald"]
+  .widget[data-widget-mode="ball"]:not(:has(.settings-panel:not([hidden]))) {
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: var(--ball-size, 88px) !important;
+  height: var(--ball-size, 88px) !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  overflow: hidden !important;
+  -webkit-mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+  mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+}
+
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::before,
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::after,
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .titlebar,
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .quota-panel,
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .status,
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .settings-panel {
+  display: none !important;
+}
+
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .content {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  cursor: grab;
+}
+
+body[data-theme="emerald"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .meter-host {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 翡翠仪表盘 */
+.emerald-meter {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.emerald-meter-glow {
+  position: absolute;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(16, 185, 129, 0.42) 0%,
+    rgba(16, 185, 129, 0.14) 50%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+  animation: emeraldGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes emeraldGlowPulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+.emerald-sphere-container {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 24px rgba(16, 185, 129, 0.52),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(4, 120, 87, 0.42);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(52, 211, 153, 0.14) 0%,
+    rgba(16, 185, 129, 0.22) 65%,
+    rgba(6, 78, 59, 0.38) 100%
+  );
+}
+
+.emerald-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.emerald-glass-reflect {
+  position: absolute;
+  top: 3px;
+  left: 15%;
+  width: 70%;
+  height: 42%;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 255, 255, 0.18) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(0.5px);
+}
+
+.emerald-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.emerald-percent {
+  font-family: ui-monospace, "SF Pro Display", "SF Mono", monospace;
+  font-size: 27px;
+  font-weight: 850;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow:
+    0 0 16px rgba(16, 185, 129, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.emerald-label {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(209, 250, 229, 0.92);
+  letter-spacing: 1px;
+  text-shadow:
+    0 0 10px rgba(16, 185, 129, 0.7),
+    0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* 悬浮球模式适配 */
+.emerald-meter[data-mode="ball"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.emerald-meter[data-mode="ball"] .emerald-meter-glow {
+  display: none !important;
+}
+
+.emerald-meter[data-mode="ball"] .emerald-sphere-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset 0 0 20px rgba(16, 185, 129, 0.52),
+    inset 0 1.5px 4px rgba(255, 255, 255, 0.45),
+    inset 0 -10px 20px rgba(4, 120, 87, 0.38) !important;
+}
+
+.emerald-meter[data-mode="ball"] .emerald-percent {
+  font-size: 20px;
+}
+
+.emerald-meter[data-mode="ball"] .emerald-label {
+  font-size: 10px;
+}
+
+body[data-ball-size="small"] .emerald-meter[data-mode="ball"] .emerald-percent {
+  font-size: 15px !important;
+}
+
+body[data-ball-size="small"] .emerald-meter[data-mode="ball"] .emerald-label {
+  font-size: 9px !important;
+}
+
+.emerald-meter[data-mode="ball"][data-dock="right"] .emerald-content {
+  transform: translateX(-18px);
+}
+
+.emerald-meter[data-mode="ball"][data-dock="left"] .emerald-content {
+  transform: translateX(18px);
+}
+
+.emerald-meter[data-mode="ball"]:not([data-dock="none"]) .emerald-percent {
+  font-size: 16px !important;
+}
+
+.emerald-meter[data-mode="ball"]:not([data-dock="none"]) .emerald-label {
+  font-size: 9px !important;
+}
+
+body[data-ball-size="small"]
+  .emerald-meter[data-mode="ball"][data-dock="right"]
+  .emerald-content {
+  transform: translateX(-15px);
+}
+
+body[data-ball-size="small"]
+  .emerald-meter[data-mode="ball"][data-dock="left"]
+  .emerald-content {
+  transform: translateX(15px);
+}
+
+body[data-ball-size="small"]
+  .emerald-meter[data-mode="ball"]:not([data-dock="none"])
+  .emerald-percent {
+  font-size: 12px !important;
+  letter-spacing: -0.5px;
+}
+
+body[data-ball-size="small"]
+  .emerald-meter[data-mode="ball"]:not([data-dock="none"])
+  .emerald-label {
+  font-size: 8px !important;
+}
+
+/* 低电量警报 */
+.emerald-meter[data-level="low"] .emerald-meter-glow {
+  background: radial-gradient(
+    circle,
+    rgba(249, 115, 22, 0.48) 0%,
+    rgba(249, 115, 22, 0.16) 50%,
+    transparent 72%
+  );
+}
+
+.emerald-meter[data-level="low"] .emerald-sphere-container {
+  box-shadow:
+    inset 0 0 24px rgba(249, 115, 22, 0.58),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(154, 52, 18, 0.45),
+    0 0 28px rgba(249, 115, 22, 0.4);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(249, 115, 22, 0.16) 0%,
+    rgba(194, 65, 12, 0.28) 65%,
+    rgba(124, 45, 18, 0.42) 100%
+  );
+}
+
+.emerald-meter[data-level="low"] .emerald-percent {
+  text-shadow:
+    0 0 18px rgba(249, 115, 22, 0.98),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.emerald-meter[data-level="low"] .emerald-label {
+  color: rgba(254, 215, 170, 0.95);
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+}
+
+/* 翡翠主题 - 竖向进度条专属配色 */
+body[data-theme="emerald"] .dock-bar-fill {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      transparent 45%,
+      rgba(0, 0, 0, 0.12) 100%
+    ),
+    linear-gradient(to top, #064e3b 0%, #047857 35%, #10b981 68%, #6ee7b7 100%);
+  box-shadow:
+    0 0 8px rgba(16, 185, 129, 0.85),
+    0 0 18px rgba(4, 120, 87, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.4);
+}
+
+body[data-theme="emerald"] .dock-bar-glow {
+  background: rgba(236, 253, 245, 0.95);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 1),
+    0 0 12px rgba(16, 185, 129, 0.9);
+}

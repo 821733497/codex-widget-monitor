@@ -203,3 +203,11 @@ export function resolveActiveSourceName(
 
   return locale === "en" ? "Official" : "官方";
 }
+
+export function resolveActiveThemeName(theme, locale = "zh") {
+  const normalized = normalizeTheme(theme);
+  const themeItem = THEMES[normalized] || THEMES.default;
+  return locale === "en"
+    ? themeItem.label?.en || "Azure"
+    : themeItem.label?.zh || "天青";
+}

@@ -1,10 +1,9 @@
-body:not([data-theme="default"]) .onboarding-overlay,
 body:not([data-widget-mode="panel"]) .onboarding-overlay,
 .onboarding-overlay[hidden] {
   display: none;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-overlay {
+body[data-widget-mode="panel"] .onboarding-overlay {
   --onboarding-gold: #f2c56c;
   --onboarding-gold-soft: rgba(242, 197, 108, 0.46);
   --onboarding-card-left: 78px;
@@ -19,13 +18,22 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-overlay {
   pointer-events: auto;
   border-radius: 18px;
   background:
-    radial-gradient(ellipse 180px 96px at var(--onboarding-target-x) var(--onboarding-target-y), rgba(242, 197, 108, 0.14), transparent 68%),
-    radial-gradient(ellipse 230px 130px at 18% 72%, rgba(44, 82, 112, 0.1), transparent 72%),
+    radial-gradient(
+      ellipse 180px 96px at var(--onboarding-target-x)
+        var(--onboarding-target-y),
+      rgba(242, 197, 108, 0.14),
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 230px 130px at 18% 72%,
+      rgba(44, 82, 112, 0.1),
+      transparent 72%
+    ),
     rgba(1, 9, 19, 0.46);
   backdrop-filter: saturate(0.9);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-overlay::before {
+body[data-widget-mode="panel"] .onboarding-overlay::before {
   position: absolute;
   inset: 1px;
   pointer-events: none;
@@ -36,7 +44,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-overlay::before
     inset 0 -28px 44px rgba(0, 0, 0, 0.18);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-target-ring {
+body[data-widget-mode="panel"] .onboarding-target-ring {
   position: absolute;
   top: var(--onboarding-target-y);
   left: var(--onboarding-target-x);
@@ -53,7 +61,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-target-ring {
   transform: translate(-50%, -50%);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-target-ring::before {
+body[data-widget-mode="panel"] .onboarding-target-ring::before {
   position: absolute;
   inset: 6px;
   border: 1px solid rgba(255, 247, 220, 0.12);
@@ -62,7 +70,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-target-ring::be
   box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.06);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-node {
+body[data-widget-mode="panel"] .onboarding-node {
   position: absolute;
   top: calc(var(--onboarding-target-y) + 27px);
   left: var(--onboarding-target-x);
@@ -79,7 +87,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-node {
   transform: translate(-50%, -50%);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-connector {
+body[data-widget-mode="panel"] .onboarding-connector {
   position: absolute;
   top: calc(var(--onboarding-target-y) + 31px);
   left: var(--onboarding-target-x);
@@ -87,12 +95,16 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-connector {
   width: 2px;
   height: var(--onboarding-connector-height);
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 239, 183, 0.96), rgba(189, 136, 50, 0.76));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 239, 183, 0.96),
+    rgba(189, 136, 50, 0.76)
+  );
   box-shadow: 0 0 11px rgba(242, 197, 108, 0.48);
   transform: translateX(-50%);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-card {
+body[data-widget-mode="panel"] .onboarding-card {
   position: absolute;
   top: var(--onboarding-card-top);
   left: var(--onboarding-card-left);
@@ -108,7 +120,11 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-card {
   border-radius: 18px;
   color: rgba(255, 249, 232, 0.96);
   background:
-    radial-gradient(ellipse 150px 70px at 24% 0%, rgba(255, 255, 255, 0.1), transparent 72%),
+    radial-gradient(
+      ellipse 150px 70px at 24% 0%,
+      rgba(255, 255, 255, 0.1),
+      transparent 72%
+    ),
     linear-gradient(135deg, rgba(42, 43, 41, 0.94), rgba(5, 13, 23, 0.9) 74%),
     rgba(8, 17, 28, 0.92);
   box-shadow:
@@ -118,20 +134,28 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-card {
     0 0 22px rgba(242, 197, 108, 0.12);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-card::before {
+body[data-widget-mode="panel"] .onboarding-card::before {
   position: absolute;
   top: -9px;
-  left: clamp(18px, calc(var(--onboarding-target-x) - var(--onboarding-card-left) - 9px), calc(100% - 34px));
+  left: clamp(
+    18px,
+    calc(var(--onboarding-target-x) - var(--onboarding-card-left) - 9px),
+    calc(100% - 34px)
+  );
   width: 16px;
   height: 16px;
   content: "";
   border-top: 1px solid rgba(242, 197, 108, 0.62);
   border-left: 1px solid rgba(242, 197, 108, 0.62);
-  background: linear-gradient(135deg, rgba(42, 43, 41, 0.96), rgba(18, 24, 31, 0.94));
+  background: linear-gradient(
+    135deg,
+    rgba(42, 43, 41, 0.96),
+    rgba(18, 24, 31, 0.94)
+  );
   transform: rotate(45deg);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-card-icon {
+body[data-widget-mode="panel"] .onboarding-card-icon {
   display: grid;
   place-items: start center;
   padding-top: 1px;
@@ -143,13 +167,13 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-card-icon {
     0 0 28px rgba(242, 197, 108, 0.36);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-copy {
+body[data-widget-mode="panel"] .onboarding-copy {
   display: grid;
   gap: 8px;
   min-width: 0;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-copy strong {
+body[data-widget-mode="panel"] .onboarding-copy strong {
   color: #fff3d2;
   font-size: 18px;
   font-weight: 900;
@@ -159,7 +183,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-copy strong {
     0 0 16px rgba(242, 197, 108, 0.16);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-copy p {
+body[data-widget-mode="panel"] .onboarding-copy p {
   margin: 0;
   color: rgba(247, 240, 220, 0.82);
   font-size: 12px;
@@ -168,7 +192,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-copy p {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.58);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-controls {
+body[data-widget-mode="panel"] .onboarding-controls {
   position: absolute;
   bottom: 8px;
   left: 50%;
@@ -191,7 +215,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-controls {
   transform: translateX(-50%);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-steps {
+body[data-widget-mode="panel"] .onboarding-steps {
   position: relative;
   display: flex;
   flex: 0 0 auto;
@@ -200,7 +224,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-steps {
   padding: 0 1px;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-steps::before {
+body[data-widget-mode="panel"] .onboarding-steps::before {
   position: absolute;
   right: 11px;
   left: 11px;
@@ -213,7 +237,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-steps::before {
   );
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-steps span {
+body[data-widget-mode="panel"] .onboarding-steps span {
   position: relative;
   display: grid;
   place-items: center;
@@ -231,19 +255,22 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-steps span {
     0 0 8px rgba(0, 0, 0, 0.2);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-steps span.active {
+body[data-widget-mode="panel"] .onboarding-steps span.active {
   border-color: rgba(255, 226, 148, 0.9);
   color: #ffe39b;
-  background:
-    radial-gradient(circle at 50% 40%, rgba(242, 197, 108, 0.34), rgba(7, 20, 33, 0.9) 70%);
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgba(242, 197, 108, 0.34),
+    rgba(7, 20, 33, 0.9) 70%
+  );
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.12),
     0 0 16px rgba(242, 197, 108, 0.76);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-next,
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-prev,
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-close {
+body[data-widget-mode="panel"] .onboarding-next,
+body[data-widget-mode="panel"] .onboarding-prev,
+body[data-widget-mode="panel"] .onboarding-close {
   flex: 0 0 auto;
   height: 30px;
   padding: 0 13px;
@@ -264,7 +291,7 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-close {
   cursor: pointer;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-next {
+body[data-widget-mode="panel"] .onboarding-next {
   min-width: 68px;
   border-color: rgba(255, 231, 166, 0.78);
   color: #ffffff;
@@ -277,67 +304,67 @@ body[data-theme="default"][data-widget-mode="panel"] .onboarding-next {
     0 0 20px rgba(242, 197, 108, 0.35);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-prev {
+body[data-widget-mode="panel"] .onboarding-prev {
   min-width: 58px;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-close {
+body[data-widget-mode="panel"] .onboarding-close {
   min-width: 52px;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-next:hover,
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-prev:hover,
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-close:hover {
+body[data-widget-mode="panel"] .onboarding-next:hover,
+body[data-widget-mode="panel"] .onboarding-prev:hover,
+body[data-widget-mode="panel"] .onboarding-close:hover {
   border-color: rgba(255, 231, 166, 0.52);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 42%),
     rgba(28, 43, 57, 0.86);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-next:hover {
+body[data-widget-mode="panel"] .onboarding-next:hover {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.44), transparent 45%),
     linear-gradient(135deg, #f0d58b, #c89843);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-next:focus-visible,
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-prev:focus-visible,
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-close:focus-visible {
+body[data-widget-mode="panel"] .onboarding-next:focus-visible,
+body[data-widget-mode="panel"] .onboarding-prev:focus-visible,
+body[data-widget-mode="panel"] .onboarding-close:focus-visible {
   outline: 2px solid rgba(255, 226, 148, 0.92);
   outline-offset: 2px;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-prev:disabled {
+body[data-widget-mode="panel"] .onboarding-prev:disabled {
   cursor: default;
   opacity: 0.42;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-prev:disabled:hover {
+body[data-widget-mode="panel"] .onboarding-prev:disabled:hover {
   border-color: rgba(213, 232, 244, 0.22);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 42%),
     rgba(18, 31, 44, 0.78);
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-overlay[data-onboarding-step="0"] {
+body[data-widget-mode="panel"] .onboarding-overlay[data-onboarding-step="0"] {
   --onboarding-card-left: 78px;
   --onboarding-card-top: 78px;
   --onboarding-connector-height: 12px;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-overlay[data-onboarding-step="1"] {
+body[data-widget-mode="panel"] .onboarding-overlay[data-onboarding-step="1"] {
   --onboarding-card-left: 88px;
   --onboarding-card-top: 78px;
   --onboarding-connector-height: 12px;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-overlay[data-onboarding-step="2"] {
+body[data-widget-mode="panel"] .onboarding-overlay[data-onboarding-step="2"] {
   --onboarding-card-left: 132px;
   --onboarding-card-top: 78px;
   --onboarding-connector-height: 12px;
 }
 
-body[data-theme="default"][data-widget-mode="panel"] .onboarding-overlay[data-onboarding-step="3"] {
+body[data-widget-mode="panel"] .onboarding-overlay[data-onboarding-step="3"] {
   --onboarding-card-left: 46px;
   --onboarding-card-top: 78px;
   --onboarding-connector-height: 12px;

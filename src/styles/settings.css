@@ -31,13 +31,39 @@
 }
 
 /* 默认 / 全息主题边框 */
-:is(body[data-theme="default"], body:not([data-theme="pyro"])) .settings-panel {
+body[data-theme="default"] .settings-panel,
+body:not([data-theme]) .settings-panel {
   border: 1px solid rgba(56, 189, 248, 0.22);
 }
 
-/* Pyro 烈焰熔核主题边框 */
+/* Pyro 烈焰核心主题边框 */
 body[data-theme="pyro"] .settings-panel {
   border: 1px solid rgba(245, 158, 11, 0.24);
+}
+
+/* Emerald 翡翠核心主题边框 */
+body[data-theme="emerald"] .settings-panel {
+  border: 1px solid rgba(16, 185, 129, 0.24);
+}
+
+/* Cyber 幻紫核心主题边框 */
+body[data-theme="cyber"] .settings-panel {
+  border: 1px solid rgba(168, 85, 247, 0.24);
+}
+
+/* Obsidian 暗金核心主题边框 */
+body[data-theme="obsidian"] .settings-panel {
+  border: 1px solid rgba(234, 179, 8, 0.24);
+}
+
+/* Crimson 绯红主题边框 */
+body[data-theme="crimson"] .settings-panel {
+  border: 1px solid rgba(244, 63, 94, 0.24);
+}
+
+/* Sakura 落樱主题边框 */
+body[data-theme="sakura"] .settings-panel {
+  border: 1px solid rgba(236, 72, 153, 0.24);
 }
 
 /* 800x500 宽幅水晶高光漫反射层 */
@@ -71,6 +97,61 @@ body[data-theme="pyro"] .settings-panel::before {
       transparent 32%
     ),
     radial-gradient(circle at 15% 90%, rgba(239, 68, 68, 0.1), transparent 38%);
+}
+
+body[data-theme="emerald"] .settings-panel::before {
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.16), transparent 32%),
+    radial-gradient(
+      circle at 85% 12%,
+      rgba(16, 185, 129, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(circle at 15% 90%, rgba(5, 150, 105, 0.1), transparent 38%);
+}
+
+body[data-theme="cyber"] .settings-panel::before {
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.16), transparent 32%),
+    radial-gradient(
+      circle at 85% 12%,
+      rgba(168, 85, 247, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(circle at 15% 90%, rgba(236, 72, 153, 0.1), transparent 38%);
+}
+
+body[data-theme="obsidian"] .settings-panel::before {
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.16), transparent 32%),
+    radial-gradient(
+      circle at 85% 12%,
+      rgba(234, 179, 8, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(circle at 15% 90%, rgba(161, 98, 7, 0.1), transparent 38%);
+}
+
+body[data-theme="crimson"] .settings-panel::before {
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.16), transparent 32%),
+    radial-gradient(
+      circle at 85% 12%,
+      rgba(244, 63, 94, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(circle at 15% 90%, rgba(190, 18, 60, 0.1), transparent 38%);
+}
+
+body[data-theme="sakura"] .settings-panel::before {
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.16), transparent 32%),
+    radial-gradient(
+      circle at 85% 12%,
+      rgba(236, 72, 153, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(circle at 15% 90%, rgba(219, 39, 119, 0.1), transparent 38%);
 }
 
 .settings-head,
@@ -208,12 +289,13 @@ body[data-theme="pyro"] .settings-panel::before {
     box-shadow 0.18s ease;
 }
 
-:is(body[data-theme="default"], body:not([data-theme="pyro"])) .site-card {
+body[data-theme="default"] .site-card,
+body:not([data-theme]) .site-card {
   border-color: rgba(56, 189, 248, 0.2);
 }
 
-:is(body[data-theme="default"], body:not([data-theme="pyro"]))
-  .site-card:hover {
+body[data-theme="default"] .site-card:hover,
+body:not([data-theme]) .site-card:hover {
   border-color: rgba(56, 189, 248, 0.35);
   box-shadow: 0 6px 20px rgba(14, 165, 233, 0.12);
 }
@@ -226,6 +308,56 @@ body[data-theme="pyro"] .site-card {
 body[data-theme="pyro"] .site-card:hover {
   border-color: rgba(245, 158, 11, 0.4);
   box-shadow: 0 6px 20px rgba(245, 158, 11, 0.12);
+}
+
+body[data-theme="emerald"] .site-card {
+  border-color: rgba(16, 185, 129, 0.22);
+  background: rgba(6, 22, 16, 0.45);
+}
+
+body[data-theme="emerald"] .site-card:hover {
+  border-color: rgba(52, 211, 153, 0.4);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.12);
+}
+
+body[data-theme="cyber"] .site-card {
+  border-color: rgba(168, 85, 247, 0.22);
+  background: rgba(20, 10, 32, 0.45);
+}
+
+body[data-theme="cyber"] .site-card:hover {
+  border-color: rgba(192, 132, 252, 0.4);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.12);
+}
+
+body[data-theme="obsidian"] .site-card {
+  border-color: rgba(234, 179, 8, 0.22);
+  background: rgba(18, 18, 20, 0.45);
+}
+
+body[data-theme="obsidian"] .site-card:hover {
+  border-color: rgba(250, 204, 21, 0.4);
+  box-shadow: 0 6px 20px rgba(234, 179, 8, 0.12);
+}
+
+body[data-theme="crimson"] .site-card {
+  border-color: rgba(244, 63, 94, 0.22);
+  background: rgba(26, 8, 14, 0.45);
+}
+
+body[data-theme="crimson"] .site-card:hover {
+  border-color: rgba(251, 113, 133, 0.4);
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.12);
+}
+
+body[data-theme="sakura"] .site-card {
+  border-color: rgba(236, 72, 153, 0.22);
+  background: rgba(26, 10, 18, 0.45);
+}
+
+body[data-theme="sakura"] .site-card:hover {
+  border-color: rgba(244, 114, 182, 0.4);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.12);
 }
 
 .site-card-header {
@@ -290,12 +422,33 @@ body[data-theme="pyro"] .site-card:hover {
   background: rgba(255, 255, 255, 0.07);
 }
 
-:is(body[data-theme="default"], body:not([data-theme="pyro"])) .key-item {
+body[data-theme="default"] .key-item,
+body:not([data-theme]) .key-item {
   border-color: rgba(56, 189, 248, 0.14);
 }
 
 body[data-theme="pyro"] .key-item {
   border-color: rgba(245, 158, 11, 0.16);
+}
+
+body[data-theme="emerald"] .key-item {
+  border-color: rgba(16, 185, 129, 0.16);
+}
+
+body[data-theme="cyber"] .key-item {
+  border-color: rgba(168, 85, 247, 0.16);
+}
+
+body[data-theme="obsidian"] .key-item {
+  border-color: rgba(234, 179, 8, 0.16);
+}
+
+body[data-theme="crimson"] .key-item {
+  border-color: rgba(244, 63, 94, 0.16);
+}
+
+body[data-theme="sakura"] .key-item {
+  border-color: rgba(236, 72, 153, 0.16);
 }
 
 .key-item-info {
@@ -401,6 +554,31 @@ body[data-theme="pyro"] .key-item {
 body[data-theme="pyro"] .source-inline-form {
   border-color: rgba(245, 158, 11, 0.35);
   background: rgba(245, 158, 11, 0.07);
+}
+
+body[data-theme="emerald"] .source-inline-form {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.07);
+}
+
+body[data-theme="cyber"] .source-inline-form {
+  border-color: rgba(168, 85, 247, 0.35);
+  background: rgba(168, 85, 247, 0.07);
+}
+
+body[data-theme="obsidian"] .source-inline-form {
+  border-color: rgba(234, 179, 8, 0.35);
+  background: rgba(234, 179, 8, 0.07);
+}
+
+body[data-theme="crimson"] .source-inline-form {
+  border-color: rgba(244, 63, 94, 0.35);
+  background: rgba(244, 63, 94, 0.07);
+}
+
+body[data-theme="sakura"] .source-inline-form {
+  border-color: rgba(236, 72, 153, 0.35);
+  background: rgba(236, 72, 153, 0.07);
 }
 
 .source-form-row {

@@ -1,8 +1,151 @@
 import { IPC_EVENTS } from "./constants.js";
 import { selectedMeterWindow } from "./formatters.js";
-import { resolveActiveSourceName } from "./settings-model.js";
+import { normalizeTheme, resolveActiveSourceName } from "./settings-model.js";
 
 const CANVAS_SIZE = 64;
+
+const TRAY_PALETTES = {
+  default: {
+    normal: {
+      primaryColor: "#38bdf8",
+      ringColor: "rgba(56, 189, 248, 0.95)",
+      bgGradientStart: "#0f2b38",
+      bgGradientEnd: "#05131b",
+    },
+    warning: {
+      primaryColor: "#ffd60a",
+      ringColor: "rgba(255, 214, 10, 0.95)",
+      bgGradientStart: "#3e320c",
+      bgGradientEnd: "#1a1403",
+    },
+    danger: {
+      primaryColor: "#ff453a",
+      ringColor: "rgba(255, 69, 58, 0.95)",
+      bgGradientStart: "#421010",
+      bgGradientEnd: "#1a0505",
+    },
+  },
+  pyro: {
+    normal: {
+      primaryColor: "#ff7a00",
+      ringColor: "rgba(255, 122, 0, 0.95)",
+      bgGradientStart: "#401900",
+      bgGradientEnd: "#1a0800",
+    },
+    warning: {
+      primaryColor: "#ff9500",
+      ringColor: "rgba(255, 149, 0, 0.95)",
+      bgGradientStart: "#3e2409",
+      bgGradientEnd: "#1a0d03",
+    },
+    danger: {
+      primaryColor: "#ff3b30",
+      ringColor: "rgba(255, 59, 48, 0.95)",
+      bgGradientStart: "#420e0e",
+      bgGradientEnd: "#1c0505",
+    },
+  },
+  emerald: {
+    normal: {
+      primaryColor: "#10b981",
+      ringColor: "rgba(16, 185, 129, 0.95)",
+      bgGradientStart: "#062b1b",
+      bgGradientEnd: "#02120b",
+    },
+    warning: {
+      primaryColor: "#f97316",
+      ringColor: "rgba(249, 115, 22, 0.95)",
+      bgGradientStart: "#3d1f08",
+      bgGradientEnd: "#170a02",
+    },
+    danger: {
+      primaryColor: "#ef4444",
+      ringColor: "rgba(239, 68, 68, 0.95)",
+      bgGradientStart: "#421010",
+      bgGradientEnd: "#1a0505",
+    },
+  },
+  cyber: {
+    normal: {
+      primaryColor: "#a855f7",
+      ringColor: "rgba(168, 85, 247, 0.95)",
+      bgGradientStart: "#280f3d",
+      bgGradientEnd: "#0f0517",
+    },
+    warning: {
+      primaryColor: "#f43f5e",
+      ringColor: "rgba(244, 63, 94, 0.95)",
+      bgGradientStart: "#3b0d1e",
+      bgGradientEnd: "#17030a",
+    },
+    danger: {
+      primaryColor: "#ef4444",
+      ringColor: "rgba(239, 68, 68, 0.95)",
+      bgGradientStart: "#421010",
+      bgGradientEnd: "#1a0505",
+    },
+  },
+  obsidian: {
+    normal: {
+      primaryColor: "#eab308",
+      ringColor: "rgba(234, 179, 8, 0.95)",
+      bgGradientStart: "#332704",
+      bgGradientEnd: "#140e01",
+    },
+    warning: {
+      primaryColor: "#f87171",
+      ringColor: "rgba(248, 113, 113, 0.95)",
+      bgGradientStart: "#3d1313",
+      bgGradientEnd: "#170505",
+    },
+    danger: {
+      primaryColor: "#ef4444",
+      ringColor: "rgba(239, 68, 68, 0.95)",
+      bgGradientStart: "#421010",
+      bgGradientEnd: "#1a0505",
+    },
+  },
+  crimson: {
+    normal: {
+      primaryColor: "#f43f5e",
+      ringColor: "rgba(244, 63, 94, 0.95)",
+      bgGradientStart: "#3d0d1e",
+      bgGradientEnd: "#17030a",
+    },
+    warning: {
+      primaryColor: "#fb923c",
+      ringColor: "rgba(251, 146, 60, 0.95)",
+      bgGradientStart: "#3d1c0b",
+      bgGradientEnd: "#170a03",
+    },
+    danger: {
+      primaryColor: "#ef4444",
+      ringColor: "rgba(239, 68, 68, 0.95)",
+      bgGradientStart: "#421010",
+      bgGradientEnd: "#1a0505",
+    },
+  },
+  sakura: {
+    normal: {
+      primaryColor: "#ec4899",
+      ringColor: "rgba(236, 72, 153, 0.95)",
+      bgGradientStart: "#3b0e24",
+      bgGradientEnd: "#17040d",
+    },
+    warning: {
+      primaryColor: "#fb923c",
+      ringColor: "rgba(251, 146, 60, 0.95)",
+      bgGradientStart: "#3d1c0b",
+      bgGradientEnd: "#170a03",
+    },
+    danger: {
+      primaryColor: "#ef4444",
+      ringColor: "rgba(239, 68, 68, 0.95)",
+      bgGradientStart: "#421010",
+      bgGradientEnd: "#1a0505",
+    },
+  },
+};
 
 export function renderTrayBallRgba({
   percent,
@@ -23,46 +166,16 @@ export function renderTrayBallRgba({
   const radius = 31.2;
 
   // 1. 根据主题和额度状态决定配色
-  let primaryColor = "#00e5ff";
-  let ringColor = "rgba(0, 229, 255, 0.9)";
-  let bgGradientStart = "#0f2b38";
-  let bgGradientEnd = "#05131b";
+  const normalizedTheme = normalizeTheme(theme);
+  const themePalette = TRAY_PALETTES[normalizedTheme] || TRAY_PALETTES.default;
+  const palette =
+    visualState === "danger"
+      ? themePalette.danger
+      : visualState === "warning"
+        ? themePalette.warning
+        : themePalette.normal;
 
-  if (theme === "pyro") {
-    if (visualState === "danger") {
-      primaryColor = "#ff3b30";
-      ringColor = "rgba(255, 59, 48, 0.95)";
-      bgGradientStart = "#420e0e";
-      bgGradientEnd = "#1c0505";
-    } else if (visualState === "warning") {
-      primaryColor = "#ff9500";
-      ringColor = "rgba(255, 149, 0, 0.95)";
-      bgGradientStart = "#3e2409";
-      bgGradientEnd = "#1a0d03";
-    } else {
-      primaryColor = "#ff7a00";
-      ringColor = "rgba(255, 122, 0, 0.95)";
-      bgGradientStart = "#401900";
-      bgGradientEnd = "#1a0800";
-    }
-  } else {
-    if (visualState === "danger") {
-      primaryColor = "#ff453a";
-      ringColor = "rgba(255, 69, 58, 0.95)";
-      bgGradientStart = "#421010";
-      bgGradientEnd = "#1a0505";
-    } else if (visualState === "warning") {
-      primaryColor = "#ffd60a";
-      ringColor = "rgba(255, 214, 10, 0.95)";
-      bgGradientStart = "#3e320c";
-      bgGradientEnd = "#1a1403";
-    } else {
-      primaryColor = "#30d158";
-      ringColor = "rgba(48, 209, 88, 0.95)";
-      bgGradientStart = "#0e3b1c";
-      bgGradientEnd = "#04170a";
-    }
-  }
+  const { primaryColor, ringColor, bgGradientStart, bgGradientEnd } = palette;
 
   // 2. 绘制球体背景渐变
   const ballGrad = ctx.createRadialGradient(
@@ -181,7 +294,7 @@ export function createTrayPresentationManager({ service, state, logger }) {
       visualState = "warning";
     }
 
-    const theme = activeSettings.theme === "pyro" ? "pyro" : "default";
+    const theme = normalizeTheme(activeSettings.theme);
 
     if (
       percent === lastPercent &&
@@ -250,7 +363,7 @@ export function createTrayPresentationManager({ service, state, logger }) {
                 : "状态正常",
         remainingPercent: percent,
         visualState,
-        theme: activeSettings.theme === "pyro" ? "pyro" : "default",
+        theme: normalizeTheme(activeSettings.theme),
         planType: quota?.planType || "Free",
         resetCredits: quota?.resetCredits?.availableCount ?? null,
         cardsHtml,

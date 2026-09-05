@@ -45,16 +45,40 @@ body.tray-preview-body {
 
 /* 默认 / 全息主题背景边框与内发光 */
 body[data-theme="default"] .tray-preview-container,
-body:not([data-theme="pyro"]) .tray-preview-container {
+body:not([data-theme]) .tray-preview-container {
   border: 1px solid rgba(56, 189, 248, 0.22);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     inset 0 -18px 42px rgba(0, 0, 0, 0.4);
 }
 
-/* Pyro 烈焰熔核主题边框与内发光 */
+/* Pyro 烈焰核心主题边框与内发光 */
 body[data-theme="pyro"] .tray-preview-container {
   border: 1px solid rgba(245, 158, 11, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.5);
+}
+
+/* Emerald 翡翠核心主题边框与内发光 */
+body[data-theme="emerald"] .tray-preview-container {
+  border: 1px solid rgba(16, 185, 129, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.5);
+}
+
+/* Cyber 幻紫核心主题边框与内发光 */
+body[data-theme="cyber"] .tray-preview-container {
+  border: 1px solid rgba(168, 85, 247, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.5);
+}
+
+/* Obsidian 暗金核心主题边框与内发光 */
+body[data-theme="obsidian"] .tray-preview-container {
+  border: 1px solid rgba(234, 179, 8, 0.24);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
     inset 0 -18px 42px rgba(0, 0, 0, 0.5);
@@ -90,6 +114,69 @@ body[data-theme="pyro"] .tray-preview-container::before {
       transparent 28%
     ),
     radial-gradient(circle at 20% 90%, rgba(239, 68, 68, 0.12), transparent 35%);
+}
+
+body[data-theme="emerald"] .tray-preview-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(16, 185, 129, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(5, 150, 105, 0.12), transparent 35%);
+}
+
+body[data-theme="cyber"] .tray-preview-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(168, 85, 247, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 20% 90%,
+      rgba(236, 72, 153, 0.12),
+      transparent 35%
+    );
+}
+
+body[data-theme="obsidian"] .tray-preview-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(234, 179, 8, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(161, 98, 7, 0.12), transparent 35%);
+}
+
+body[data-theme="crimson"] .tray-preview-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(244, 63, 94, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(circle at 20% 90%, rgba(190, 18, 60, 0.12), transparent 35%);
+}
+
+body[data-theme="sakura"] .tray-preview-container::before {
+  background:
+    linear-gradient(100deg, rgba(255, 255, 255, 0.22), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(236, 72, 153, 0.16),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 20% 90%,
+      rgba(219, 39, 119, 0.12),
+      transparent 35%
+    );
 }
 
 .preview-header,
@@ -128,13 +215,38 @@ body[data-theme="pyro"] .tray-preview-container::before {
 }
 
 .status-dot.normal {
-  background-color: #30d158;
-  box-shadow: 0 0 6px rgba(48, 209, 88, 0.8);
+  background-color: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
 }
 
 body[data-theme="pyro"] .status-dot.normal {
   background-color: #ff9800;
   box-shadow: 0 0 6px rgba(255, 152, 0, 0.8);
+}
+
+body[data-theme="emerald"] .status-dot.normal {
+  background-color: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+}
+
+body[data-theme="cyber"] .status-dot.normal {
+  background-color: #a855f7;
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.8);
+}
+
+body[data-theme="obsidian"] .status-dot.normal {
+  background-color: #eab308;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.8);
+}
+
+body[data-theme="crimson"] .status-dot.normal {
+  background-color: #f43f5e;
+  box-shadow: 0 0 6px rgba(244, 63, 94, 0.8);
+}
+
+body[data-theme="sakura"] .status-dot.normal {
+  background-color: #ec4899;
+  box-shadow: 0 0 6px rgba(236, 72, 153, 0.8);
 }
 
 .status-dot.warning {
@@ -196,9 +308,9 @@ body[data-theme="pyro"] .status-dot.normal {
 }
 
 .plan-badge {
-  background: rgba(48, 209, 88, 0.15);
-  color: #30d158;
-  border: 1px solid rgba(48, 209, 88, 0.3);
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
   text-transform: uppercase;
 }
 
@@ -206,6 +318,36 @@ body[data-theme="pyro"] .plan-badge {
   background: rgba(255, 122, 0, 0.18);
   color: #ff9800;
   border: 1px solid rgba(255, 122, 0, 0.35);
+}
+
+body[data-theme="emerald"] .plan-badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+body[data-theme="cyber"] .plan-badge {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+body[data-theme="obsidian"] .plan-badge {
+  background: rgba(234, 179, 8, 0.15);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+body[data-theme="crimson"] .plan-badge {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fda4af;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+body[data-theme="sakura"] .plan-badge {
+  background: rgba(236, 72, 153, 0.15);
+  color: #fbcfe8;
+  border: 1px solid rgba(236, 72, 153, 0.3);
 }
 
 /* 核心：1:1 承载主面板配额卡片 */

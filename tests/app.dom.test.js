@@ -50,6 +50,35 @@ describe("应用编排", () => {
     expect(fixture.state.errors.settings).toBe("");
     expect(fixture.state.errors.quota).toBe("");
   });
+
+  it("点击切换主题按钮按顺序循环遍历所有主题", async () => {
+    const fixture = createFixture();
+    await fixture.app.start();
+
+    expect(fixture.state.settings.theme).toBe("default");
+
+    // 依次点击切换主题
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("pyro");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("emerald");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("cyber");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("obsidian");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("crimson");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("sakura");
+
+    fixture.els.themeSwitchBtn.click();
+    expect(fixture.state.settings.theme).toBe("default");
+  });
 });
 
 function createFixture({ settingsError, alwaysOnTopError } = {}) {

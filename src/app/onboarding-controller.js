@@ -28,7 +28,7 @@ export function createOnboardingController({
   els,
   state,
   renderLocale,
-  renderTheme,
+  renderTheme: _renderTheme,
   applyNormalizedSettings,
   saveCurrentSettings,
   i18n,
@@ -67,10 +67,7 @@ export function createOnboardingController({
     if (initialized || state.settings.onboardingSeen) return;
     initialized = true;
 
-    if (
-      state.widgetMode !== WIDGET_MODES.PANEL ||
-      renderTheme() !== "default"
-    ) {
+    if (state.widgetMode !== WIDGET_MODES.PANEL) {
       await completeOnboarding({ show: false });
       return;
     }

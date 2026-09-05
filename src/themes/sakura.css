@@ -1,0 +1,553 @@
+body[data-theme="sakura"] {
+  --sakura-petal: #fbcfe8;
+  --sakura-vivid: #f472b6;
+  --sakura-deep: #db2777;
+  --sakura-accent: #ec4899;
+  --sakura-accent-deep: #be185d;
+  --sakura-accent-rgb: 236, 72, 153;
+  --dock-glow-rgb: var(--sakura-accent-rgb);
+  --sakura-panel: rgba(26, 10, 18, 0.95);
+  --sakura-card: rgba(45, 16, 32, 0.65);
+  --sakura-card-strong: rgba(62, 22, 44, 0.82);
+  --sakura-line: rgba(236, 72, 153, 0.22);
+  --sakura-text: rgba(253, 242, 248, 0.96);
+  --sakura-muted: rgba(251, 207, 232, 0.72);
+  --sakura-faint: rgba(244, 114, 182, 0.45);
+  --settings-accent-color: var(--sakura-accent);
+  --settings-accent-soft: rgba(var(--sakura-accent-rgb), 0.22);
+  --settings-text-color: var(--sakura-text);
+  --settings-muted-color: var(--sakura-muted);
+}
+
+body[data-theme="sakura"] {
+  --widget-surface-background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(244, 114, 182, 0.18),
+      transparent 38%
+    ),
+    radial-gradient(
+      circle at 80% 85%,
+      rgba(219, 39, 119, 0.16),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(35, 12, 24, 0.96),
+      rgba(22, 8, 16, 0.98) 60%,
+      rgba(12, 4, 9, 1)
+    );
+  --widget-surface-shadow:
+    inset 0 0 0 1px rgba(236, 72, 153, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.5), 0 0 24px rgba(236, 72, 153, 0.14);
+  --widget-surface-backdrop: blur(28px) saturate(1.35);
+  --meter-primary-color: #ffffff;
+}
+
+body[data-theme="sakura"][data-state="low"] {
+  --sakura-accent: #f97316;
+  --sakura-accent-deep: #c2410c;
+  --sakura-accent-rgb: 249, 115, 22;
+}
+
+body[data-theme="sakura"][data-state="critical"],
+body[data-theme="sakura"][data-state="empty"],
+body[data-theme="sakura"][data-state="error"] {
+  --sakura-accent: #ef4444;
+  --sakura-accent-deep: #b91c1c;
+  --sakura-accent-rgb: 239, 68, 68;
+}
+
+/* 标题栏与文字 */
+body[data-theme="sakura"] .titlebar h1 {
+  color: var(--sakura-text);
+  text-shadow: 0 0 12px rgba(236, 72, 153, 0.45);
+}
+
+body[data-theme="sakura"] .titlebar p {
+  color: var(--sakura-accent);
+}
+
+/* 卡片样式 */
+body[data-theme="sakura"] .quota-card {
+  background: var(--sakura-card);
+  border: 1px solid var(--sakura-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 12px rgba(20, 4, 14, 0.35);
+}
+
+body[data-theme="sakura"] .quota-card:hover {
+  border-color: rgba(236, 72, 153, 0.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 6px 16px rgba(236, 72, 153, 0.2);
+}
+
+body[data-theme="sakura"] .quota-card-label {
+  color: var(--sakura-muted);
+}
+
+body[data-theme="sakura"] .quota-card-val {
+  color: var(--sakura-text);
+}
+
+body[data-theme="sakura"] .quota-card-val.accent {
+  color: var(--sakura-vivid);
+  text-shadow: 0 0 10px rgba(244, 114, 182, 0.5);
+}
+
+body[data-theme="sakura"] .quota-card-sub {
+  color: var(--sakura-faint);
+}
+
+/* 状态标签 */
+body[data-theme="sakura"] .tag-normal {
+  background: rgba(236, 72, 153, 0.15);
+  color: #fbcfe8;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+body[data-theme="sakura"] .tag-low {
+  background: rgba(249, 115, 22, 0.15);
+  color: #fdba74;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+body[data-theme="sakura"] .tag-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* 状态栏 */
+body[data-theme="sakura"] .status {
+  border-top: 1px solid rgba(244, 114, 182, 0.18);
+  color: var(--sakura-muted);
+}
+
+body[data-theme="sakura"] .status-dot {
+  background: var(--sakura-accent);
+  box-shadow: 0 0 8px var(--sakura-accent);
+}
+
+/* 悬浮球模式下的穿透重置 */
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget:not(:has(.settings-panel:not([hidden]))),
+body[data-theme="sakura"]
+  .widget[data-widget-mode="ball"]:not(:has(.settings-panel:not([hidden]))) {
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: var(--ball-size, 88px) !important;
+  height: var(--ball-size, 88px) !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  overflow: hidden !important;
+  -webkit-mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+  mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+}
+
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::before,
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::after,
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .titlebar,
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .quota-panel,
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .status,
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .settings-panel {
+  display: none !important;
+}
+
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .content {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  cursor: grab;
+}
+
+body[data-theme="sakura"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .meter-host {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 按钮样式 */
+body[data-theme="sakura"] .btn {
+  background: var(--sakura-card-strong);
+  border: 1px solid var(--sakura-line);
+  color: var(--sakura-text);
+}
+
+body[data-theme="sakura"] .btn:hover {
+  background: rgba(236, 72, 153, 0.22);
+  border-color: var(--sakura-accent);
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.3);
+}
+
+body[data-theme="sakura"] .btn-primary {
+  background: linear-gradient(
+    135deg,
+    var(--sakura-accent),
+    var(--sakura-accent-deep)
+  );
+  border-color: var(--sakura-petal);
+  color: #fff;
+  box-shadow: 0 0 16px rgba(236, 72, 153, 0.4);
+}
+
+body[data-theme="sakura"] .btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--sakura-petal),
+    var(--sakura-accent)
+  );
+  box-shadow: 0 0 22px rgba(244, 114, 182, 0.55);
+}
+
+/* 图标按钮 */
+body[data-theme="sakura"] .icon-btn {
+  color: var(--sakura-muted);
+}
+
+body[data-theme="sakura"] .icon-btn:hover {
+  color: var(--sakura-text);
+  background: rgba(236, 72, 153, 0.16);
+}
+
+/* 设置抽屉与输入框 */
+body[data-theme="sakura"] .settings-toggle {
+  color: var(--sakura-muted);
+}
+
+body[data-theme="sakura"] .settings-toggle:hover {
+  color: var(--sakura-text);
+  background: rgba(236, 72, 153, 0.18);
+}
+
+body[data-theme="sakura"] .settings-panel-wrapper {
+  background: var(--sakura-panel);
+  border: 1px solid var(--sakura-line);
+}
+
+body[data-theme="sakura"] .settings-input {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--sakura-line);
+  color: var(--sakura-text);
+}
+
+body[data-theme="sakura"] .settings-input:focus {
+  border-color: var(--sakura-accent);
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.4);
+}
+
+/* 进度条与电量计 */
+body[data-theme="sakura"] .progress-bar-bg {
+  background: rgba(236, 72, 153, 0.12);
+  border: 1px solid rgba(236, 72, 153, 0.2);
+}
+
+body[data-theme="sakura"] .progress-bar-fill {
+  background: linear-gradient(
+    90deg,
+    var(--sakura-accent-deep),
+    var(--sakura-vivid)
+  );
+  box-shadow: 0 0 12px rgba(244, 114, 182, 0.6);
+}
+
+/* =========================================================
+   3D 落樱轻盈流体专属球体样式 (Sakura Meter)
+   ========================================================= */
+.sakura-meter {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.sakura-meter-glow {
+  position: absolute;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.42) 0%,
+    rgba(244, 114, 182, 0.14) 50%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+  animation: sakuraGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes sakuraGlowPulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+.sakura-sphere-container {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 24px rgba(236, 72, 153, 0.52),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(190, 24, 93, 0.45);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(244, 114, 182, 0.14) 0%,
+    rgba(219, 39, 119, 0.22) 65%,
+    rgba(157, 23, 77, 0.42) 100%
+  );
+}
+
+.sakura-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.sakura-glass-reflect {
+  position: absolute;
+  top: 3px;
+  left: 15%;
+  width: 70%;
+  height: 42%;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(251, 207, 232, 0.2) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(0.5px);
+}
+
+.sakura-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.sakura-percent {
+  font-family: ui-monospace, "SF Pro Display", "SF Mono", monospace;
+  font-size: 27px;
+  font-weight: 850;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow:
+    0 0 16px rgba(236, 72, 153, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.sakura-label {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(251, 207, 232, 0.92);
+  letter-spacing: 1px;
+  text-shadow:
+    0 0 10px rgba(236, 72, 153, 0.7),
+    0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* 悬浮球模式适配 */
+.sakura-meter[data-mode="ball"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.sakura-meter[data-mode="ball"] .sakura-meter-glow {
+  display: none !important;
+}
+
+.sakura-meter[data-mode="ball"] .sakura-sphere-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset 0 0 20px rgba(236, 72, 153, 0.52),
+    inset 0 1.5px 4px rgba(255, 255, 255, 0.45),
+    inset 0 -10px 20px rgba(190, 24, 93, 0.4) !important;
+}
+
+.sakura-meter[data-mode="ball"] .sakura-percent {
+  font-size: 20px;
+}
+
+.sakura-meter[data-mode="ball"] .sakura-label {
+  font-size: 10px;
+}
+
+body[data-ball-size="small"] .sakura-meter[data-mode="ball"] .sakura-percent {
+  font-size: 15px !important;
+}
+
+body[data-ball-size="small"] .sakura-meter[data-mode="ball"] .sakura-label {
+  font-size: 9px !important;
+}
+
+.sakura-meter[data-mode="ball"][data-dock="right"] .sakura-content {
+  transform: translateX(-18px);
+}
+
+.sakura-meter[data-mode="ball"][data-dock="left"] .sakura-content {
+  transform: translateX(18px);
+}
+
+.sakura-meter[data-mode="ball"]:not([data-dock="none"]) .sakura-percent {
+  font-size: 16px !important;
+}
+
+.sakura-meter[data-mode="ball"]:not([data-dock="none"]) .sakura-label {
+  font-size: 9px !important;
+}
+
+body[data-ball-size="small"]
+  .sakura-meter[data-mode="ball"][data-dock="right"]
+  .sakura-content {
+  transform: translateX(-15px);
+}
+
+body[data-ball-size="small"]
+  .sakura-meter[data-mode="ball"][data-dock="left"]
+  .sakura-content {
+  transform: translateX(15px);
+}
+
+body[data-ball-size="small"]
+  .sakura-meter[data-mode="ball"]:not([data-dock="none"])
+  .sakura-percent {
+  font-size: 12px !important;
+  letter-spacing: -0.5px;
+}
+
+body[data-ball-size="small"]
+  .sakura-meter[data-mode="ball"]:not([data-dock="none"])
+  .sakura-label {
+  font-size: 8px !important;
+}
+
+/* 低电量警报 */
+.sakura-meter[data-level="low"] .sakura-meter-glow {
+  background: radial-gradient(
+    circle,
+    rgba(249, 115, 22, 0.48) 0%,
+    rgba(249, 115, 22, 0.16) 50%,
+    transparent 72%
+  );
+}
+
+.sakura-meter[data-level="low"] .sakura-sphere-container {
+  box-shadow:
+    inset 0 0 24px rgba(249, 115, 22, 0.58),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(154, 52, 18, 0.45),
+    0 0 28px rgba(249, 115, 22, 0.4);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(249, 115, 22, 0.16) 0%,
+    rgba(194, 65, 12, 0.28) 65%,
+    rgba(124, 45, 18, 0.42) 100%
+  );
+}
+
+.sakura-meter[data-level="low"] .sakura-percent {
+  text-shadow:
+    0 0 18px rgba(249, 115, 22, 0.98),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.sakura-meter[data-level="low"] .sakura-label {
+  color: rgba(254, 215, 170, 0.95);
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+}
+
+/* 落樱主题 - 竖向进度条专属配色 */
+body[data-theme="sakura"] .dock-bar-fill {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      transparent 45%,
+      rgba(0, 0, 0, 0.12) 100%
+    ),
+    linear-gradient(to top, #9d174d 0%, #be185d 35%, #ec4899 68%, #f472b6 100%);
+  box-shadow:
+    0 0 8px rgba(236, 72, 153, 0.85),
+    0 0 18px rgba(190, 24, 93, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.4);
+}
+
+body[data-theme="sakura"] .dock-bar-glow {
+  background: rgba(253, 242, 248, 0.95);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 1),
+    0 0 12px rgba(236, 72, 153, 0.9);
+}

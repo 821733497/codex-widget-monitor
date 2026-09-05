@@ -15,3 +15,4 @@ pnpm-debug.log*
 certs/
 portable/*.exe
 %SystemDrive%/*
+.idea/

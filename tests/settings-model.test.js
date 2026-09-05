@@ -8,8 +8,10 @@ import {
   normalizeDataBars,
   normalizeInputValue,
   normalizeSettings,
+  normalizeTheme,
   normalizeWindowPosition,
   resolveActiveSourceName,
+  resolveActiveThemeName,
   resolveDataBars,
 } from "../src/app/settings-model.js";
 
@@ -156,5 +158,38 @@ describe("设置标准化", () => {
       "ball",
     );
     expect(normalizeSettings({}).ballSnapStyle).toBe("ball");
+  });
+
+  it("主题标准化支持 7 套主题并兼容 holo/非法值回退", () => {
+    expect(normalizeTheme("default")).toBe("default");
+    expect(normalizeTheme("holo")).toBe("default");
+    expect(normalizeTheme("pyro")).toBe("pyro");
+    expect(normalizeTheme("emerald")).toBe("emerald");
+    expect(normalizeTheme("cyber")).toBe("cyber");
+    expect(normalizeTheme("obsidian")).toBe("obsidian");
+    expect(normalizeTheme("crimson")).toBe("crimson");
+    expect(normalizeTheme("sakura")).toBe("sakura");
+    expect(normalizeTheme("unknown")).toBe("default");
+    expect(normalizeTheme(undefined)).toBe("default");
+    expect(normalizeSettings({ theme: "emerald" }).theme).toBe("emerald");
+    expect(normalizeSettings({ theme: "cyber" }).theme).toBe("cyber");
+    expect(normalizeSettings({ theme: "obsidian" }).theme).toBe("obsidian");
+    expect(normalizeSettings({ theme: "crimson" }).theme).toBe("crimson");
+    expect(normalizeSettings({ theme: "sakura" }).theme).toBe("sakura");
+    expect(normalizeSettings({ theme: "unknown" }).theme).toBe("default");
+  });
+
+  it("主题名称解析支持中英文纯颜色展示", () => {
+    expect(resolveActiveThemeName("default", "zh")).toBe("天青");
+    expect(resolveActiveThemeName("default", "en")).toBe("Azure");
+    expect(resolveActiveThemeName("holo", "zh")).toBe("天青");
+    expect(resolveActiveThemeName("pyro", "zh")).toBe("赤金");
+    expect(resolveActiveThemeName("emerald", "zh")).toBe("碧翠");
+    expect(resolveActiveThemeName("cyber", "zh")).toBe("幻紫");
+    expect(resolveActiveThemeName("obsidian", "zh")).toBe("曜金");
+    expect(resolveActiveThemeName("crimson", "zh")).toBe("绯红");
+    expect(resolveActiveThemeName("sakura", "zh")).toBe("落樱");
+    expect(resolveActiveThemeName("sakura", "en")).toBe("Sakura Pink");
+    expect(resolveActiveThemeName("invalid", "zh")).toBe("天青");
   });
 });

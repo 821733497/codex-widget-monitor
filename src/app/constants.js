@@ -39,14 +39,44 @@ export const IPC_EVENTS = {
 export const THEMES = {
   default: {
     label: {
-      zh: "全息 3D 核心",
-      en: "Holo 3D Core",
+      zh: "天青",
+      en: "Azure",
     },
   },
   pyro: {
     label: {
-      zh: "烈焰熔核",
-      en: "Pyro Core",
+      zh: "赤金",
+      en: "Flame Gold",
+    },
+  },
+  emerald: {
+    label: {
+      zh: "碧翠",
+      en: "Emerald",
+    },
+  },
+  cyber: {
+    label: {
+      zh: "幻紫",
+      en: "Neon Violet",
+    },
+  },
+  obsidian: {
+    label: {
+      zh: "曜金",
+      en: "Obsidian Gold",
+    },
+  },
+  crimson: {
+    label: {
+      zh: "绯红",
+      en: "Crimson Red",
+    },
+  },
+  sakura: {
+    label: {
+      zh: "落樱",
+      en: "Sakura Pink",
     },
   },
 };

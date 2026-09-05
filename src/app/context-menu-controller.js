@@ -1,5 +1,8 @@
 import { IPC_EVENTS, WIDGET_MODES } from "./constants.js";
-import { resolveActiveSourceName } from "./settings-model.js";
+import {
+  resolveActiveSourceName,
+  resolveActiveThemeName,
+} from "./settings-model.js";
 
 export function createContextMenuController({
   state,
@@ -40,8 +43,13 @@ export function createContextMenuController({
         sources,
         activeTarget: state.settings?.activeTarget,
         theme: state.settings?.theme,
+        themeName: resolveActiveThemeName(
+          state.settings?.theme,
+          state.settings?.locale,
+        ),
         sourceName: resolveActiveSourceName(state.settings, {
           format: "short",
+          locale: state.settings?.locale,
         }),
       })
       .catch(() => {});
@@ -180,5 +188,6 @@ export function createContextMenuController({
   return {
     bindEvents,
     handleContextMenu,
+    syncQuickMenuState: syncQuickMenuData,
   };
 }

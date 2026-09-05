@@ -1,0 +1,451 @@
+body[data-theme="obsidian"] {
+  --obsidian-gold: #facc15;
+  --obsidian-amber: #eab308;
+  --obsidian-deep: #713f12;
+  --obsidian-accent: #eab308;
+  --obsidian-accent-deep: #a16207;
+  --obsidian-accent-rgb: 234, 179, 8;
+  --dock-glow-rgb: var(--obsidian-accent-rgb);
+  --obsidian-panel: rgba(18, 18, 20, 0.96);
+  --obsidian-card: rgba(30, 30, 34, 0.68);
+  --obsidian-card-strong: rgba(42, 42, 48, 0.85);
+  --obsidian-line: rgba(234, 179, 8, 0.24);
+  --obsidian-text: rgba(254, 252, 232, 0.96);
+  --obsidian-muted: rgba(254, 240, 138, 0.72);
+  --obsidian-faint: rgba(253, 224, 71, 0.45);
+  --settings-accent-color: var(--obsidian-accent);
+  --settings-accent-soft: rgba(var(--obsidian-accent-rgb), 0.22);
+  --settings-text-color: var(--obsidian-text);
+  --settings-muted-color: var(--obsidian-muted);
+}
+
+body[data-theme="obsidian"] {
+  --widget-surface-background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(234, 179, 8, 0.16),
+      transparent 38%
+    ),
+    radial-gradient(circle at 80% 85%, rgba(161, 98, 7, 0.14), transparent 42%),
+    linear-gradient(
+      145deg,
+      rgba(26, 26, 30, 0.97),
+      rgba(14, 14, 16, 0.98) 60%,
+      rgba(8, 8, 10, 1)
+    );
+  --widget-surface-shadow:
+    inset 0 0 0 1px rgba(234, 179, 8, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -18px 42px rgba(0, 0, 0, 0.55), 0 0 24px rgba(234, 179, 8, 0.14);
+  --widget-surface-backdrop: blur(28px) saturate(1.35);
+  --meter-primary-color: #ffffff;
+}
+
+body[data-theme="obsidian"][data-state="low"] {
+  --obsidian-accent: #f87171;
+  --obsidian-accent-deep: #dc2626;
+  --obsidian-accent-rgb: 248, 113, 113;
+}
+
+body[data-theme="obsidian"][data-state="critical"],
+body[data-theme="obsidian"][data-state="empty"],
+body[data-theme="obsidian"][data-state="error"] {
+  --obsidian-accent: #ef4444;
+  --obsidian-accent-deep: #b91c1c;
+  --obsidian-accent-rgb: 239, 68, 68;
+}
+
+/* 标题栏与文字 */
+body[data-theme="obsidian"] .titlebar h1 {
+  color: var(--obsidian-text);
+  text-shadow: 0 0 12px rgba(234, 179, 8, 0.45);
+}
+
+body[data-theme="obsidian"] .titlebar p {
+  color: var(--obsidian-accent);
+}
+
+/* 卡片样式 */
+body[data-theme="obsidian"] .quota-card {
+  background: var(--obsidian-card);
+  border: 1px solid var(--obsidian-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 12px rgba(4, 4, 6, 0.45);
+}
+
+body[data-theme="obsidian"] .quota-card:hover {
+  background: var(--obsidian-card-strong);
+  border-color: rgba(250, 204, 21, 0.45);
+}
+
+body[data-theme="obsidian"] .quota-card strong {
+  max-width: 95px;
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 850;
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
+}
+
+body[data-theme="obsidian"] .quota-card .quota-icon {
+  color: var(--obsidian-accent);
+}
+
+body[data-theme="obsidian"] .quota-card .quota-copy span {
+  color: var(--obsidian-text);
+}
+
+body[data-theme="obsidian"] .quota-card .quota-subtext {
+  color: var(--obsidian-muted);
+}
+
+body[data-theme="obsidian"] .quota-card .quota-sub-value {
+  color: var(--obsidian-accent);
+}
+
+/* 状态栏 */
+body[data-theme="obsidian"] .status {
+  border-top: 1px solid rgba(234, 179, 8, 0.18);
+  color: var(--obsidian-muted);
+}
+
+body[data-theme="obsidian"] .status-dot {
+  background: var(--obsidian-accent);
+  box-shadow: 0 0 8px var(--obsidian-accent);
+}
+
+/* 悬浮球模式穿透重置 */
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget:not(:has(.settings-panel:not([hidden]))),
+body[data-theme="obsidian"]
+  .widget[data-widget-mode="ball"]:not(:has(.settings-panel:not([hidden]))) {
+  position: relative !important;
+  box-sizing: border-box !important;
+  width: var(--ball-size, 88px) !important;
+  height: var(--ball-size, 88px) !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  overflow: hidden !important;
+  -webkit-mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+  mask-image: radial-gradient(circle, #000 0 97.5%, transparent 100%);
+}
+
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::before,
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .widget::after,
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .titlebar,
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .quota-panel,
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .status,
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .settings-panel {
+  display: none !important;
+}
+
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .content {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0 !important;
+  cursor: grab;
+}
+
+body[data-theme="obsidian"][data-widget-mode="ball"]:not(
+    [data-settings-open="true"]
+  )
+  .meter-host {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 暗金仪表盘 */
+.obsidian-meter {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.obsidian-meter-glow {
+  position: absolute;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(234, 179, 8, 0.42) 0%,
+    rgba(234, 179, 8, 0.14) 50%,
+    transparent 72%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+  animation: obsidianGlowPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes obsidianGlowPulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+.obsidian-sphere-container {
+  position: relative;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 24px rgba(234, 179, 8, 0.52),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(161, 98, 7, 0.45);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(250, 204, 21, 0.12) 0%,
+    rgba(234, 179, 8, 0.22) 65%,
+    rgba(113, 63, 18, 0.42) 100%
+  );
+}
+
+.obsidian-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.obsidian-glass-reflect {
+  position: absolute;
+  top: 3px;
+  left: 15%;
+  width: 70%;
+  height: 42%;
+  border-radius: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.65) 0%,
+    rgba(255, 255, 255, 0.18) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  filter: blur(0.5px);
+}
+
+.obsidian-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.obsidian-percent {
+  font-family: ui-monospace, "SF Pro Display", "SF Mono", monospace;
+  font-size: 27px;
+  font-weight: 850;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow:
+    0 0 16px rgba(234, 179, 8, 0.95),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.obsidian-label {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(254, 249, 195, 0.92);
+  letter-spacing: 1px;
+  text-shadow:
+    0 0 10px rgba(234, 179, 8, 0.7),
+    0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+/* 悬浮球模式适配 */
+.obsidian-meter[data-mode="ball"] {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+.obsidian-meter[data-mode="ball"] .obsidian-meter-glow {
+  display: none !important;
+}
+
+.obsidian-meter[data-mode="ball"] .obsidian-sphere-container {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  box-shadow:
+    inset 0 0 20px rgba(234, 179, 8, 0.52),
+    inset 0 1.5px 4px rgba(255, 255, 255, 0.45),
+    inset 0 -10px 20px rgba(161, 98, 7, 0.4) !important;
+}
+
+.obsidian-meter[data-mode="ball"] .obsidian-percent {
+  font-size: 20px;
+}
+
+.obsidian-meter[data-mode="ball"] .obsidian-label {
+  font-size: 10px;
+}
+
+body[data-ball-size="small"]
+  .obsidian-meter[data-mode="ball"]
+  .obsidian-percent {
+  font-size: 15px !important;
+}
+
+body[data-ball-size="small"] .obsidian-meter[data-mode="ball"] .obsidian-label {
+  font-size: 9px !important;
+}
+
+.obsidian-meter[data-mode="ball"][data-dock="right"] .obsidian-content {
+  transform: translateX(-18px);
+}
+
+.obsidian-meter[data-mode="ball"][data-dock="left"] .obsidian-content {
+  transform: translateX(18px);
+}
+
+.obsidian-meter[data-mode="ball"]:not([data-dock="none"]) .obsidian-percent {
+  font-size: 16px !important;
+}
+
+.obsidian-meter[data-mode="ball"]:not([data-dock="none"]) .obsidian-label {
+  font-size: 9px !important;
+}
+
+body[data-ball-size="small"]
+  .obsidian-meter[data-mode="ball"][data-dock="right"]
+  .obsidian-content {
+  transform: translateX(-15px);
+}
+
+body[data-ball-size="small"]
+  .obsidian-meter[data-mode="ball"][data-dock="left"]
+  .obsidian-content {
+  transform: translateX(15px);
+}
+
+body[data-ball-size="small"]
+  .obsidian-meter[data-mode="ball"]:not([data-dock="none"])
+  .obsidian-percent {
+  font-size: 12px !important;
+  letter-spacing: -0.5px;
+}
+
+body[data-ball-size="small"]
+  .obsidian-meter[data-mode="ball"]:not([data-dock="none"])
+  .obsidian-label {
+  font-size: 8px !important;
+}
+
+/* 低电量警戒 */
+.obsidian-meter[data-level="low"] .obsidian-meter-glow {
+  background: radial-gradient(
+    circle,
+    rgba(239, 68, 68, 0.48) 0%,
+    rgba(220, 38, 38, 0.16) 50%,
+    transparent 72%
+  );
+}
+
+.obsidian-meter[data-level="low"] .obsidian-sphere-container {
+  box-shadow:
+    inset 0 0 24px rgba(239, 68, 68, 0.58),
+    inset 0 2px 5px rgba(255, 255, 255, 0.5),
+    inset 0 -12px 24px rgba(185, 28, 28, 0.48),
+    0 0 28px rgba(239, 68, 68, 0.4);
+  background: radial-gradient(
+    circle at 50% 35%,
+    rgba(239, 68, 68, 0.16) 0%,
+    rgba(185, 28, 28, 0.28) 65%,
+    rgba(127, 29, 29, 0.45) 100%
+  );
+}
+
+.obsidian-meter[data-level="low"] .obsidian-percent {
+  text-shadow:
+    0 0 18px rgba(239, 68, 68, 0.98),
+    0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+.obsidian-meter[data-level="low"] .obsidian-label {
+  color: rgba(254, 226, 226, 0.95);
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+}
+
+/* 曜金主题 - 竖向进度条专属配色 */
+body[data-theme="obsidian"] .dock-bar-fill {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.28) 0%,
+      transparent 45%,
+      rgba(0, 0, 0, 0.12) 100%
+    ),
+    linear-gradient(to top, #713f12 0%, #a16207 35%, #eab308 68%, #fef08a 100%);
+  box-shadow:
+    0 0 8px rgba(234, 179, 8, 0.85),
+    0 0 18px rgba(161, 98, 7, 0.5),
+    inset 0 0 4px rgba(255, 255, 255, 0.4);
+}
+
+body[data-theme="obsidian"] .dock-bar-glow {
+  background: rgba(254, 252, 232, 0.95);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 1),
+    0 0 12px rgba(234, 179, 8, 0.9);
+}

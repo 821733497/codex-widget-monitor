@@ -1,10 +1,20 @@
 import { mount as mountHoloMeter } from "./holo-meter.js";
 import { mount as mountPyroMeter } from "./pyro-meter.js";
+import { mount as mountEmeraldMeter } from "./emerald-meter.js";
+import { mount as mountCyberMeter } from "./cyber-meter.js";
+import { mount as mountObsidianMeter } from "./obsidian-meter.js";
+import { mount as mountCrimsonMeter } from "./crimson-meter.js";
+import { mount as mountSakuraMeter } from "./sakura-meter.js";
 
 const METER_FACTORIES = {
   default: mountHoloMeter,
   holo: mountHoloMeter,
   pyro: mountPyroMeter,
+  emerald: mountEmeraldMeter,
+  cyber: mountCyberMeter,
+  obsidian: mountObsidianMeter,
+  crimson: mountCrimsonMeter,
+  sakura: mountSakuraMeter,
 };
 
 export function createMeterController(root) {

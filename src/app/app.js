@@ -1,4 +1,4 @@
-import { DEFAULT_SETTINGS, i18n } from "./constants.js";
+import { DEFAULT_SETTINGS, THEMES, i18n } from "./constants.js";
 import { createElements } from "./dom.js";
 import { initializeActionIcons } from "./icons.js";
 import { createLogger } from "./logger.js";
@@ -225,9 +225,13 @@ export function createApp(dependencies = {}) {
 
   async function cycleTheme() {
     try {
-      const currentTheme =
-        state.settings?.theme === "pyro" ? "pyro" : "default";
-      const nextTheme = currentTheme === "default" ? "pyro" : "default";
+      const themeKeys = Object.keys(THEMES);
+      const currentTheme = renderTheme(state);
+      const currentIndex = themeKeys.indexOf(currentTheme);
+      const nextTheme =
+        currentIndex >= 0
+          ? themeKeys[(currentIndex + 1) % themeKeys.length]
+          : themeKeys[0];
       state.settings = {
         ...state.settings,
         theme: nextTheme,
@@ -236,6 +240,7 @@ export function createApp(dependencies = {}) {
         state.settingsDraft.theme = nextTheme;
       }
       render();
+      contextMenuController.syncQuickMenuState?.();
       await persistSettings((currentSettings) => ({
         ...currentSettings,
         theme: nextTheme,
