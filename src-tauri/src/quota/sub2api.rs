@@ -164,13 +164,17 @@ pub async fn test_connection(
     let limit = if is_unrestricted {
         None
     } else {
-        rate_limit.and_then(|rl| rl.get("limit")).and_then(Value::as_f64)
+        rate_limit
+            .and_then(|rl| rl.get("limit"))
+            .and_then(Value::as_f64)
     };
 
     let used = if is_unrestricted {
         None
     } else {
-        rate_limit.and_then(|rl| rl.get("used")).and_then(Value::as_f64)
+        rate_limit
+            .and_then(|rl| rl.get("used"))
+            .and_then(Value::as_f64)
     };
 
     let remaining = if is_unrestricted {
@@ -279,9 +283,7 @@ pub async fn fetch_quota(
     // 提取今日消费和总消费
     let today_cost = data
         .get("usage")
-        .and_then(|u| {
-            extract_cost(u.get("today")).or_else(|| extract_cost(u.get("today_cost")))
-        })
+        .and_then(|u| extract_cost(u.get("today")).or_else(|| extract_cost(u.get("today_cost"))))
         .or_else(|| {
             data.get("daily_usage")
                 .and_then(Value::as_array)
@@ -291,9 +293,7 @@ pub async fn fetch_quota(
 
     let total_cost = data
         .get("usage")
-        .and_then(|u| {
-            extract_cost(u.get("total")).or_else(|| extract_cost(u.get("total_cost")))
-        });
+        .and_then(|u| extract_cost(u.get("total")).or_else(|| extract_cost(u.get("total_cost"))));
 
     let used = if is_unrestricted {
         total_cost.unwrap_or(0.0)
