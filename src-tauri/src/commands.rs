@@ -157,6 +157,12 @@ pub(crate) fn hide_tray_preview(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub(crate) fn toggle_tray_preview(app: AppHandle) -> Result<(), String> {
+    crate::tray::toggle_tray_preview_pinned(&app);
+    Ok(())
+}
+
+#[tauri::command]
 pub(crate) fn get_always_on_top(state: State<'_, AppState>) -> bool {
     state.always_on_top.load(Ordering::SeqCst)
 }

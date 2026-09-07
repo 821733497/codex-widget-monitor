@@ -1,4 +1,5 @@
 import {
+  APP_VERSION_LABEL,
   BALL_SIZE_OPTIONS,
   BALL_SNAP_STYLE_OPTIONS,
   DATA_BAR_CONTENTS,
@@ -34,6 +35,7 @@ export function createSettingsController({
   readCurrentWindowPosition,
   mergeWindowPosition,
   setUpdateStatus,
+  checkForUpdates,
   scheduleAutoRefresh,
   refreshQuota,
   scheduleUpdateChecks,
@@ -120,6 +122,9 @@ export function createSettingsController({
     els.tabBasicBtn?.addEventListener("click", () => switchTab("basic"));
     els.tabSourcesBtn?.addEventListener("click", () => switchTab("sources"));
     els.tabSystemBtn?.addEventListener("click", () => switchTab("system"));
+    els.aboutCheckUpdateBtn?.addEventListener("click", () =>
+      checkForUpdates?.(),
+    );
     customSelects.bindEvents();
   }
 
@@ -242,8 +247,27 @@ export function createSettingsController({
 
     renderSettingsLabels(text);
     renderSettingsSaveState(text);
+    renderAboutCard(text);
     syncSettingsControls(renderLocale());
     renderSourcesTab(text);
+  }
+
+  function renderAboutCard(text) {
+    if (els.aboutAppName) {
+      els.aboutAppName.textContent = text.brandName || "Codex CLI 额度";
+    }
+    if (els.aboutAppVersion) {
+      els.aboutAppVersion.textContent = APP_VERSION_LABEL;
+    }
+    if (els.aboutAppDesc) {
+      els.aboutAppDesc.textContent = text.appDescription || "";
+    }
+    if (els.aboutCheckUpdateText) {
+      els.aboutCheckUpdateText.textContent = text.checkUpdate || "检查更新";
+    }
+    if (els.aboutCheckUpdateBtn) {
+      els.aboutCheckUpdateBtn.disabled = Boolean(state.updateChecking);
+    }
   }
 
   function renderSettingsLabels(text) {

@@ -14,6 +14,25 @@ const elements = {
   currentThemeBadge: document.getElementById("currentThemeBadge"),
 };
 
+let refreshTimer = null;
+
+function stopSpinning() {
+  if (refreshTimer) {
+    clearTimeout(refreshTimer);
+    refreshTimer = null;
+  }
+  elements.refreshIconSvg?.classList.remove("spinning");
+}
+
+function startSpinning() {
+  elements.refreshIconSvg?.classList.add("spinning");
+  if (refreshTimer) clearTimeout(refreshTimer);
+  // 安全超时：最多旋转 1.2 秒后自动停止，避免界面图标永久旋转
+  refreshTimer = setTimeout(() => {
+    stopSpinning();
+  }, 1200);
+}
+
 async function hideMenu() {
   try {
     await invoke("hide_quick_menu");
@@ -33,9 +52,12 @@ async function sendAction(action, payload = null) {
 }
 
 function init() {
+  // 确保初始加载或窗口显示时重置旋转状态
+  stopSpinning();
+
   // 点击刷新数据（带动画）
   elements.btnRefreshQuota?.addEventListener("click", () => {
-    elements.refreshIconSvg?.classList.add("spinning");
+    startSpinning();
     void sendAction("refresh-quota");
   });
 
@@ -66,6 +88,7 @@ function init() {
 
   // 接收外部同步的主题与数据源信息
   listen(IPC_EVENTS.QUICK_MENU_SYNC, (event) => {
+    stopSpinning();
     const { theme, themeName, sourceName } = event.payload || {};
     if (theme) {
       document.documentElement.setAttribute("data-theme", theme);
@@ -98,6 +121,8 @@ function init() {
       clearTimeout(blurTimer);
       blurTimer = null;
     }
+    // 菜单重新获得焦点弹出显示时，确保重置可能遗留的旋转动画
+    stopSpinning();
   });
 }
 

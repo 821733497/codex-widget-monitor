@@ -92,5 +92,12 @@ export function createElements() {
     sourcesContainer: document.getElementById("sourcesContainer"),
     ballContextMenu: document.getElementById("ballContextMenu"),
     activeSourceIndicator: document.getElementById("activeSourceIndicator"),
+    aboutIcon: document.getElementById("aboutIcon"),
+    aboutAppName: document.getElementById("aboutAppName"),
+    aboutAppVersion: document.getElementById("aboutAppVersion"),
+    aboutAppDesc: document.getElementById("aboutAppDesc"),
+    aboutCheckUpdateBtn: document.getElementById("aboutCheckUpdateBtn"),
+    aboutCheckUpdateIcon: document.getElementById("aboutCheckUpdateIcon"),
+    aboutCheckUpdateText: document.getElementById("aboutCheckUpdateText"),
   };
 }

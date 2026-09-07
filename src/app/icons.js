@@ -4,6 +4,7 @@ import {
   Clock3,
   createElement as createLucideElement,
   FolderOpen,
+  Info,
   Minus,
   Palette,
   Pin,
@@ -44,6 +45,7 @@ const ACTION_ICONS = {
   "clock-3": Clock3,
   "reset-credit": RESET_CREDIT_ICON,
   "folder-open": FolderOpen,
+  info: Info,
   minus: Minus,
   palette: Palette,
   pin: Pin,
@@ -68,6 +70,8 @@ export function initializeActionIcons(els, logger) {
     [els.settingsCloseBtn, "x"],
     [els.chooseCodexBtn, "folder-open"],
     [els.statusIcon, "refresh-cw"],
+    [els.aboutIcon, "info"],
+    [els.aboutCheckUpdateIcon, "refresh-cw"],
   ].forEach(([button, iconName]) => {
     if (button) {
       setActionButtonIcon(button, iconName, logger);

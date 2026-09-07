@@ -16,6 +16,8 @@ export function createBallController({
   render,
   positionController,
   logWindowError,
+  notifyDrag,
+  notifyDragEnd,
 }) {
   const positionWriter = createLatestPositionWriter(
     (position) => service.window.setPosition(position),
@@ -34,6 +36,7 @@ export function createBallController({
       currentScreenY: event.screenY,
       moved: false,
     };
+    notifyDrag?.(event.screenX, event.screenY);
 
     if (!service.isAvailable()) return;
 
@@ -79,6 +82,8 @@ export function createBallController({
 
     press.currentScreenX = event.screenX;
     press.currentScreenY = event.screenY;
+    notifyDrag?.(event.screenX, event.screenY);
+
     if (
       !press.moved &&
       Math.hypot(
@@ -122,6 +127,7 @@ export function createBallController({
     const drag = state.ballDrag;
     if (!press || event.pointerId !== press.pointerId) return dragCompletion;
 
+    notifyDragEnd?.();
     cancelBallDragFrame(drag);
     state.ballPress = null;
     state.ballDrag = null;
@@ -169,6 +175,15 @@ export function createBallController({
 
     if (state.ballDock) {
       await expandBallFromDock();
+      return;
+    }
+
+    if (!service.isAvailable() || !service.commands?.toggleTrayPreview) return;
+
+    try {
+      await service.commands.toggleTrayPreview();
+    } catch (error) {
+      logWindowError("切换托盘概览卡片失败", error);
     }
   }
 

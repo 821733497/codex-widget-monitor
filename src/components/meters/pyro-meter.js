@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { create3DMeterBase } from "./meter-base-3d.js";
 
-const EMBER_COUNT = 40;
+const EMBER_COUNT = 54;
 const OUTER_COUNT = 32;
 
 export function mount(root) {
@@ -30,6 +30,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.9 },
@@ -39,14 +42,20 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            // 狂烈岩浆波浪扰动
-            float wave = sin(pos.x * 4.8 + uTime * 2.8) * 0.05
-                       + cos(pos.x * 3.2 - uTime * 2.1) * 0.03;
-            vHeight = pos.y - (uWaterLevel + wave);
+            float turb = 1.0 + uWaveTurbulence * 1.6;
+            // 狂烈岩浆波浪扰动 + 晃动增强
+            float wave = (sin(pos.x * 4.8 + uTime * 2.2) * 0.056
+                       + cos(pos.x * 3.2 - uTime * 1.6) * 0.034) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.35;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -84,6 +93,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.5 },
@@ -93,13 +105,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            float wave = cos(pos.x * 4.1 - uTime * 2.3) * 0.055
-                       + sin(pos.x * 5.6 + uTime * 1.7) * 0.025;
-            vHeight = pos.y - (uWaterLevel + wave - 0.02);
+            float turb = 1.0 + uWaveTurbulence * 1.4;
+            float wave = (cos(pos.x * 4.1 - uTime * 1.8) * 0.054
+                       + sin(pos.x * 5.6 + uTime * 1.4) * 0.026) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle * 0.85);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.30;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave - 0.02);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -176,29 +194,73 @@ export function mount(root) {
       outerEmbers = new THREE.Points(outerGeo, outerMat);
       scene.add(outerEmbers);
     },
-    onRenderTick({ timeSec, delta, waterLevelY, currentColorTop }) {
+    onRenderTick({
+      timeSec,
+      delta,
+      waterLevelY,
+      currentColorTop,
+      sloshAngle = 0,
+      sloshOffset = 0,
+      waveTurbulence = 0,
+      agitation = 0,
+    }) {
       if (waveMesh1) {
         waveMesh1.material.uniforms.uTime.value = timeSec;
         waveMesh1.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh1.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh1.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh1.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
       if (waveMesh2) {
         waveMesh2.material.uniforms.uTime.value = timeSec;
         waveMesh2.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh2.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh2.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh2.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
-      // 更新熔浆内部火星飘逸升腾
+      // 更新熔浆内部激荡火星与气泡升腾 (Agitation Embers & Bubbles)
       if (embers && emberPositions) {
+        const minActive = 10;
+        const activeCount = Math.round(
+          minActive + (EMBER_COUNT - minActive) * Math.min(1, agitation * 1.5),
+        );
+        const speedMult = 1.0 + agitation * 2.4 + waveTurbulence * 0.4;
+
+        if (embers.material) {
+          embers.material.opacity = Math.min(0.98, 0.7 + agitation * 0.28);
+        }
+
         for (let i = 0; i < EMBER_COUNT; i++) {
-          emberPositions[i * 3 + 1] += emberSpeeds[i] * delta;
-          emberPositions[i * 3] += Math.sin(timeSec * 3.0 + i) * 0.003;
+          const idx = i * 3;
+          if (i >= activeCount) {
+            emberPositions[idx + 1] = -2.0;
+            continue;
+          }
+
+          if (emberPositions[idx + 1] < -1.1) {
+            emberPositions[idx + 1] = -0.95 + Math.random() * 0.2;
+            emberPositions[idx] = (Math.random() - 0.5) * 1.3;
+          }
+
+          emberPositions[idx + 1] += emberSpeeds[i] * speedMult * delta;
+          emberPositions[idx] +=
+            (Math.sin(timeSec * 3.6 + i * 1.2) * 0.0035 +
+              sloshAngle * delta * 0.1) *
+            (1.0 + agitation * 1.5);
+
+          const px = emberPositions[idx];
+          const dome = Math.max(0.0, 1.0 - px * px * 1.8) * sloshOffset * 0.35;
+          const currentWaterSurface =
+            waterLevelY + sloshOffset + dome - px * Math.sin(sloshAngle);
 
           if (
-            emberPositions[i * 3 + 1] > waterLevelY ||
-            emberPositions[i * 3 + 1] > 0.85
+            emberPositions[idx + 1] > currentWaterSurface ||
+            emberPositions[idx + 1] > 0.88
           ) {
-            emberPositions[i * 3 + 1] = -0.95 + Math.random() * 0.15;
-            emberPositions[i * 3] = (Math.random() - 0.5) * 1.3;
+            emberPositions[idx + 1] = -0.95 + Math.random() * 0.15;
+            emberPositions[idx] = (Math.random() - 0.5) * 1.3;
           }
         }
         embers.geometry.attributes.position.needsUpdate = true;
@@ -207,9 +269,12 @@ export function mount(root) {
 
       // 更新球外边缘跳跃升腾的火星粒子
       if (outerEmbers && outerPositions) {
+        const outerSpeedMult = 1.0 + agitation * 1.8;
         for (let i = 0; i < OUTER_COUNT; i++) {
-          outerPositions[i * 3 + 1] += outerSpeeds[i] * delta;
-          outerPositions[i * 3] += Math.sin(timeSec * 4.5 + i * 2.0) * 0.005;
+          outerPositions[i * 3 + 1] += outerSpeeds[i] * outerSpeedMult * delta;
+          outerPositions[i * 3] +=
+            Math.sin(timeSec * 4.5 + i * 2.0) * 0.005 +
+            sloshAngle * delta * 0.1;
 
           if (outerPositions[i * 3 + 1] > 0.96) {
             const bottomAngle = -Math.PI * 0.8 + Math.random() * Math.PI * 0.6;

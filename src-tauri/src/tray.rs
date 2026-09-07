@@ -15,6 +15,7 @@ pub(crate) const QUICK_MENU_LABEL: &str = "quick-menu";
 static HOVER_TOKEN: AtomicU64 = AtomicU64::new(0);
 static PREVIEW_PINNED: AtomicBool = AtomicBool::new(false);
 static LAST_HIDE_TIME: AtomicU64 = AtomicU64::new(0);
+static LAST_TRAY_RECT: std::sync::Mutex<Option<tauri::Rect>> = std::sync::Mutex::new(None);
 
 fn current_time_ms() -> u64 {
     std::time::SystemTime::now()
@@ -152,34 +153,10 @@ pub(crate) fn create_tray(app: &AppHandle) -> tauri::Result<()> {
                     rect,
                     ..
                 } => {
-                    HOVER_TOKEN.fetch_add(1, Ordering::SeqCst);
-                    if let Some(w) = app_handle.get_webview_window(QUICK_MENU_LABEL) {
-                        let _ = w.hide();
+                    if let Ok(mut guard) = LAST_TRAY_RECT.lock() {
+                        *guard = Some(rect);
                     }
-                    let now = current_time_ms();
-                    let last_hide = LAST_HIDE_TIME.load(Ordering::SeqCst);
-
-                    // 如果刚刚通过失焦 (blur) 收起了预览窗口（小于 300ms），说明这次点击本身是用户用来收起的点击，不再重新打开
-                    if now.saturating_sub(last_hide) < 300 {
-                        return;
-                    }
-
-                    let is_pinned = PREVIEW_PINNED.load(Ordering::SeqCst);
-                    let is_visible = app_handle
-                        .get_webview_window(TRAY_PREVIEW_LABEL)
-                        .and_then(|w| w.is_visible().ok())
-                        .unwrap_or(false);
-
-                    if is_pinned && is_visible {
-                        hide_tray_preview(&app_handle);
-                    } else {
-                        PREVIEW_PINNED.store(true, Ordering::SeqCst);
-                        show_tray_preview_at_rect(&app_handle, rect);
-                        if let Some(window) = app_handle.get_webview_window(TRAY_PREVIEW_LABEL) {
-                            let _ = window.set_focus();
-                        }
-                        let _ = app_handle.emit("tray-preview:mode-changed", true);
-                    }
+                    toggle_tray_preview_pinned(&app_handle);
                 }
                 TrayIconEvent::Click {
                     button: MouseButton::Right,
@@ -187,6 +164,9 @@ pub(crate) fn create_tray(app: &AppHandle) -> tauri::Result<()> {
                     rect,
                     ..
                 } => {
+                    if let Ok(mut guard) = LAST_TRAY_RECT.lock() {
+                        *guard = Some(rect);
+                    }
                     HOVER_TOKEN.fetch_add(1, Ordering::SeqCst);
                     hide_tray_preview(&app_handle);
                     let _ = app_handle.emit(
@@ -196,6 +176,9 @@ pub(crate) fn create_tray(app: &AppHandle) -> tauri::Result<()> {
                     show_quick_menu_at_rect(&app_handle, rect);
                 }
                 TrayIconEvent::Enter { rect, .. } => {
+                    if let Ok(mut guard) = LAST_TRAY_RECT.lock() {
+                        *guard = Some(rect);
+                    }
                     if PREVIEW_PINNED.load(Ordering::SeqCst) {
                         return;
                     }
@@ -348,6 +331,76 @@ pub(crate) fn hide_tray_preview(app: &AppHandle) {
         let _ = window.hide();
     }
     let _ = app.emit("tray-preview:mode-changed", false);
+}
+
+pub(crate) fn default_tray_rect(app: &AppHandle) -> tauri::Rect {
+    if let Ok(guard) = LAST_TRAY_RECT.lock() {
+        if let Some(rect) = *guard {
+            return rect;
+        }
+    }
+
+    let monitor = app
+        .get_webview_window(TRAY_PREVIEW_LABEL)
+        .and_then(|w| w.current_monitor().ok().flatten())
+        .or_else(|| app.primary_monitor().ok().flatten());
+    if let Some(m) = monitor {
+        let pos = m.position();
+        let size = m.size();
+        let scale_factor = m.scale_factor();
+        let icon_w = (32.0 * scale_factor) as u32;
+        let icon_h = (32.0 * scale_factor) as u32;
+        let icon_x = pos.x + size.width as i32 - (48.0 * scale_factor) as i32;
+        let icon_y = pos.y + size.height as i32 - (40.0 * scale_factor) as i32;
+        tauri::Rect {
+            position: tauri::Position::Physical(tauri::PhysicalPosition {
+                x: icon_x,
+                y: icon_y,
+            }),
+            size: tauri::Size::Physical(tauri::PhysicalSize {
+                width: icon_w,
+                height: icon_h,
+            }),
+        }
+    } else {
+        tauri::Rect {
+            position: tauri::Position::Physical(tauri::PhysicalPosition { x: 0, y: 0 }),
+            size: tauri::Size::Physical(tauri::PhysicalSize {
+                width: 32,
+                height: 32,
+            }),
+        }
+    }
+}
+
+pub(crate) fn toggle_tray_preview_pinned(app: &AppHandle) {
+    HOVER_TOKEN.fetch_add(1, Ordering::SeqCst);
+    if let Some(w) = app.get_webview_window(QUICK_MENU_LABEL) {
+        let _ = w.hide();
+    }
+    let now = current_time_ms();
+    let last_hide = LAST_HIDE_TIME.load(Ordering::SeqCst);
+    if now.saturating_sub(last_hide) < 300 {
+        return;
+    }
+
+    let is_pinned = PREVIEW_PINNED.load(Ordering::SeqCst);
+    let is_visible = app
+        .get_webview_window(TRAY_PREVIEW_LABEL)
+        .and_then(|w| w.is_visible().ok())
+        .unwrap_or(false);
+
+    if is_pinned && is_visible {
+        hide_tray_preview(app);
+    } else {
+        PREVIEW_PINNED.store(true, Ordering::SeqCst);
+        let rect = default_tray_rect(app);
+        show_tray_preview_at_rect(app, rect);
+        if let Some(window) = app.get_webview_window(TRAY_PREVIEW_LABEL) {
+            let _ = window.set_focus();
+        }
+        let _ = app.emit("tray-preview:mode-changed", true);
+    }
 }
 
 pub(crate) fn show_tray_preview_at_rect(app: &AppHandle, rect: tauri::Rect) {

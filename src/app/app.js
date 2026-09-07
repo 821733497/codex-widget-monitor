@@ -87,6 +87,8 @@ export function createApp(dependencies = {}) {
     }
   }
 
+  let renderer = null;
+
   const windowController = (
     factories.createWindowController || createWindowController
   )({
@@ -99,6 +101,8 @@ export function createApp(dependencies = {}) {
     saveCurrentSettings,
     showError: showWindowError,
     logger,
+    notifyDrag: (x, y) => renderer?.meterController?.notifyDrag(x, y),
+    notifyDragEnd: (vx, vy) => renderer?.meterController?.notifyDragEnd(vx, vy),
   });
 
   const quotaController = (
@@ -145,6 +149,7 @@ export function createApp(dependencies = {}) {
     readCurrentWindowPosition: windowController.readCurrentWindowPosition,
     mergeWindowPosition: windowController.mergeWindowPosition,
     setUpdateStatus: updateController.setUpdateStatus,
+    checkForUpdates: () => updateController.checkForUpdates({ manual: true }),
     scheduleAutoRefresh: quotaController.scheduleAutoRefresh,
     refreshQuota: quotaController.refreshQuota,
     scheduleUpdateChecks: updateController.scheduleUpdateChecks,
@@ -176,7 +181,7 @@ export function createApp(dependencies = {}) {
     logger,
   });
 
-  const renderer = (factories.createRenderer || createRenderer)({
+  renderer = (factories.createRenderer || createRenderer)({
     els,
     state,
     getLocale: () => renderLocale(state),
@@ -185,6 +190,7 @@ export function createApp(dependencies = {}) {
     settingsView: settingsController,
     sourcePickerView: sourcePickerController,
   });
+
   render = () => {
     renderer.render();
     trayPresentationManager.update();

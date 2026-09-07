@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { create3DMeterBase } from "./meter-base-3d.js";
 
-const PLASMA_COUNT = 40;
+const PLASMA_COUNT = 54;
 
 export function mount(root) {
   let waveMesh1 = null;
@@ -26,6 +26,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.9 },
@@ -35,14 +38,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            // 赛博电浆高频轻微脉冲波
-            float wave = sin(pos.x * 4.5 + uTime * 2.6) * 0.046
-                       + cos(pos.x * 3.0 - uTime * 1.9) * 0.028;
-            vHeight = pos.y - (uWaterLevel + wave);
+            float turb = 1.0 + uWaveTurbulence * 1.5;
+            float wave = (sin(pos.x * 4.5 + uTime * 2.2) * 0.052
+                       + cos(pos.x * 3.0 - uTime * 1.6) * 0.032) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.35;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -81,6 +89,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.48 },
@@ -90,13 +101,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            float wave = cos(pos.x * 3.8 + uTime * 1.8) * 0.038
-                       + sin(pos.x * 2.4 - uTime * 2.1) * 0.032;
-            vHeight = pos.y - (uWaterLevel + wave);
+            float turb = 1.0 + uWaveTurbulence * 1.3;
+            float wave = (cos(pos.x * 3.8 + uTime * 1.6) * 0.040
+                       + sin(pos.x * 2.4 - uTime * 1.8) * 0.032) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle * 0.85);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.30;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -152,28 +169,73 @@ export function mount(root) {
       plasma = new THREE.Points(plasmaGeo, plasmaMat);
       scene.add(plasma);
     },
-    onRenderTick({ timeSec, delta, waterLevelY, currentColorTop }) {
+    onRenderTick({
+      timeSec,
+      delta,
+      waterLevelY,
+      currentColorTop,
+      sloshAngle = 0,
+      sloshOffset = 0,
+      waveTurbulence = 0,
+      agitation = 0,
+    }) {
       if (waveMesh1) {
         waveMesh1.material.uniforms.uTime.value = timeSec;
         waveMesh1.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh1.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh1.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh1.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
       if (waveMesh2) {
         waveMesh2.material.uniforms.uTime.value = timeSec;
         waveMesh2.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh2.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh2.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh2.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
+      // 幻紫电浆激荡离子气泡群更新 (Agitation Dynamic Plasma Bubbles)
       if (plasma && plasmaPositions) {
+        const minActive = 10;
+        const activeCount = Math.round(
+          minActive + (PLASMA_COUNT - minActive) * Math.min(1, agitation * 1.5),
+        );
+        const speedMult = 1.0 + agitation * 2.4 + waveTurbulence * 0.4;
+
+        if (plasma.material) {
+          plasma.material.opacity = Math.min(0.96, 0.68 + agitation * 0.28);
+        }
+
         for (let i = 0; i < PLASMA_COUNT; i++) {
-          plasmaPositions[i * 3 + 1] += plasmaSpeeds[i] * delta;
-          plasmaPositions[i * 3] += Math.sin(timeSec * 2.4 + i) * 0.0025;
+          const idx = i * 3;
+          if (i >= activeCount) {
+            plasmaPositions[idx + 1] = -2.0;
+            continue;
+          }
+
+          if (plasmaPositions[idx + 1] < -1.1) {
+            plasmaPositions[idx + 1] = -0.95 + Math.random() * 0.2;
+            plasmaPositions[idx] = (Math.random() - 0.5) * 1.3;
+          }
+
+          plasmaPositions[idx + 1] += plasmaSpeeds[i] * speedMult * delta;
+          plasmaPositions[idx] +=
+            (Math.sin(timeSec * 3.5 + i * 1.3) * 0.003 +
+              sloshAngle * delta * 0.1) *
+            (1.0 + agitation * 1.5);
+
+          const px = plasmaPositions[idx];
+          const dome = Math.max(0.0, 1.0 - px * px * 1.8) * sloshOffset * 0.35;
+          const currentWaterSurface =
+            waterLevelY + sloshOffset + dome - px * Math.sin(sloshAngle);
 
           if (
-            plasmaPositions[i * 3 + 1] > waterLevelY ||
-            plasmaPositions[i * 3 + 1] > 0.85
+            plasmaPositions[idx + 1] > currentWaterSurface ||
+            plasmaPositions[idx + 1] > 0.88
           ) {
-            plasmaPositions[i * 3 + 1] = -0.95 + Math.random() * 0.15;
-            plasmaPositions[i * 3] = (Math.random() - 0.5) * 1.3;
+            plasmaPositions[idx + 1] = -0.95 + Math.random() * 0.15;
+            plasmaPositions[idx] = (Math.random() - 0.5) * 1.3;
           }
         }
         plasma.geometry.attributes.position.needsUpdate = true;

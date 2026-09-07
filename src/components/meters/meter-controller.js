@@ -36,6 +36,14 @@ export function createMeterController(root) {
     activeMeter.update(payload);
   }
 
+  function notifyDrag(screenX, screenY) {
+    activeMeter?.notifyDrag?.(screenX, screenY);
+  }
+
+  function notifyDragEnd(vx, vy) {
+    activeMeter?.notifyDragEnd?.(vx, vy);
+  }
+
   function destroy() {
     activeMeter?.destroy();
     root?.replaceChildren();
@@ -43,5 +51,5 @@ export function createMeterController(root) {
     activeTheme = null;
   }
 
-  return { update, destroy };
+  return { update, destroy, notifyDrag, notifyDragEnd };
 }

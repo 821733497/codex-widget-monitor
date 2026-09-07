@@ -29,6 +29,7 @@ export function createTauriService() {
         invoke("switch_active_target", { target }),
       testSub2apiConnection: (baseUrl, apiKey) =>
         invoke("test_sub2api_connection", { baseUrl, apiKey }),
+      toggleTrayPreview: () => invoke("toggle_tray_preview"),
       updateTrayIcon: (rgba, width, height) =>
         invoke("update_tray_icon", { rgba, width, height }),
       writeFrontendLog: (level, message, context) =>
