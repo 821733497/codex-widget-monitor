@@ -21,7 +21,7 @@ export const DEFAULT_SETTINGS = {
   activeTarget: { type: "official" },
 };
 
-export const APP_VERSION_LABEL = "";
+export const APP_VERSION_LABEL = "v1.0.6";
 export const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 export const WIDGET_MODES = {
   PANEL: "panel",
@@ -267,6 +267,7 @@ export const i18n = {
     updateCheckFailed: "获取版本失败",
     updateInstallFailed: "更新失败",
     updateLatest: "已是最新版本",
+    updateDevMode: "开发模式：已跳过安装",
     checkUpdate: "检查更新",
     settings: "设置",
     close: "关闭",
@@ -340,6 +341,7 @@ export const i18n = {
     noSitesHint: "尚未添加中转站点，点击下方按钮添加",
     confirmDeleteSite: "确定要删除该站点及其包含的所有 Key 吗？",
     confirmDeleteKey: "确定要删除该 Key 吗？",
+    appDescription: "桌面悬浮球与额度实时监控小组件",
   },
   en: {
     brandName: "Codex Quota",
@@ -396,6 +398,7 @@ export const i18n = {
     updateCheckFailed: "Version check failed",
     updateInstallFailed: "Update failed",
     updateLatest: "Already up to date",
+    updateDevMode: "Dev mode: skipped install",
     checkUpdate: "Check for updates",
     settings: "Settings",
     close: "Close",
@@ -475,5 +478,6 @@ export const i18n = {
     confirmDeleteSite:
       "Are you sure you want to delete this provider and all its keys?",
     confirmDeleteKey: "Are you sure you want to delete this key?",
+    appDescription: "Desktop floating ball & real-time quota monitor",
   },
 };

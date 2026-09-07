@@ -488,7 +488,7 @@ export function createRenderer({
     return { title, versionButton };
   }
 
-  return { render };
+  return { render, meterController };
 }
 
 function createDataBarView(card, state) {

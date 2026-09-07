@@ -27,6 +27,8 @@ export function createWindowController({
   render,
   persistSettings,
   logger,
+  notifyDrag,
+  notifyDragEnd,
 }) {
   let requestedWidgetMode = null;
   let widgetModeTransition = null;
@@ -63,6 +65,8 @@ export function createWindowController({
     render,
     positionController,
     logWindowError,
+    notifyDrag,
+    notifyDragEnd,
   });
 
   const panelController = createPanelController({

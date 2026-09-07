@@ -978,3 +978,131 @@ body[data-theme="sakura"] .source-inline-form {
   cursor: default;
   opacity: 0.55;
 }
+
+/* 关于应用卡片样式 */
+.about-card {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  margin-top: 4px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.26);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  box-sizing: border-box;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.about-card:hover {
+  background: rgba(0, 0, 0, 0.32);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.24);
+}
+
+.about-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.about-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--settings-accent-soft, rgba(56, 189, 248, 0.16));
+  color: var(--settings-accent-color, #38bdf8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+.about-card-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.about-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.about-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.about-app-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--settings-text-color, #f8fafc);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+.about-app-version {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono, "SF Mono", Monaco, Consolas, monospace);
+  background: var(--settings-accent-soft, rgba(56, 189, 248, 0.18));
+  color: var(--settings-accent-color, #38bdf8);
+  border: 1px solid var(--settings-accent-color, rgba(56, 189, 248, 0.3));
+  line-height: 15px;
+}
+
+.about-app-desc {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.52);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.about-card-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.about-check-update-btn {
+  display: inline-flex !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+  height: 30px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.about-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-btn-icon svg {
+  width: 13px;
+  height: 13px;
+}

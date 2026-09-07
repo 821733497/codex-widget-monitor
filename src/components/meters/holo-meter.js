@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { create3DMeterBase } from "./meter-base-3d.js";
 
-const PARTICLE_COUNT = 36;
+const PARTICLE_COUNT = 54;
 
 export function mount(root) {
   let waveMesh1 = null;
@@ -26,6 +26,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.88 },
@@ -35,14 +38,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            // 水面波浪扰动计算
-            float wave = sin(pos.x * 4.2 + uTime * 2.4) * 0.045
-                       + cos(pos.x * 2.8 - uTime * 1.8) * 0.025;
-            vHeight = pos.y - (uWaterLevel + wave);
+            float turb = 1.0 + uWaveTurbulence * 1.5;
+            float wave = (sin(pos.x * 4.2 + uTime * 2.0) * 0.052
+                       + cos(pos.x * 2.8 - uTime * 1.5) * 0.030) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.35;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -84,6 +92,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.45 },
@@ -93,13 +104,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            float wave = cos(pos.x * 3.6 + uTime * 1.6) * 0.035
-                       + sin(pos.x * 2.0 - uTime * 2.2) * 0.03;
-            vHeight = pos.y - (uWaterLevel + wave);
+            float turb = 1.0 + uWaveTurbulence * 1.3;
+            float wave = (cos(pos.x * 3.6 + uTime * 1.5) * 0.040
+                       + sin(pos.x * 2.0 - uTime * 1.8) * 0.032) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle * 0.85);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.30;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -155,31 +172,82 @@ export function mount(root) {
       particles = new THREE.Points(particleGeo, particleMat);
       scene.add(particles);
     },
-    onRenderTick({ timeSec, delta, waterLevelY, currentColorTop }) {
+    onRenderTick({
+      timeSec,
+      delta,
+      waterLevelY,
+      currentColorTop,
+      sloshAngle = 0,
+      sloshOffset = 0,
+      waveTurbulence = 0,
+      agitation = 0,
+    }) {
       if (waveMesh1) {
         waveMesh1.material.uniforms.uTime.value = timeSec;
         waveMesh1.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh1.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh1.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh1.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
       if (waveMesh2) {
         waveMesh2.material.uniforms.uTime.value = timeSec;
         waveMesh2.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh2.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh2.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh2.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
-      // 更新发光粒子升腾
+      // 激荡气泡群更新 (Agitation Dynamic Bubbles)
       if (particles && particlePositions) {
-        for (let i = 0; i < PARTICLE_COUNT; i++) {
-          particlePositions[i * 3 + 1] += particleSpeeds[i] * delta;
-          // 漂浮扰动
-          particlePositions[i * 3] += Math.sin(timeSec * 2.0 + i) * 0.002;
+        // 静止时活跃少量呼吸微粒，激荡时激活全量气泡喷涌
+        const minActive = 10;
+        const activeCount = Math.round(
+          minActive +
+            (PARTICLE_COUNT - minActive) * Math.min(1, agitation * 1.5),
+        );
+        const speedMult = 1.0 + agitation * 2.4 + waveTurbulence * 0.4;
 
-          // 粒子升腾到水面以上时重置到底部
+        if (particles.material) {
+          particles.material.opacity = Math.min(0.95, 0.65 + agitation * 0.3);
+        }
+
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          const idx = i * 3;
+          if (i >= activeCount) {
+            // 未激活气泡置于可视区外隐藏
+            particlePositions[idx + 1] = -2.0;
+            continue;
+          }
+
+          // 刚被激活的气泡从底部生成
+          if (particlePositions[idx + 1] < -1.1) {
+            particlePositions[idx + 1] = -0.95 + Math.random() * 0.2;
+            particlePositions[idx] = (Math.random() - 0.5) * 1.3;
+          }
+
+          // 气泡升腾速度随激荡暴增
+          particlePositions[idx + 1] += particleSpeeds[i] * speedMult * delta;
+
+          // 紊流横向摆动 + 随水流倾角流动
+          particlePositions[idx] +=
+            (Math.sin(timeSec * 3.2 + i * 1.3) * 0.003 +
+              sloshAngle * delta * 0.1) *
+            (1.0 + agitation * 1.5);
+
+          // 结合水面倾角与弧面形变检测水面破裂
+          const px = particlePositions[idx];
+          const dome = Math.max(0.0, 1.0 - px * px * 1.8) * sloshOffset * 0.35;
+          const currentWaterSurface =
+            waterLevelY + sloshOffset + dome - px * Math.sin(sloshAngle);
+
+          // 气泡触碰水面瞬间破裂，从底部重新生成
           if (
-            particlePositions[i * 3 + 1] > waterLevelY ||
-            particlePositions[i * 3 + 1] > 0.85
+            particlePositions[idx + 1] > currentWaterSurface ||
+            particlePositions[idx + 1] > 0.88
           ) {
-            particlePositions[i * 3 + 1] = -0.95 + Math.random() * 0.15;
-            particlePositions[i * 3] = (Math.random() - 0.5) * 1.3;
+            particlePositions[idx + 1] = -0.95 + Math.random() * 0.15;
+            particlePositions[idx] = (Math.random() - 0.5) * 1.3;
           }
         }
         particles.geometry.attributes.position.needsUpdate = true;

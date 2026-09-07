@@ -1,23 +1,43 @@
 import { UPDATE_CHECK_INTERVAL_MS } from "./constants.js";
 
 const TRANSIENT_STATUS_DURATION_MS = 1800;
-const TRANSIENT_STATUS_TYPES = new Set(["latest", "saved", "checkFailed", "updateFailed"]);
+const TRANSIENT_STATUS_TYPES = new Set([
+  "latest",
+  "saved",
+  "checkFailed",
+  "updateFailed",
+  "devMode",
+]);
 
-export function createUpdateController({ state, service, render, logger }) {
+export function createUpdateController({
+  state,
+  service,
+  render,
+  logger,
+  isDev = Boolean(import.meta.env?.DEV),
+}) {
   function scheduleUpdateChecks() {
     if (state.updateTimer) window.clearInterval(state.updateTimer);
     state.updateTimer = null;
-    if (!state.settings.autoUpdateEnabled) {
+    if (!state.settings.autoUpdateEnabled || isDev) {
       clearUpdateStatus();
       return;
     }
 
     checkForUpdates();
-    state.updateTimer = window.setInterval(checkForUpdates, UPDATE_CHECK_INTERVAL_MS);
+    state.updateTimer = window.setInterval(
+      checkForUpdates,
+      UPDATE_CHECK_INTERVAL_MS,
+    );
   }
 
   async function checkForUpdates({ manual = false } = {}) {
-    if (!service.isAvailable() || state.updateChecking || (!manual && !state.settings.autoUpdateEnabled)) return;
+    if (
+      !service.isAvailable() ||
+      state.updateChecking ||
+      (!manual && (!state.settings.autoUpdateEnabled || isDev))
+    )
+      return;
 
     state.updateChecking = true;
     setUpdateStatus({ type: "checking" });
@@ -30,6 +50,16 @@ export function createUpdateController({ state, service, render, logger }) {
         } else {
           clearUpdateStatus();
         }
+        return;
+      }
+
+      if (isDev) {
+        logger?.info(
+          "开发模式检测到新版本，跳过自动下载与安装",
+          update.version,
+          "frontend.update",
+        );
+        setUpdateStatus({ type: "devMode", version: update.version });
         return;
       }
 
@@ -64,7 +94,10 @@ export function createUpdateController({ state, service, render, logger }) {
 
       if (event.event === "Progress") {
         downloadedBytes += event.data?.chunkLength || 0;
-        const percent = totalBytes > 0 ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100)) : null;
+        const percent =
+          totalBytes > 0
+            ? Math.min(100, Math.round((downloadedBytes / totalBytes) * 100))
+            : null;
         setUpdateStatus({ type: "downloading", percent });
         return;
       }
@@ -141,6 +174,6 @@ export function createUpdateController({ state, service, render, logger }) {
   return {
     checkForUpdates,
     scheduleUpdateChecks,
-    setUpdateStatus
+    setUpdateStatus,
   };
 }

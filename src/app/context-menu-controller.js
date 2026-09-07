@@ -153,7 +153,11 @@ export function createContextMenuController({
         }
         case "refresh-quota": {
           if (refreshQuota) {
-            await refreshQuota();
+            try {
+              await refreshQuota();
+            } finally {
+              syncQuickMenuData();
+            }
           }
           break;
         }

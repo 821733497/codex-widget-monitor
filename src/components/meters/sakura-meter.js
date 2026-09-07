@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { create3DMeterBase } from "./meter-base-3d.js";
 
-const PETAL_COUNT = 36;
+const PETAL_COUNT = 54;
 
 export function mount(root) {
   let waveMesh1 = null;
@@ -26,6 +26,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.92 },
@@ -35,14 +38,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            // 优雅柔顺轻盈樱浪
-            float wave = sin(pos.x * 3.8 + uTime * 2.2) * 0.038
-                       + cos(pos.x * 2.4 - uTime * 1.6) * 0.022;
-            vHeight = pos.y - (uWaterLevel + wave);
+            float turb = 1.0 + uWaveTurbulence * 1.5;
+            float wave = (sin(pos.x * 3.8 + uTime * 2.0) * 0.048
+                       + cos(pos.x * 2.4 - uTime * 1.5) * 0.026) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.35;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -78,6 +86,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.46 },
@@ -87,13 +98,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            float wave = sin(pos.x * 3.0 - uTime * 1.8 + 0.8) * 0.032
-                       + cos(pos.x * 1.6 + uTime * 1.2) * 0.018;
-            vHeight = pos.y - (uWaterLevel + wave - 0.032);
+            float turb = 1.0 + uWaveTurbulence * 1.3;
+            float wave = (sin(pos.x * 3.0 - uTime * 1.6 + 0.8) * 0.038
+                       + cos(pos.x * 1.6 + uTime * 1.2) * 0.022) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle * 0.85);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.30;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave - 0.032);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -145,27 +162,75 @@ export function mount(root) {
       petalParticles = new THREE.Points(petalGeo, petalMat);
       scene.add(petalParticles);
     },
-    onRenderTick({ timeSec, delta, waterLevelY, currentColorTop }) {
+    onRenderTick({
+      timeSec,
+      delta,
+      waterLevelY,
+      currentColorTop,
+      sloshAngle = 0,
+      sloshOffset = 0,
+      waveTurbulence = 0,
+      agitation = 0,
+    }) {
       if (waveMesh1) {
         waveMesh1.material.uniforms.uTime.value = timeSec;
         waveMesh1.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh1.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh1.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh1.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
       if (waveMesh2) {
         waveMesh2.material.uniforms.uTime.value = timeSec;
         waveMesh2.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh2.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh2.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh2.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
+      // 落樱花瓣与水浪气泡群更新 (Agitation Dynamic Petal Bubbles)
       if (petalParticles && petalPositions) {
+        const minActive = 10;
+        const activeCount = Math.round(
+          minActive + (PETAL_COUNT - minActive) * Math.min(1, agitation * 1.5),
+        );
+        const speedMult = 1.0 + agitation * 2.4 + waveTurbulence * 0.4;
+
+        if (petalParticles.material) {
+          petalParticles.material.opacity = Math.min(
+            0.96,
+            0.68 + agitation * 0.28,
+          );
+        }
+
         for (let i = 0; i < PETAL_COUNT; i++) {
-          petalPositions[i * 3 + 1] += petalSpeeds[i] * delta;
-          petalPositions[i * 3] += Math.sin(timeSec * 2.0 + i) * 0.003;
+          const idx = i * 3;
+          if (i >= activeCount) {
+            petalPositions[idx + 1] = -2.0;
+            continue;
+          }
+
+          if (petalPositions[idx + 1] < -1.1) {
+            petalPositions[idx + 1] = -0.95 + Math.random() * 0.2;
+            petalPositions[idx] = (Math.random() - 0.5) * 1.3;
+          }
+
+          petalPositions[idx + 1] += petalSpeeds[i] * speedMult * delta;
+          petalPositions[idx] +=
+            (Math.sin(timeSec * 3.2 + i * 1.4) * 0.0035 +
+              sloshAngle * delta * 0.1) *
+            (1.0 + agitation * 1.5);
+
+          const px = petalPositions[idx];
+          const dome = Math.max(0.0, 1.0 - px * px * 1.8) * sloshOffset * 0.35;
+          const currentWaterSurface =
+            waterLevelY + sloshOffset + dome - px * Math.sin(sloshAngle);
 
           if (
-            petalPositions[i * 3 + 1] > waterLevelY ||
-            petalPositions[i * 3 + 1] > 0.85
+            petalPositions[idx + 1] > currentWaterSurface ||
+            petalPositions[idx + 1] > 0.88
           ) {
-            petalPositions[i * 3 + 1] = -0.95 + Math.random() * 0.15;
-            petalPositions[i * 3] = (Math.random() - 0.5) * 1.3;
+            petalPositions[idx + 1] = -0.95 + Math.random() * 0.15;
+            petalPositions[idx] = (Math.random() - 0.5) * 1.3;
           }
         }
         petalParticles.geometry.attributes.position.needsUpdate = true;

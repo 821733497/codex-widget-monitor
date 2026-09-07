@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { create3DMeterBase } from "./meter-base-3d.js";
 
-const SPORE_COUNT = 36;
+const SPORE_COUNT = 54;
 
 export function mount(root) {
   let waveMesh1 = null;
@@ -26,6 +26,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.88 },
@@ -35,14 +38,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            // 极光律动波浪
-            float wave = sin(pos.x * 3.8 + uTime * 2.2) * 0.042
-                       + cos(pos.x * 2.5 - uTime * 1.7) * 0.026;
-            vHeight = pos.y - (uWaterLevel + wave);
+            float turb = 1.0 + uWaveTurbulence * 1.5;
+            float wave = (sin(pos.x * 3.8 + uTime * 2.0) * 0.050
+                       + cos(pos.x * 2.5 - uTime * 1.5) * 0.030) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.35;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -80,6 +88,9 @@ export function mount(root) {
         uniforms: {
           uTime: { value: 0 },
           uWaterLevel: { value: 0.0 },
+          uSloshAngle: { value: 0.0 },
+          uSloshOffset: { value: 0.0 },
+          uWaveTurbulence: { value: 0.0 },
           uColorTop: { value: currentColorTop },
           uColorBottom: { value: currentColorBottom },
           uOpacity: { value: 0.45 },
@@ -89,13 +100,19 @@ export function mount(root) {
           varying float vHeight;
           uniform float uTime;
           uniform float uWaterLevel;
+          uniform float uSloshAngle;
+          uniform float uSloshOffset;
+          uniform float uWaveTurbulence;
 
           void main() {
             vUv = uv;
             vec3 pos = position;
-            float wave = cos(pos.x * 3.4 + uTime * 1.5) * 0.032
-                       + sin(pos.x * 2.2 - uTime * 2.0) * 0.028;
-            vHeight = pos.y - (uWaterLevel + wave);
+            float turb = 1.0 + uWaveTurbulence * 1.3;
+            float wave = (cos(pos.x * 3.4 + uTime * 1.4) * 0.038
+                       + sin(pos.x * 2.2 - uTime * 1.7) * 0.030) * turb;
+            float sloshY = -pos.x * sin(uSloshAngle * 0.85);
+            float verticalDome = max(0.0, 1.0 - pos.x * pos.x * 1.8) * uSloshOffset * 0.30;
+            vHeight = pos.y - (uWaterLevel + uSloshOffset + verticalDome + sloshY + wave);
             gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
           }
         `,
@@ -151,28 +168,73 @@ export function mount(root) {
       spores = new THREE.Points(sporeGeo, sporeMat);
       scene.add(spores);
     },
-    onRenderTick({ timeSec, delta, waterLevelY, currentColorTop }) {
+    onRenderTick({
+      timeSec,
+      delta,
+      waterLevelY,
+      currentColorTop,
+      sloshAngle = 0,
+      sloshOffset = 0,
+      waveTurbulence = 0,
+      agitation = 0,
+    }) {
       if (waveMesh1) {
         waveMesh1.material.uniforms.uTime.value = timeSec;
         waveMesh1.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh1.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh1.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh1.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
       if (waveMesh2) {
         waveMesh2.material.uniforms.uTime.value = timeSec;
         waveMesh2.material.uniforms.uWaterLevel.value = waterLevelY;
+        waveMesh2.material.uniforms.uSloshAngle.value = sloshAngle;
+        waveMesh2.material.uniforms.uSloshOffset.value = sloshOffset;
+        waveMesh2.material.uniforms.uWaveTurbulence.value = waveTurbulence;
       }
 
+      // 翡翠激荡水珠气泡群更新 (Agitation Dynamic Spore Bubbles)
       if (spores && sporePositions) {
+        const minActive = 10;
+        const activeCount = Math.round(
+          minActive + (SPORE_COUNT - minActive) * Math.min(1, agitation * 1.5),
+        );
+        const speedMult = 1.0 + agitation * 2.4 + waveTurbulence * 0.4;
+
+        if (spores.material) {
+          spores.material.opacity = Math.min(0.96, 0.68 + agitation * 0.28);
+        }
+
         for (let i = 0; i < SPORE_COUNT; i++) {
-          sporePositions[i * 3 + 1] += sporeSpeeds[i] * delta;
-          sporePositions[i * 3] += Math.sin(timeSec * 2.2 + i) * 0.0022;
+          const idx = i * 3;
+          if (i >= activeCount) {
+            sporePositions[idx + 1] = -2.0;
+            continue;
+          }
+
+          if (sporePositions[idx + 1] < -1.1) {
+            sporePositions[idx + 1] = -0.95 + Math.random() * 0.2;
+            sporePositions[idx] = (Math.random() - 0.5) * 1.3;
+          }
+
+          sporePositions[idx + 1] += sporeSpeeds[i] * speedMult * delta;
+          sporePositions[idx] +=
+            (Math.sin(timeSec * 3.4 + i * 1.25) * 0.003 +
+              sloshAngle * delta * 0.1) *
+            (1.0 + agitation * 1.5);
+
+          const px = sporePositions[idx];
+          const dome = Math.max(0.0, 1.0 - px * px * 1.8) * sloshOffset * 0.35;
+          const currentWaterSurface =
+            waterLevelY + sloshOffset + dome - px * Math.sin(sloshAngle);
 
           if (
-            sporePositions[i * 3 + 1] > waterLevelY ||
-            sporePositions[i * 3 + 1] > 0.85
+            sporePositions[idx + 1] > currentWaterSurface ||
+            sporePositions[idx + 1] > 0.88
           ) {
-            sporePositions[i * 3 + 1] = -0.95 + Math.random() * 0.15;
-            sporePositions[i * 3] = (Math.random() - 0.5) * 1.3;
+            sporePositions[idx + 1] = -0.95 + Math.random() * 0.15;
+            sporePositions[idx] = (Math.random() - 0.5) * 1.3;
           }
         }
         spores.geometry.attributes.position.needsUpdate = true;

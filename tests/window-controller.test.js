@@ -11,11 +11,17 @@ const WORK_AREA = {
 
 describe("窗口模式事务", () => {
   let originalWindow;
+  let originalRaf;
+  let originalCaf;
 
   beforeEach(() => {
     originalWindow = globalThis.window;
+    originalRaf = globalThis.requestAnimationFrame;
+    originalCaf = globalThis.cancelAnimationFrame;
     vi.useFakeTimers();
     globalThis.window = globalThis;
+    globalThis.requestAnimationFrame = vi.fn((cb) => setTimeout(cb, 16));
+    globalThis.cancelAnimationFrame = vi.fn((id) => clearTimeout(id));
   });
 
   afterEach(() => {
@@ -25,6 +31,16 @@ describe("窗口模式事务", () => {
       delete globalThis.window;
     } else {
       globalThis.window = originalWindow;
+    }
+    if (originalRaf === undefined) {
+      delete globalThis.requestAnimationFrame;
+    } else {
+      globalThis.requestAnimationFrame = originalRaf;
+    }
+    if (originalCaf === undefined) {
+      delete globalThis.cancelAnimationFrame;
+    } else {
+      globalThis.cancelAnimationFrame = originalCaf;
     }
   });
 
@@ -222,6 +238,79 @@ describe("窗口模式事务", () => {
 
     expect(fixture.state.widgetMode).toBe(WIDGET_MODES.PANEL);
   });
+
+  it("悬浮球在屏幕内正常展开时单击触发切换托盘概览卡片", async () => {
+    const fixture = createFixture({ initialMode: WIDGET_MODES.BALL });
+    fixture.controller.bindEvents();
+
+    await fixture.els.widget.emit("pointerdown", {
+      button: 0,
+      pointerId: 1,
+      screenX: 600,
+      screenY: 240,
+      preventDefault: vi.fn(),
+    });
+    await fixture.els.widget.emit("pointerup", {
+      button: 0,
+      pointerId: 1,
+      screenX: 600,
+      screenY: 240,
+      preventDefault: vi.fn(),
+    });
+
+    expect(fixture.service.commands.toggleTrayPreview).toHaveBeenCalledOnce();
+  });
+
+  it("悬浮球在边缘吸附时单击仅展开悬浮球且不触发托盘卡片", async () => {
+    const fixture = createFixture({ initialMode: WIDGET_MODES.BALL });
+    fixture.state.ballDock = "right";
+    fixture.controller.bindEvents();
+
+    await fixture.els.widget.emit("pointerdown", {
+      button: 0,
+      pointerId: 1,
+      screenX: 1900,
+      screenY: 240,
+      preventDefault: vi.fn(),
+    });
+    await fixture.els.widget.emit("pointerup", {
+      button: 0,
+      pointerId: 1,
+      screenX: 1900,
+      screenY: 240,
+      preventDefault: vi.fn(),
+    });
+
+    expect(fixture.state.ballDock).toBeNull();
+    expect(fixture.service.commands.toggleTrayPreview).not.toHaveBeenCalled();
+  });
+
+  it("拖动悬浮球超过阈值松手时不触发托盘卡片", async () => {
+    const fixture = createFixture({ initialMode: WIDGET_MODES.BALL });
+    fixture.controller.bindEvents();
+
+    await fixture.els.widget.emit("pointerdown", {
+      button: 0,
+      pointerId: 1,
+      screenX: 600,
+      screenY: 240,
+      preventDefault: vi.fn(),
+    });
+    await fixture.els.widget.emit("pointermove", {
+      pointerId: 1,
+      screenX: 650,
+      screenY: 240,
+    });
+    await fixture.els.widget.emit("pointerup", {
+      button: 0,
+      pointerId: 1,
+      screenX: 650,
+      screenY: 240,
+      preventDefault: vi.fn(),
+    });
+
+    expect(fixture.service.commands.toggleTrayPreview).not.toHaveBeenCalled();
+  });
 });
 
 function createFixture({
@@ -256,6 +345,7 @@ function createFixture({
       closeApp: vi.fn(),
       hideWindow: vi.fn(),
       setSkipTaskbar: vi.fn(),
+      toggleTrayPreview: vi.fn(),
     },
     window: {
       availableMonitors: vi.fn(async () => [{ workArea: WORK_AREA }]),

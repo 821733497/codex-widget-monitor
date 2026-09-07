@@ -42,14 +42,19 @@ describe("更新控制器", () => {
         onEvent({ event: "Progress", data: { chunkLength: 40 } });
         onEvent({ event: "Progress", data: { chunkLength: 60 } });
         onEvent({ event: "Finished" });
-      }
+      },
     };
-    const fixture = createFixture(async () => update, (status) => statuses.push(status && { ...status }));
+    const fixture = createFixture(
+      async () => update,
+      (status) => statuses.push(status && { ...status }),
+    );
     fixture.state.settings.updateProxy = "http://127.0.0.1:7890";
 
     await fixture.controller.checkForUpdates({ manual: true });
 
-    expect(fixture.service.updater.check).toHaveBeenCalledWith({ proxy: "http://127.0.0.1:7890" });
+    expect(fixture.service.updater.check).toHaveBeenCalledWith({
+      proxy: "http://127.0.0.1:7890",
+    });
     expect(statuses).toContainEqual({ type: "downloading", percent: 40 });
     expect(statuses).toContainEqual({ type: "downloading", percent: 100 });
     expect(fixture.state.updateStatus).toEqual({ type: "ready" });
@@ -64,19 +69,58 @@ describe("更新控制器", () => {
     expect(fixture.service.updater.check).not.toHaveBeenCalled();
     expect(fixture.state.updateTimer).toBeNull();
   });
+
+  it("开发模式下后台定时自动更新不发起检查", () => {
+    const fixture = createFixture(
+      async () => null,
+      () => {},
+      { isDev: true },
+    );
+    fixture.state.settings.autoUpdateEnabled = true;
+
+    fixture.controller.scheduleUpdateChecks();
+
+    expect(fixture.service.updater.check).not.toHaveBeenCalled();
+    expect(fixture.state.updateTimer).toBeNull();
+  });
+
+  it("开发模式下手动作检查发现新版本时设置 devMode 状态且不触发下载安装", async () => {
+    const downloadAndInstall = vi.fn();
+    const update = {
+      version: "9.9.9",
+      downloadAndInstall,
+    };
+    const fixture = createFixture(
+      async () => update,
+      () => {},
+      {
+        isDev: true,
+      },
+    );
+
+    await fixture.controller.checkForUpdates({ manual: true });
+
+    expect(fixture.service.updater.check).toHaveBeenCalledOnce();
+    expect(downloadAndInstall).not.toHaveBeenCalled();
+    expect(fixture.state.updateStatus).toEqual({
+      type: "devMode",
+      version: "9.9.9",
+    });
+  });
 });
 
-function createFixture(check, onRender = () => {}) {
+function createFixture(check, onRender = () => {}, { isDev = false } = {}) {
   const state = createAppState();
   const service = {
     isAvailable: () => true,
-    updater: { check: vi.fn(check) }
+    updater: { check: vi.fn(check) },
   };
   const controller = createUpdateController({
     state,
     service,
     render: () => onRender(state.updateStatus),
-    logger: { error: vi.fn() }
+    logger: { error: vi.fn(), info: vi.fn() },
+    isDev,
   });
   return { controller, service, state };
 }
