@@ -620,6 +620,8 @@ body[data-theme="sakura"] .source-inline-form {
 
 .settings-field {
   display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
   min-width: 0;
   gap: 5px;
 }

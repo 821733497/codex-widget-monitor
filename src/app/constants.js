@@ -1,3 +1,5 @@
+import packageJson from "../../package.json";
+
 export const DEFAULT_SETTINGS = {
   codexCliPath: "",
   updateProxy: "",
@@ -21,7 +23,7 @@ export const DEFAULT_SETTINGS = {
   activeTarget: { type: "official" },
 };
 
-export const APP_VERSION_LABEL = "v1.0.6";
+export const APP_VERSION_LABEL = `v${packageJson.version}`;
 export const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 export const WIDGET_MODES = {
   PANEL: "panel",

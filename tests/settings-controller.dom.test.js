@@ -161,6 +161,40 @@ describe("设置面板", () => {
     expect(fixture.state.settingsOpen).toBe(false);
   });
 
+  it("点击关于卡片的检查更新按钮触发手动检查", () => {
+    const checkForUpdates = vi.fn();
+    const fixture = createFixture(vi.fn().mockResolvedValue({}), {
+      checkForUpdates,
+    });
+    fixture.open();
+
+    fixture.els.aboutCheckUpdateBtn.click();
+
+    expect(checkForUpdates).toHaveBeenCalledOnce();
+  });
+
+  it("检查更新期间禁用按钮并展示结果状态", () => {
+    const fixture = createFixture(vi.fn().mockResolvedValue({}));
+    fixture.open();
+
+    fixture.state.updateChecking = true;
+    fixture.controller.renderSettingsPanel(i18n.zh);
+    expect(fixture.els.aboutCheckUpdateBtn.disabled).toBe(true);
+    expect(fixture.els.aboutCheckUpdateBtn.getAttribute("aria-busy")).toBe(
+      "true",
+    );
+    expect(fixture.els.aboutCheckUpdateText.textContent).toBe("正在检查更新...");
+
+    fixture.state.updateChecking = false;
+    fixture.state.updateStatus = { type: "latest" };
+    fixture.controller.renderSettingsPanel(i18n.zh);
+    expect(fixture.els.aboutCheckUpdateBtn.disabled).toBe(false);
+    expect(fixture.els.aboutCheckUpdateBtn.getAttribute("aria-busy")).toBe(
+      "false",
+    );
+    expect(fixture.els.aboutCheckUpdateText.textContent).toBe("已是最新版本");
+  });
+
   it("macOS 可预览并自动保存隐藏 Dock 图标设置", async () => {
     const fixture = createFixture(vi.fn().mockResolvedValue({}), {
       isMacOS: true,
@@ -356,7 +390,12 @@ describe("设置面板", () => {
 
 function createFixture(
   persistSettings,
-  { locale = "zh", isMacOS = false, setWidgetMode } = {},
+  {
+    locale = "zh",
+    isMacOS = false,
+    setWidgetMode,
+    checkForUpdates = vi.fn(),
+  } = {},
 ) {
   loadApplicationMarkup();
   const els = createElements();
@@ -381,6 +420,7 @@ function createFixture(
     readCurrentWindowPosition: vi.fn().mockResolvedValue(null),
     mergeWindowPosition: (settings) => settings,
     setUpdateStatus: vi.fn(),
+    checkForUpdates,
     scheduleAutoRefresh,
     refreshQuota,
     scheduleUpdateChecks,

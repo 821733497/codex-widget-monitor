@@ -12,6 +12,7 @@ import { createCustomSelectController } from "./custom-select.js";
 import { createDialogFocusManager } from "./dialog-focus.js";
 import { detectMacOS } from "./platform.js";
 import { syncSettingsDraftFromSettings } from "./state.js";
+import { formatUpdateStatus } from "./update-status.js";
 import {
   normalizeBallSize,
   normalizeBallSnapStyle,
@@ -263,10 +264,18 @@ export function createSettingsController({
       els.aboutAppDesc.textContent = text.appDescription || "";
     }
     if (els.aboutCheckUpdateText) {
-      els.aboutCheckUpdateText.textContent = text.checkUpdate || "检查更新";
+      const updateStatusText = state.updateChecking
+        ? text.checkingUpdate
+        : formatUpdateStatus(text, state.updateStatus);
+      els.aboutCheckUpdateText.textContent =
+        updateStatusText || text.checkUpdate || "检查更新";
     }
     if (els.aboutCheckUpdateBtn) {
       els.aboutCheckUpdateBtn.disabled = Boolean(state.updateChecking);
+      els.aboutCheckUpdateBtn.setAttribute(
+        "aria-busy",
+        String(Boolean(state.updateChecking)),
+      );
     }
   }
 
