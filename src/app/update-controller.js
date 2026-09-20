@@ -1,4 +1,7 @@
-import { UPDATE_CHECK_INTERVAL_MS } from "./constants.js";
+import {
+  UPDATE_CHECK_INTERVAL_MS,
+  UPDATE_CHECK_TIMEOUT_MS,
+} from "./constants.js";
 
 const TRANSIENT_STATUS_DURATION_MS = 1800;
 const TRANSIENT_STATUS_TYPES = new Set([
@@ -168,7 +171,10 @@ export function createUpdateController({
 
   function updateCheckOptions() {
     const proxy = state.settings.updateProxy?.trim();
-    return proxy ? { proxy } : undefined;
+    return {
+      timeout: UPDATE_CHECK_TIMEOUT_MS,
+      ...(proxy ? { proxy } : {}),
+    };
   }
 
   return {

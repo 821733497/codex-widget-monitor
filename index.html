@@ -454,54 +454,54 @@
           hidden
           data-no-drag
         >
-          <div class="settings-field settings-row">
-            <div class="settings-copy">
-              <span id="autoStartLabel">开机自启</span>
-              <small id="autoStartHint"
+          <div class="settings-field">
+            <span id="autoStartLabel">开机自启</span>
+            <label class="switch-field-row" data-no-drag>
+              <small id="autoStartHint" class="switch-hint"
                 >登录系统后自动启动本应用，仅对当前用户生效。</small
               >
-            </div>
-            <label class="switch-control" data-no-drag>
-              <input id="autoStartSwitch" type="checkbox" data-no-drag />
-              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-control" data-no-drag>
+                <input id="autoStartSwitch" type="checkbox" data-no-drag />
+                <span class="switch-track" aria-hidden="true"></span>
+              </span>
             </label>
           </div>
 
-          <div class="settings-field settings-row">
-            <div class="settings-copy">
-              <span id="autoUpdateLabel">自动更新</span>
-              <small id="autoUpdateHint"
+          <div class="settings-field">
+            <span id="autoUpdateLabel">自动更新</span>
+            <label class="switch-field-row" data-no-drag>
+              <small id="autoUpdateHint" class="switch-hint"
                 >依赖 GitHub，网络不可达时可能需要配置代理。</small
               >
-            </div>
-            <label class="switch-control" data-no-drag>
-              <input
-                id="autoUpdateSwitch"
-                type="checkbox"
-                data-no-drag
-                checked
-              />
-              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-control" data-no-drag>
+                <input
+                  id="autoUpdateSwitch"
+                  type="checkbox"
+                  data-no-drag
+                  checked
+                />
+                <span class="switch-track" aria-hidden="true"></span>
+              </span>
             </label>
           </div>
 
-          <div id="hideDockIconRow" class="settings-field settings-row" hidden>
-            <div class="settings-copy">
-              <span id="hideDockIconLabel">隐藏 Dock 图标</span>
-              <small id="hideDockIconHint"
+          <div id="hideDockIconRow" class="settings-field" hidden>
+            <span id="hideDockIconLabel">隐藏 Dock 图标</span>
+            <label class="switch-field-row" data-no-drag>
+              <small id="hideDockIconHint" class="switch-hint"
                 >仅 macOS。开启后隐藏 Dock
                 图标，仅保留菜单栏图标作为入口。</small
               >
-            </div>
-            <label class="switch-control" data-no-drag>
-              <input
-                id="hideDockIconSwitch"
-                type="checkbox"
-                data-no-drag
-                aria-labelledby="hideDockIconLabel"
-                aria-describedby="hideDockIconHint"
-              />
-              <span class="switch-track" aria-hidden="true"></span>
+              <span class="switch-control" data-no-drag>
+                <input
+                  id="hideDockIconSwitch"
+                  type="checkbox"
+                  data-no-drag
+                  aria-labelledby="hideDockIconLabel"
+                  aria-describedby="hideDockIconHint"
+                />
+                <span class="switch-track" aria-hidden="true"></span>
+              </span>
             </label>
           </div>
 

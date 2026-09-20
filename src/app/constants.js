@@ -25,6 +25,7 @@ export const DEFAULT_SETTINGS = {
 
 export const APP_VERSION_LABEL = `v${packageJson.version}`;
 export const UPDATE_CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
+export const UPDATE_CHECK_TIMEOUT_MS = 15 * 1000;
 export const WIDGET_MODES = {
   PANEL: "panel",
   BALL: "ball",

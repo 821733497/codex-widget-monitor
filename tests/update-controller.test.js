@@ -53,6 +53,7 @@ describe("更新控制器", () => {
     await fixture.controller.checkForUpdates({ manual: true });
 
     expect(fixture.service.updater.check).toHaveBeenCalledWith({
+      timeout: 15_000,
       proxy: "http://127.0.0.1:7890",
     });
     expect(statuses).toContainEqual({ type: "downloading", percent: 40 });
@@ -105,6 +106,16 @@ describe("更新控制器", () => {
     expect(fixture.state.updateStatus).toEqual({
       type: "devMode",
       version: "9.9.9",
+    });
+  });
+
+  it("无代理时也为版本检查设置超时", async () => {
+    const fixture = createFixture(async () => null);
+
+    await fixture.controller.checkForUpdates({ manual: true });
+
+    expect(fixture.service.updater.check).toHaveBeenCalledWith({
+      timeout: 15_000,
     });
   });
 });

@@ -627,7 +627,7 @@ body[data-theme="sakura"] .source-inline-form {
 }
 
 .settings-field[hidden] {
-  display: none;
+  display: none !important;
 }
 
 /* 路径选择行及全宽行占满双列 */
@@ -636,7 +636,7 @@ body[data-theme="sakura"] .source-inline-form {
   grid-column: 1 / -1;
 }
 
-/* 开关行样式：作为独立卡片优雅呈现，文字居左，开关居右垂直居中 */
+/* 开关行样式：兼容独立卡片展示 */
 .settings-field.settings-row,
 .settings-row {
   display: flex !important;
@@ -659,6 +659,73 @@ body[data-theme="sakura"] .source-inline-form {
 .settings-row:hover {
   background: rgba(0, 0, 0, 0.28);
   border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* 统一表单开关控件槽：与输入框/下拉框同高 33px、同底色与边框，左侧说明、右侧开关 */
+.switch-field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 33px;
+  min-width: 0;
+  padding: 0 6px 0 10px;
+  border-radius: 8px;
+  background: var(--settings-control-background);
+  box-shadow: inset 0 0 0 1px var(--settings-control-border);
+  box-sizing: border-box;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.switch-field-row:hover {
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.switch-field-row:focus-within {
+  box-shadow:
+    inset 0 0 0 1px var(--settings-accent-color),
+    0 0 0 2px var(--settings-accent-soft);
+}
+
+.switch-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--settings-muted-color);
+  font-size: 11px;
+  line-height: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.switch-field-row:hover .switch-hint {
+  color: var(--settings-text-color);
+}
+
+.switch-field-row:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.switch-field-row:has(input:disabled) .switch-control,
+.switch-field-row:has(input:disabled) .switch-control input {
+  cursor: not-allowed;
+}
+
+.switch-field-row .switch-track {
+  background: rgba(0, 0, 0, 0.32);
+}
+
+.switch-field-row .switch-control input:checked + .switch-track {
+  background: var(--settings-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--settings-accent-color);
 }
 
 .settings-copy {
