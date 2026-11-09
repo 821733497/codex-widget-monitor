@@ -21,6 +21,7 @@ export default defineConfig({
         main: resolve(__dirname, "index.html"),
         quickMenu: resolve(__dirname, "quick-menu.html"),
         trayPreview: resolve(__dirname, "tray-preview.html"),
+        taskbar: resolve(__dirname, "taskbar.html"),
       },
     },
   },

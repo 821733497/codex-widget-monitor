@@ -1,0 +1,521 @@
+:root {
+  color-scheme: light dark;
+
+  /* 基础文本与色调（浅色模式） */
+  --fg: #0f172a;
+  --muted: #334155;
+  --accent: #6d28d9;
+  --accent-bg: rgba(109, 40, 217, 0.08);
+  --warning: #c2410c;
+
+  /* 文字防吞底微光晕（浅色模式：以细致浅色边缘强化反差，保证全透明下在深蓝与杂色壁纸上清晰可读） */
+  --text-halo: 0 1px 2px rgba(255, 255, 255, 0.85), 0 0 1px rgba(255, 255, 255, 0.95);
+
+  /* 按钮交互 */
+  --btn-hover: rgba(0, 0, 0, 0.07);
+  --btn-active: rgba(0, 0, 0, 0.12);
+  --divider: rgba(0, 0, 0, 0.15);
+
+  /* 桌面自由悬浮背景（浅色模式） */
+  --floating-bg: rgba(255, 255, 255, 0.94);
+  --floating-border: rgba(0, 0, 0, 0.12);
+  --floating-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
+
+  /* 弹窗 Flyout 质感（浅色模式） */
+  --popup-bg: rgba(255, 255, 255, 0.94);
+  --popup-border: rgba(0, 0, 0, 0.09);
+  --popup-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.06);
+  --popup-footer-bg: rgba(0, 0, 0, 0.02);
+  --popup-item-hover: rgba(0, 0, 0, 0.05);
+  --popup-item-active: rgba(0, 0, 0, 0.09);
+
+  /* 滚动条（浅色模式） */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.18);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.35);
+
+  font: 12px/1.25 "Segoe UI", "Microsoft YaHei", sans-serif;
+  color: var(--fg);
+  background: transparent;
+  user-select: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 基础文本与色调（深色模式） */
+    --fg: #f8fafc;
+    --muted: #cbd5e1;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.14);
+    --warning: #fb923c;
+
+    /* 文字防吞底微光晕（深色模式：以细致深色边缘强化反差，保证全透明下在浅色与亮色壁纸上清晰可读） */
+    --text-halo: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 1px rgba(0, 0, 0, 0.95);
+
+    /* 按钮交互 */
+    --btn-hover: rgba(255, 255, 255, 0.1);
+    --btn-active: rgba(255, 255, 255, 0.16);
+    --divider: rgba(255, 255, 255, 0.16);
+
+    /* 桌面自由悬浮背景（深色模式） */
+    --floating-bg: rgba(30, 34, 42, 0.92);
+    --floating-border: rgba(255, 255, 255, 0.14);
+    --floating-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+    /* 弹窗 Flyout 质感（深色模式） */
+    --popup-bg: rgba(30, 33, 40, 0.92);
+    --popup-border: rgba(255, 255, 255, 0.12);
+    --popup-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 3px 8px rgba(0, 0, 0, 0.25);
+    --popup-footer-bg: rgba(255, 255, 255, 0.02);
+    --popup-item-hover: rgba(255, 255, 255, 0.08);
+    --popup-item-active: rgba(255, 255, 255, 0.14);
+
+    /* 滚动条（深色模式） */
+    --scrollbar-thumb: rgba(255, 255, 255, 0.22);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.4);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+button {
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+button:hover {
+  background: var(--btn-hover);
+}
+
+button:active {
+  background: var(--btn-active);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* 底栏主容器：吸附在任务栏时保持 100% 全透明，纯粹透出壁纸与任务栏，无任何底色与滤镜 */
+#taskbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-variant-numeric: tabular-nums;
+  background: transparent;
+  box-shadow: none;
+  transition: background-color 0.2s ease;
+}
+
+/* 文字微光晕轮廓：保持全透明的前提下，无论底图是深蓝还是浅蓝，均形成清晰的笔画反差 */
+#site,
+#account,
+.label,
+.value,
+#refresh,
+#choose,
+#grip {
+  text-shadow: var(--text-halo);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 弹窗内部有独立背景，不继承底栏文字阴影 */
+#popup,
+#popup * {
+  text-shadow: none;
+}
+
+/* 仅在自由悬浮（拖出任务栏悬浮于桌面）时才渲染卡片实体底色 */
+body[data-docked="false"] #taskbar {
+  background: var(--floating-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--floating-shadow), inset 0 0 0 1px var(--floating-border);
+}
+
+/* 拖动手柄 */
+#grip {
+  flex: 0 0 14px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: grab;
+  touch-action: none;
+}
+
+#grip:active {
+  cursor: grabbing;
+}
+
+/* 来源与账户区 */
+.provider {
+  display: flex;
+  align-items: center;
+  flex: 0 0 88px;
+  min-width: 0;
+  border-right: 1px solid var(--divider);
+  padding-right: 4px;
+  gap: 2px;
+}
+
+#source {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  text-align: left;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+#site {
+  font-weight: 600;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#account {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+body[data-error="true"] #account {
+  color: var(--warning);
+}
+
+#choose {
+  flex: 0 0 16px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* 三栏额度指标 */
+#metrics {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  height: 32px;
+  text-align: left;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+.label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.value {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.metric[data-warning="true"] .value {
+  color: var(--warning);
+}
+
+/* 刷新按钮 */
+#refresh {
+  flex: 0 0 24px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--muted);
+}
+
+#refresh:hover {
+  color: var(--fg);
+}
+
+#refresh:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+/* 弹出菜单 Flyout */
+#popup {
+  position: absolute;
+  bottom: 48px;
+  max-width: calc(100% - 16px);
+  max-height: calc(100% - 54px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--popup-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--popup-border);
+  box-shadow: var(--popup-shadow);
+  z-index: 100;
+}
+
+/* 来源选择弹窗：左对齐 */
+#popup[data-kind="sources"] {
+  left: 8px;
+  right: auto;
+  width: 250px;
+}
+
+/* 详情弹窗：右对齐 */
+#popup[data-kind="details"] {
+  right: 8px;
+  left: auto;
+  width: 260px;
+}
+
+/* 详情弹窗彻底禁止滚动条：100% 完整展示所有指标与重置时间 */
+#popup[data-kind="details"] .popup-body {
+  overflow-y: hidden;
+}
+
+/* 弹窗内容区 */
+.popup-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.popup-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.popup-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.popup-body::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.popup-body::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* 选项菜单项 */
+.popup-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  text-align: left;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--fg);
+}
+
+.popup-item:hover {
+  background: var(--popup-item-hover);
+}
+
+.popup-item:active {
+  background: var(--popup-item-active);
+}
+
+.popup-item[aria-checked="true"] {
+  color: var(--accent);
+  background: var(--accent-bg);
+  font-weight: 600;
+}
+
+.item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-check {
+  flex: 0 0 14px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* 分组标题 */
+.group-title {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 8px 2px;
+  user-select: none;
+}
+
+/* 详情指标项：紧凑精致，杜绝微溢出 */
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 5px 8px;
+  border-radius: 4px;
+  background: var(--popup-item-hover);
+}
+
+.detail-label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.detail-value {
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.detail-desc {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+/* 错误信息展示 */
+.popup-error {
+  color: var(--warning);
+  font-size: 11px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  overflow-wrap: anywhere;
+}
+
+/* 底部操作固定区 */
+.popup-actions {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--divider);
+  padding: 4px 6px;
+  background: var(--popup-footer-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--fg);
+}
+
+.action-btn:hover {
+  background: var(--popup-item-hover);
+}
+
+.action-btn:active {
+  background: var(--popup-item-active);
+}
+
+/* 拖拽吸附高亮与预览状态 */
+body[data-snap="true"] #taskbar {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+body.preview #taskbar {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+  border: 1px dashed var(--accent);
+}
+
+body.preview #taskbar > * {
+  visibility: hidden;
+}
+
+@media (max-width: 340px) {
+  #taskbar {
+    gap: 4px;
+  }
+  .provider {
+    flex-basis: 74px;
+  }
+  #metrics {
+    gap: 4px;
+  }
+  .value {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body[data-loading="true"] #refresh {
+    animation: spin 1.5s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}

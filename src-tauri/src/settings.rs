@@ -154,6 +154,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub hide_dock_icon: bool,
     #[serde(default)]
+    pub taskbar_enabled: bool,
+    #[serde(default)]
     pub onboarding_seen: bool,
     #[serde(default)]
     pub log_level: LogLevel,
@@ -189,6 +191,7 @@ impl Default for AppSettings {
             auto_update_enabled: DEFAULT_AUTO_UPDATE_ENABLED,
             auto_start_enabled: DEFAULT_AUTO_START_ENABLED,
             hide_dock_icon: false,
+            taskbar_enabled: false,
             onboarding_seen: false,
             log_level: LogLevel::default(),
             widget_mode: WidgetMode::default(),
@@ -526,6 +529,7 @@ mod tests {
             auto_update_enabled: false,
             auto_start_enabled: true,
             hide_dock_icon: true,
+            taskbar_enabled: true,
             onboarding_seen: true,
             log_level: LogLevel::Debug,
             widget_mode: WidgetMode::Ball,

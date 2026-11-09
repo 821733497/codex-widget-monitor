@@ -34,11 +34,13 @@ export function createQuotaController({ state, service, render, normalizeError, 
   }
 
   async function refreshQuotaOnce() {
+    const source = JSON.stringify(state.settings.activeTarget);
     startQuotaRefresh();
     render();
 
     try {
       const quota = await service.commands.getQuota();
+      if (source !== JSON.stringify(state.settings.activeTarget)) return;
       applyQuotaSuccess(quota);
       const hasAppServerExpiries = applyAppServerResetCreditExpiries(quota);
       render();
@@ -46,6 +48,7 @@ export function createQuotaController({ state, service, render, normalizeError, 
         refreshResetCreditExpiriesFromHttp();
       }
     } catch (error) {
+      if (source !== JSON.stringify(state.settings.activeTarget)) return;
       applyQuotaError(error);
       render();
     }

@@ -229,7 +229,7 @@ export function createSettingsController({
     render();
     focusManager.deactivate();
 
-    adjustWindowForSettings?.(false);
+    await adjustWindowForSettings?.(false);
   }
 
   function fillSettingsForm() {

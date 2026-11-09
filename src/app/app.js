@@ -21,6 +21,7 @@ import { createTrayPresentationManager } from "./tray-presentation.js";
 import { createTooltipController } from "./tooltip-controller.js";
 import { createUpdateController } from "./update-controller.js";
 import { createWindowController } from "./window-controller.js";
+import { createTaskbarController } from "./taskbar-controller.js";
 
 export function createApp(dependencies = {}) {
   const els = dependencies.els || createElements();
@@ -191,9 +192,17 @@ export function createApp(dependencies = {}) {
     sourcePickerView: sourcePickerController,
   });
 
+  const taskbarController = createTaskbarController({
+    state, service, persistSettings, sourcePicker: sourcePickerController,
+    refreshQuota: quotaController.refreshQuota,
+    openSettings: (tab) => tab === false ? settingsController.closeSettingsPanel() : settingsController.openSettingsPanel(tab),
+    windowController, logger,
+  });
+
   render = () => {
     renderer.render();
     trayPresentationManager.update();
+    taskbarController.render();
   };
 
   const contextMenuController = (
@@ -280,6 +289,8 @@ export function createApp(dependencies = {}) {
     await windowController.applyWidgetModeWindow();
     await onboardingController.runInitialOnboarding();
     await windowController.registerWindowMoveSave();
+    try { await taskbarController.start(); }
+    catch (error) { showWindowError(error); }
 
     try {
       state.alwaysOnTop = await service.commands.getAlwaysOnTop();

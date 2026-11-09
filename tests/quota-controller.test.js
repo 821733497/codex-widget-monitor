@@ -111,6 +111,18 @@ describe("额度刷新定时器", () => {
 
     expect(service.commands.getQuota).toHaveBeenCalledTimes(1);
   });
+
+  it("切换来源后不接收旧来源的延迟结果", async () => {
+    const pending = deferred();
+    const { controller, state } = createFixture(() => pending.promise);
+    const refresh = controller.refreshQuota();
+    state.settings.activeTarget = { type: "siteKey", siteId: "new", keyId: "k" };
+    state.quota = null;
+    pending.resolve(quotaResult({ id: "old-source" }));
+    await refresh;
+    expect(state.quota).toBeNull();
+    expect(state.errors.quota).toBe("");
+  });
 });
 
 function createFixture(getQuota) {

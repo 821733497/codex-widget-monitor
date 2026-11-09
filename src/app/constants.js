@@ -12,6 +12,7 @@ export const DEFAULT_SETTINGS = {
   autoUpdateEnabled: true,
   autoStartEnabled: false,
   hideDockIcon: false,
+  taskbarEnabled: false,
   onboardingSeen: false,
   widgetMode: "ball",
   panelPosition: null,

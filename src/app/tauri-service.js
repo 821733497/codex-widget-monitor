@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { emit, listen } from "@tauri-apps/api/event";
+import { emit, emitTo, listen } from "@tauri-apps/api/event";
 import {
   availableMonitors,
   currentMonitor,
@@ -21,6 +21,8 @@ export function createTauriService() {
       getSettings: () => invoke("get_settings"),
       hideQuickMenu: () => invoke("hide_quick_menu"),
       hideWindow: () => invoke("hide_window"),
+      setTaskbarEnabled: (enabled) => invoke("set_taskbar_enabled", { enabled }),
+      showMainWindow: () => invoke("show_main_window"),
       setSkipTaskbar: (skip) => invoke("set_skip_taskbar", { skip }),
       saveSettings: (settings) => invoke("save_settings", { settings }),
       setAlwaysOnTop: (value) => invoke("set_always_on_top", { value }),
@@ -47,6 +49,7 @@ export function createTauriService() {
     },
     events: {
       emit,
+      emitTo,
       listen,
     },
     window: {

@@ -53,6 +53,7 @@ export function normalizeSettings(settings) {
         ? settings.onboardingSeen
         : DEFAULT_SETTINGS.onboardingSeen,
     widgetMode,
+    taskbarEnabled: settings?.taskbarEnabled === true,
     panelPosition: normalizeWindowPosition(settings?.panelPosition),
     ballPosition: normalizeWindowPosition(settings?.ballPosition),
     ballDock: normalizeBallDock(settings?.ballDock),

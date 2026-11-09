@@ -5,6 +5,11 @@ mod dock;
 mod logging;
 mod quota;
 mod settings;
+#[cfg(target_os = "windows")]
+mod taskbar;
+#[cfg(not(target_os = "windows"))]
+#[path = "taskbar_unsupported.rs"]
+mod taskbar;
 mod tray;
 mod window_state;
 
@@ -16,8 +21,8 @@ use autostart::reconcile_auto_start;
 use commands::{
     close_app, get_always_on_top, get_quota, get_reset_credit_expiries, get_settings,
     hide_quick_menu, hide_tray_preview, hide_window, open_codex, save_settings, set_always_on_top,
-    set_skip_taskbar, show_quick_menu, switch_active_target, test_sub2api_connection,
-    toggle_tray_preview, update_tray_icon, write_frontend_log,
+    set_skip_taskbar, show_main_window, show_quick_menu, switch_active_target,
+    test_sub2api_connection, toggle_tray_preview, update_tray_icon, write_frontend_log,
 };
 use dock::set_dock_icon_hidden;
 use logging::LogLevel;
@@ -69,6 +74,8 @@ pub fn run() {
                 .expect("主窗口不存在");
             // Windows 的无边框原生阴影会附带 1px 白边/透明矩形框，全部显式禁用原生阴影。
             let _ = window.set_shadow(false);
+            #[cfg(target_os = "windows")]
+            taskbar::setup(app.handle())?;
             if let Some(w) = app.get_webview_window(crate::tray::QUICK_MENU_LABEL) {
                 let _ = w.set_shadow(false);
             }
@@ -132,6 +139,11 @@ pub fn run() {
             hide_quick_menu,
             hide_tray_preview,
             toggle_tray_preview,
+            taskbar::set_taskbar_enabled,
+            show_main_window,
+            taskbar::taskbar_popup,
+            taskbar::taskbar_drag,
+            taskbar::taskbar_redock,
         ])
         .run(tauri::generate_context!())
         .expect("运行 Tauri 应用失败");

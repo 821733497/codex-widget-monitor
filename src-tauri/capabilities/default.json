@@ -1,9 +1,10 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "main",
-  "windows": ["main", "quick-menu", "tray-preview"],
+  "windows": ["main", "quick-menu", "tray-preview", "taskbar", "taskbar-snap"],
   "permissions": [
     "core:event:allow-emit",
+    "core:event:allow-emit-to",
     "core:event:allow-listen",
     "core:event:allow-unlisten",
     "core:window:allow-available-monitors",
@@ -14,6 +15,7 @@
     "core:window:allow-set-position",
     "core:window:allow-set-size",
     "core:window:allow-start-dragging",
+    "core:window:allow-is-focused",
     "dialog:allow-open",
     "updater:allow-check",
     "updater:allow-download-and-install"

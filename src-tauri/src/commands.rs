@@ -104,6 +104,15 @@ pub(crate) fn hide_window(window: WebviewWindow) -> Result<(), String> {
 }
 
 #[tauri::command]
+pub(crate) fn show_main_window(app: AppHandle) -> Result<(), String> {
+    let window = app
+        .get_webview_window(crate::MAIN_WINDOW_LABEL)
+        .ok_or("主窗口不存在")?;
+    window.show().map_err(|error| error.to_string())?;
+    window.set_focus().map_err(|error| error.to_string())
+}
+
+#[tauri::command]
 pub(crate) fn set_skip_taskbar(window: WebviewWindow, skip: bool) -> Result<bool, String> {
     let _ = window.set_skip_taskbar(skip);
     Ok(skip)
