@@ -19,6 +19,7 @@ use windows::Win32::UI::WindowsAndMessaging::*;
 
 const LABEL: &str = "taskbar";
 const PREVIEW: &str = "taskbar-snap";
+const MISSING_SLOT_CONFIRMATIONS: u8 = 3;
 const WIDTH: f64 = 380.0;
 const HEIGHT: f64 = 40.0;
 const POPUP_HEIGHT: f64 = 380.0;
@@ -57,6 +58,7 @@ struct Placement {
     position: Option<(i32, i32)>,
     owner: isize,
     waiting_for_space: bool,
+    missing_slot_scans: u8,
 }
 
 #[derive(Default)]
@@ -532,19 +534,25 @@ fn maintain(app: &AppHandle, automation: &IUIAutomation) -> Result<(), String> {
     if !placement.enabled || placement.dragging {
         return Ok(());
     }
-    if (placement.docked || placement.waiting_for_space)
-        && !placement.popup
-        && !dock(app, &mut placement)?
-    {
-        if placement.docked {
-            float(app, &mut placement, true)?;
+    if (placement.docked || placement.waiting_for_space) && !placement.popup {
+        if dock(app, &mut placement)? {
+            placement.missing_slot_scans = 0;
+        } else if confirm_missing_slot(&mut placement.missing_slot_scans) {
+            if placement.docked {
+                float(app, &mut placement, true)?;
+            }
+            placement.waiting_for_space = true;
         }
-        placement.waiting_for_space = true;
     }
     if let Some(message) = discovery_error {
-        return Err(format!("读取任务栏空白失败，保留悬浮窗口：{message}"));
+        return Err(format!("读取任务栏空白失败：{message}"));
     }
     Ok(())
+}
+
+fn confirm_missing_slot(scans: &mut u8) -> bool {
+    *scans = scans.saturating_add(1);
+    *scans >= MISSING_SLOT_CONFIRMATIONS
 }
 
 #[tauri::command]
@@ -552,6 +560,7 @@ pub(crate) async fn set_taskbar_enabled(app: AppHandle, enabled: bool) -> Result
     let state = app.state::<TaskbarState>();
     let mut placement = state.0.lock().map_err(error)?;
     placement.enabled = enabled;
+    placement.missing_slot_scans = 0;
     placement.popup = false;
     placement.waiting_for_space = enabled;
     if enabled {
@@ -767,5 +776,15 @@ mod tests {
         assert!(is_shell_surface_class("Shell_TrayWnd"));
         assert!(is_shell_surface_class("Shell_SecondaryTrayWnd"));
         assert!(!is_shell_surface_class("Chrome_WidgetWin_1"));
+    }
+
+    #[test]
+    fn 短暂缺少任务栏空白不会立即退回悬浮() {
+        let mut scans = 0;
+        assert!(!confirm_missing_slot(&mut scans));
+        assert!(!confirm_missing_slot(&mut scans));
+        assert!(confirm_missing_slot(&mut scans));
+        scans = 0;
+        assert!(!confirm_missing_slot(&mut scans));
     }
 }
