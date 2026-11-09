@@ -348,15 +348,19 @@ fn attach(window: &tauri::WebviewWindow, owner: isize) -> Result<(), String> {
     Ok(())
 }
 
+fn is_shell_surface_class(class: &str) -> bool {
+    matches!(
+        class,
+        "Progman" | "WorkerW" | "Shell_TrayWnd" | "Shell_SecondaryTrayWnd"
+    )
+}
+
 fn covered_by_fullscreen(owner: isize) -> bool {
     unsafe {
         let foreground = GetForegroundWindow();
-        if foreground.is_invalid()
-            || matches!(
-                class_name(foreground).as_str(),
-                "Progman" | "WorkerW" | "Shell_TrayWnd"
-            )
-        {
+        // 右键副屏任务栏时，Windows 会把副屏任务栏置为前台窗口。
+        // 它的矩形只覆盖任务栏自身，不能按全屏窗口处理，否则组件会被隐藏。
+        if foreground.is_invalid() || is_shell_surface_class(class_name(foreground).as_str()) {
             return false;
         }
         let mut pid = 0;
@@ -756,5 +760,12 @@ mod tests {
         let (_, x, y) = choose_slot(&slots, 380, 40, Some((1000, 1030))).unwrap();
         assert_eq!((x, y), (1000, 1040));
         assert!(choose_slot(&slots, 380, 50, None).is_none());
+    }
+
+    #[test]
+    fn 主副屏任务栏都不应触发全屏隐藏() {
+        assert!(is_shell_surface_class("Shell_TrayWnd"));
+        assert!(is_shell_surface_class("Shell_SecondaryTrayWnd"));
+        assert!(!is_shell_surface_class("Chrome_WidgetWin_1"));
     }
 }
