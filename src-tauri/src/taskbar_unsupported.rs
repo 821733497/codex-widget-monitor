@@ -8,9 +8,18 @@ pub(crate) fn set_taskbar_enabled(enabled: bool) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub(crate) fn taskbar_popup(open: bool) -> Result<(), String> {
-    let _ = open;
+pub(crate) fn taskbar_popup(
+    open: bool,
+    height: Option<f64>,
+    width: Option<f64>,
+) -> Result<(), String> {
+    let _ = (open, height, width);
     Err("任务栏模式仅支持 Windows。".into())
+}
+
+#[tauri::command]
+pub(crate) fn taskbar_popup_blur_close() -> Result<bool, String> {
+    Ok(false)
 }
 
 #[tauri::command]

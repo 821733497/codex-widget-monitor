@@ -195,6 +195,7 @@ export function createApp(dependencies = {}) {
   const taskbarController = createTaskbarController({
     state, service, persistSettings, sourcePicker: sourcePickerController,
     refreshQuota: quotaController.refreshQuota,
+    refreshAllSources: quotaController.refreshAllSources,
     openSettings: (tab) => tab === false ? settingsController.closeSettingsPanel() : settingsController.openSettingsPanel(tab),
     windowController, logger,
   });

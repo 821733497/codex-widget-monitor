@@ -4,6 +4,7 @@ import {
   formatDateTimeOrPlaceholder,
   formatQuotaEstimateTooltip,
   formatQuotaEstimateUsd,
+  formatResetCountdown,
   formatResetCreditExpiries,
   formatResetCredits,
   formatWindowLabel,
@@ -32,6 +33,32 @@ describe("展示格式化", () => {
       ),
     ).toBe("1m/2h");
     expect(formatResetCreditExpiries([], "success")).toBe("--");
+    expect(
+      formatResetCountdown(
+        new Date(Date.now() + ((3 * 24 + 8) * 60 + 33) * 60000).toISOString(),
+        "zh",
+      ),
+    ).toBe("3天 8时 33分");
+    expect(
+      formatResetCountdown(
+        new Date(Date.now() + (4 * 60 + 25) * 60000).toISOString(),
+        "zh",
+      ),
+    ).toBe("4时 25分");
+    expect(
+      formatResetCountdown(new Date(Date.now() + 28 * 60000).toISOString(), "zh"),
+    ).toBe("28分");
+    expect(
+      formatResetCountdown(new Date(Date.now() + 30 * 1000).toISOString(), "zh"),
+    ).toBe("1分");
+    expect(formatResetCountdown("2025-12-31T23:59:00Z", "zh")).toBe("0分");
+    expect(
+      formatResetCountdown(
+        new Date(Date.now() + ((3 * 24 + 8) * 60 + 33) * 60000).toISOString(),
+        "en",
+      ),
+    ).toBe("3d 8h 33m");
+    expect(formatResetCountdown("invalid", "en")).toBe("--");
   });
 
   it("覆盖窗口标签、视觉状态和无效日期", () => {

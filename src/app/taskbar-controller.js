@@ -1,7 +1,7 @@
 import { detectWindows } from "./platform.js";
 import { buildTaskbarView } from "./taskbar-model.js";
 
-export function createTaskbarController({ state, service, persistSettings, sourcePicker, refreshQuota, openSettings, windowController, logger }) {
+export function createTaskbarController({ state, service, persistSettings, sourcePicker, refreshQuota, refreshAllSources, openSettings, windowController, logger }) {
   const available = detectWindows() && service.isAvailable() && service.commands.setTaskbarEnabled;
   let lastView = "";
   let busy = false;
@@ -17,7 +17,10 @@ export function createTaskbarController({ state, service, persistSettings, sourc
     const serialized = JSON.stringify(view);
     if (!force && serialized === lastView) return;
     try {
-      await service.events.emitTo("taskbar", "taskbar:update", view);
+      await Promise.all([
+        service.events.emitTo("taskbar", "taskbar:update", view),
+        service.events.emitTo("taskbar-popup", "taskbar:update", view).catch(() => {}),
+      ]);
       lastView = serialized;
     } catch (error) { report(error); }
   }
@@ -39,6 +42,7 @@ export function createTaskbarController({ state, service, persistSettings, sourc
       if (enabled) {
         if (state.settingsOpen) await openSettings(false);
         await windowController.hideWindow();
+        void refreshAllSources?.({ force: false, staleMs: 30000 });
       } else await service.commands.showMainWindow();
     } catch (error) { report(error); }
     finally { busy = false; }
@@ -55,7 +59,14 @@ export function createTaskbarController({ state, service, persistSettings, sourc
         );
         if (item) await sourcePicker.switchSource(item.target);
       }
-      if (action === "refresh") await refreshQuota();
+      if (action === "refresh") {
+        await refreshQuota();
+        void refreshAllSources?.({ force: true });
+      }
+      if (action === "preloadSources") {
+        void refreshAllSources?.({ force: false, staleMs: 30000 });
+        return;
+      }
       if (action === "panel" || action === "settings") {
         await service.commands.showMainWindow();
         if (action === "panel") await windowController.setWidgetMode("panel");
@@ -89,6 +100,7 @@ export function createTaskbarController({ state, service, persistSettings, sourc
     if (state.settings.taskbarEnabled) {
       await service.commands.setTaskbarEnabled(true);
       await windowController.hideWindow();
+      void refreshAllSources?.({ force: false, staleMs: 30000 });
     }
     await update(true);
   }

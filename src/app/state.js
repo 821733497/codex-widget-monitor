@@ -7,6 +7,7 @@ export function createAppState() {
     settingsDraft: { ...DEFAULT_SETTINGS },
     locale: DEFAULT_SETTINGS.locale,
     quota: null,
+    sourceQuotas: {},
     loading: false,
     errors: {
       settings: "",
@@ -76,4 +77,11 @@ export function renderTheme(state) {
     ? state.settingsDraft.theme
     : state.settings.theme;
   return normalizeTheme(theme);
+}
+
+export function targetCacheKey(target) {
+  if (target?.type === "siteKey" && target.siteId && target.keyId) {
+    return `siteKey:${target.siteId}:${target.keyId}`;
+  }
+  return "official";
 }

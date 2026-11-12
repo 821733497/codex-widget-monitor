@@ -19,9 +19,9 @@ use tauri_plugin_autostart::MacosLauncher;
 use app_state::AppState;
 use autostart::reconcile_auto_start;
 use commands::{
-    close_app, get_always_on_top, get_quota, get_reset_credit_expiries, get_settings,
-    hide_quick_menu, hide_tray_preview, hide_window, open_codex, save_settings, set_always_on_top,
-    set_skip_taskbar, show_main_window, show_quick_menu, switch_active_target,
+    close_app, get_always_on_top, get_quota, get_quota_for_target, get_reset_credit_expiries,
+    get_settings, hide_quick_menu, hide_tray_preview, hide_window, open_codex, save_settings,
+    set_always_on_top, set_skip_taskbar, show_main_window, show_quick_menu, switch_active_target,
     test_sub2api_connection, toggle_tray_preview, update_tray_icon, write_frontend_log,
 };
 use dock::set_dock_icon_hidden;
@@ -122,6 +122,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             get_quota,
+            get_quota_for_target,
             get_reset_credit_expiries,
             hide_window,
             set_skip_taskbar,
@@ -142,6 +143,7 @@ pub fn run() {
             taskbar::set_taskbar_enabled,
             show_main_window,
             taskbar::taskbar_popup,
+            taskbar::taskbar_popup_blur_close,
             taskbar::taskbar_drag,
             taskbar::taskbar_redock,
         ])

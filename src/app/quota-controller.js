@@ -1,8 +1,35 @@
 import { DEFAULT_SETTINGS, RESET_CREDIT_EXPIRY_DISPLAY_LIMIT } from "./constants.js";
+import { targetCacheKey } from "./state.js";
 
 export function createQuotaController({ state, service, render, normalizeError, logger }) {
   let activeRefresh = null;
   let refreshPending = false;
+  const inFlightTargets = new Map();
+
+  function ensureSourceQuotas() {
+    if (!state.sourceQuotas || typeof state.sourceQuotas !== "object") {
+      state.sourceQuotas = {};
+    }
+    return state.sourceQuotas;
+  }
+
+  function updateSourceCache(target, patch) {
+    const store = ensureSourceQuotas();
+    const key = targetCacheKey(target);
+    store[key] = { quota: null, error: "", loading: false, updatedAt: 0, ...store[key], ...patch };
+  }
+
+  function collectConfiguredTargets() {
+    const targets = [{ type: "official" }];
+    for (const site of state.settings?.sites || []) {
+      for (const key of site?.keys || []) {
+        if (site.id && key?.id) {
+          targets.push({ type: "siteKey", siteId: site.id, keyId: key.id });
+        }
+      }
+    }
+    return targets;
+  }
 
   function refreshQuota() {
     if (activeRefresh) {
@@ -34,12 +61,14 @@ export function createQuotaController({ state, service, render, normalizeError, 
   }
 
   async function refreshQuotaOnce() {
-    const source = JSON.stringify(state.settings.activeTarget);
-    startQuotaRefresh();
+    const target = state.settings.activeTarget || { type: "official" };
+    const source = JSON.stringify(target);
+    startQuotaRefresh(target);
     render();
 
     try {
       const quota = await service.commands.getQuota();
+      updateSourceCache(target, { quota, error: "", loading: false, updatedAt: Date.now() });
       if (source !== JSON.stringify(state.settings.activeTarget)) return;
       applyQuotaSuccess(quota);
       const hasAppServerExpiries = applyAppServerResetCreditExpiries(quota);
@@ -48,15 +77,17 @@ export function createQuotaController({ state, service, render, normalizeError, 
         refreshResetCreditExpiriesFromHttp();
       }
     } catch (error) {
+      updateSourceCache(target, { error: normalizeError(error), loading: false });
       if (source !== JSON.stringify(state.settings.activeTarget)) return;
       applyQuotaError(error);
       render();
     }
   }
 
-  function startQuotaRefresh() {
+  function startQuotaRefresh(target) {
     state.loading = true;
     state.errors.quota = "";
+    updateSourceCache(target, { loading: true, error: "" });
     invalidateResetCreditExpiriesRequest();
   }
 
@@ -154,8 +185,50 @@ export function createQuotaController({ state, service, render, normalizeError, 
     return Math.max(1, Math.min(1440, minutes)) * 60 * 1000;
   }
 
+  async function refreshSourceTarget(target, { force = false, staleMs = 30000 } = {}) {
+    if (!service.commands?.getQuotaForTarget) return;
+    const key = targetCacheKey(target);
+    const activeKey = targetCacheKey(state.settings?.activeTarget);
+    if (key === activeKey && activeRefresh) return activeRefresh;
+
+    const existing = ensureSourceQuotas()[key];
+    if (!force && existing?.updatedAt && Date.now() - existing.updatedAt < staleMs) {
+      return;
+    }
+
+    if (inFlightTargets.has(key)) return inFlightTargets.get(key);
+
+    const task = (async () => {
+      updateSourceCache(target, { loading: true, error: "" });
+      render();
+      try {
+        const quota = await service.commands.getQuotaForTarget(target);
+        updateSourceCache(target, { quota, error: "", loading: false, updatedAt: Date.now() });
+        if (targetCacheKey(state.settings?.activeTarget) === key) {
+          applyQuotaSuccess(quota);
+          applyAppServerResetCreditExpiries(quota);
+        }
+      } catch (error) {
+        updateSourceCache(target, { error: normalizeError(error), loading: false });
+      } finally {
+        inFlightTargets.delete(key);
+        render();
+      }
+    })();
+
+    inFlightTargets.set(key, task);
+    return task;
+  }
+
+  async function refreshAllSources(options = {}) {
+    if (!service.commands?.getQuotaForTarget) return;
+    const targets = collectConfiguredTargets();
+    await Promise.allSettled(targets.map((target) => refreshSourceTarget(target, options)));
+  }
+
   return {
     refreshQuota,
+    refreshAllSources,
     scheduleAutoRefresh
   };
 }

@@ -123,13 +123,51 @@ describe("额度刷新定时器", () => {
     expect(state.quota).toBeNull();
     expect(state.errors.quota).toBe("");
   });
+
+  it("多来源预取写入独立缓存，单源失败不污染当前主额度且支持节流与强制刷新", async () => {
+    const getQuotaForTarget = vi.fn(async (target) => {
+      if (target.type === "official") return quotaResult({ id: "official-latest" });
+      if (target.keyId === "key-1") return quotaResult({ id: "site-key-1" });
+      throw new Error("site key-2 network failed");
+    });
+    const { controller, service, state } = createFixture(vi.fn(), getQuotaForTarget);
+    state.settings.activeTarget = { type: "official" };
+    state.settings.sites = [
+      {
+        id: "site-a",
+        keys: [{ id: "key-1" }, { id: "key-2" }]
+      }
+    ];
+    state.quota = quotaResult({ id: "current-active" });
+
+    await controller.refreshAllSources({ staleMs: 30_000 });
+
+    expect(service.commands.getQuotaForTarget).toHaveBeenCalledTimes(3);
+    expect(state.sourceQuotas["official"].quota.id).toBe("official-latest");
+    expect(state.sourceQuotas["official"].error).toBe("");
+    expect(state.sourceQuotas["official"].loading).toBe(false);
+    expect(state.sourceQuotas["siteKey:site-a:key-1"].quota.id).toBe("site-key-1");
+    expect(state.sourceQuotas["siteKey:site-a:key-1"].error).toBe("");
+    expect(state.sourceQuotas["siteKey:site-a:key-2"].quota).toBeNull();
+    expect(state.sourceQuotas["siteKey:site-a:key-2"].error).toContain("site key-2 network failed");
+    expect(state.quota.id).toBe("official-latest");
+
+    // 节流窗口内再次非强制预取：已成功的来源跳过，失败的来源（updatedAt=0）会重试。
+    await controller.refreshAllSources({ staleMs: 30_000 });
+    expect(service.commands.getQuotaForTarget).toHaveBeenCalledTimes(4);
+
+    // 强制预取应忽略节流窗口重新拉取全部 3 个来源。
+    await controller.refreshAllSources({ force: true, staleMs: 30_000 });
+    expect(service.commands.getQuotaForTarget).toHaveBeenCalledTimes(7);
+  });
 });
 
-function createFixture(getQuota) {
+function createFixture(getQuota, getQuotaForTarget = vi.fn()) {
   const state = createAppState();
   const service = {
     commands: {
       getQuota: vi.fn(getQuota),
+      getQuotaForTarget: vi.fn(getQuotaForTarget),
       getResetCreditExpiries: vi.fn()
     }
   };

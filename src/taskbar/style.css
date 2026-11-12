@@ -10,6 +10,7 @@
 
   /* 文字防吞底微光晕（浅色模式：以细致浅色边缘强化反差，保证全透明下在深蓝与杂色壁纸上清晰可读） */
   --text-halo: 0 1px 2px rgba(255, 255, 255, 0.85), 0 0 1px rgba(255, 255, 255, 0.95);
+  --svg-halo: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.85));
 
   /* 按钮交互 */
   --btn-hover: rgba(0, 0, 0, 0.07);
@@ -21,11 +22,9 @@
   --floating-border: rgba(0, 0, 0, 0.12);
   --floating-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
 
-  /* 弹窗 Flyout 质感（浅色模式） */
-  --popup-bg: rgba(255, 255, 255, 0.94);
-  --popup-border: rgba(0, 0, 0, 0.09);
-  --popup-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.06);
-  --popup-footer-bg: rgba(0, 0, 0, 0.02);
+  /* 弹窗 Flyout 质感（浅色模式：无外灰边框与裁剪阴影） */
+  --popup-bg: rgba(255, 255, 255, 0.97);
+  --popup-footer-bg: rgba(0, 0, 0, 0.025);
   --popup-item-hover: rgba(0, 0, 0, 0.05);
   --popup-item-active: rgba(0, 0, 0, 0.09);
 
@@ -50,6 +49,7 @@
 
     /* 文字防吞底微光晕（深色模式：以细致深色边缘强化反差，保证全透明下在浅色与亮色壁纸上清晰可读） */
     --text-halo: 0 1px 2px rgba(0, 0, 0, 0.85), 0 0 1px rgba(0, 0, 0, 0.95);
+    --svg-halo: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
 
     /* 按钮交互 */
     --btn-hover: rgba(255, 255, 255, 0.1);
@@ -61,11 +61,9 @@
     --floating-border: rgba(255, 255, 255, 0.14);
     --floating-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 
-    /* 弹窗 Flyout 质感（深色模式） */
-    --popup-bg: rgba(30, 33, 40, 0.92);
-    --popup-border: rgba(255, 255, 255, 0.12);
-    --popup-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 3px 8px rgba(0, 0, 0, 0.25);
-    --popup-footer-bg: rgba(255, 255, 255, 0.02);
+    /* 弹窗 Flyout 质感（深色模式：无外灰边框与裁剪阴影） */
+    --popup-bg: rgba(28, 32, 40, 0.96);
+    --popup-footer-bg: rgba(255, 255, 255, 0.03);
     --popup-item-hover: rgba(255, 255, 255, 0.08);
     --popup-item-active: rgba(255, 255, 255, 0.14);
 
@@ -115,7 +113,7 @@ button:focus-visible {
   display: none !important;
 }
 
-/* 底栏主容器：吸附在任务栏时保持 100% 全透明，纯粹透出壁纸与任务栏，无任何底色与滤镜 */
+/* 底栏主容器：吸附在任务栏时保持 100% 全透明，无任何底色与滤镜 */
 #taskbar {
   position: absolute;
   bottom: 0;
@@ -124,8 +122,8 @@ button:focus-visible {
   height: 40px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 6px;
+  gap: 4px;
+  padding: 2px 4px;
   border-radius: 6px;
   font-variant-numeric: tabular-nums;
   background: transparent;
@@ -139,10 +137,13 @@ button:focus-visible {
 .label,
 .value,
 #refresh,
-#choose,
 #grip {
   text-shadow: var(--text-halo);
   -webkit-font-smoothing: antialiased;
+}
+
+#choose svg {
+  filter: var(--svg-halo);
 }
 
 /* 弹窗内部有独立背景，不继承底栏文字阴影 */
@@ -161,14 +162,14 @@ body[data-docked="false"] #taskbar {
 
 /* 拖动手柄 */
 #grip {
-  flex: 0 0 14px;
+  flex: 0 0 12px;
   height: 28px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 15px;
   cursor: grab;
   touch-action: none;
 }
@@ -181,11 +182,11 @@ body[data-docked="false"] #taskbar {
 .provider {
   display: flex;
   align-items: center;
-  flex: 0 0 88px;
+  flex: 0 0 78px;
   min-width: 0;
   border-right: 1px solid var(--divider);
-  padding-right: 4px;
-  gap: 2px;
+  padding-right: 3px;
+  gap: 1px;
 }
 
 #source {
@@ -197,7 +198,7 @@ body[data-docked="false"] #taskbar {
   height: 32px;
   text-align: left;
   border-radius: 4px;
-  padding: 1px 4px;
+  padding: 1px 3px;
 }
 
 #site {
@@ -221,40 +222,56 @@ body[data-error="true"] #account {
   color: var(--warning);
 }
 
+/* 展开来源下拉箭头图标按钮 */
 #choose {
-  flex: 0 0 16px;
-  height: 28px;
+  flex: 0 0 18px;
+  height: 24px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--muted);
-  font-size: 11px;
 }
 
-/* 三栏额度指标 */
+#choose:hover {
+  color: var(--fg);
+}
+
+#choose svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.18s ease;
+}
+
+#choose[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+/* 四栏额度指标（按内容实际宽度排版并用 space-between 均分列间距，避免短列右侧留白过多导致视觉割裂） */
 #metrics {
   flex: 1;
   min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
 }
 
 .metric {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  flex: 0 1 auto;
   min-width: 0;
   height: 32px;
   text-align: left;
   border-radius: 4px;
-  padding: 1px 4px;
+  padding: 1px 3px;
 }
 
 .label {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
@@ -262,7 +279,7 @@ body[data-error="true"] #account {
 }
 
 .value {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -275,13 +292,13 @@ body[data-error="true"] #account {
 
 /* 刷新按钮 */
 #refresh {
-  flex: 0 0 24px;
-  height: 28px;
+  flex: 0 0 22px;
+  height: 26px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 15px;
   color: var(--muted);
 }
 
@@ -294,41 +311,81 @@ body[data-error="true"] #account {
   cursor: progress;
 }
 
-/* 弹出菜单 Flyout */
+/* 弹出菜单 Flyout（去外框、去外阴影，贴合窗口宽度） */
 #popup {
   position: absolute;
-  bottom: 48px;
-  max-width: calc(100% - 16px);
-  max-height: calc(100% - 54px);
+  bottom: 44px;
+  max-width: 100%;
+  max-height: calc(100% - 46px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   border-radius: 8px;
   background: var(--popup-bg);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--popup-border);
-  box-shadow: var(--popup-shadow);
+  border: none;
+  box-shadow: none;
+  outline: none;
   z-index: 100;
 }
 
-/* 来源选择弹窗：左对齐 */
+#popup:focus {
+  outline: none;
+}
+
+/* 来源选择弹窗：贴合任务栏宽度，方便每个供应商完整展示4列实时指标 */
 #popup[data-kind="sources"] {
-  left: 8px;
-  right: auto;
-  width: 250px;
+  left: 0;
+  right: 0;
+  width: auto;
 }
 
 /* 详情弹窗：右对齐 */
 #popup[data-kind="details"] {
-  right: 8px;
+  right: 0;
   left: auto;
-  width: 260px;
+  width: 264px;
 }
 
-/* 详情弹窗彻底禁止滚动条：100% 完整展示所有指标与重置时间 */
+/* 独立弹窗窗口（taskbar.html?popup）：隐藏底栏，Flyout 直接铺满弹窗窗口 */
+body[data-popup-window="true"] #taskbar {
+  display: none;
+}
+
+body[data-popup-window="true"] #popup {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+body[data-popup-window="true"] #popup[data-kind="sources"] {
+  width: 400px;
+}
+
+body[data-popup-window="true"] #popup[data-kind="details"] {
+  width: 264px;
+}
+
+body[data-popup-window="true"] #popup.measuring {
+  height: auto;
+  max-height: none;
+}
+
+/* 详情弹窗彻底禁止滚动条 */
 #popup[data-kind="details"] .popup-body {
   overflow-y: hidden;
+}
+
+/* 测量自然高度时临时解除窗口高度与内滚动约束 */
+#popup.measuring {
+  max-height: none;
+}
+
+#popup.measuring .popup-body {
+  overflow-y: visible;
+  flex: 0 0 auto;
 }
 
 /* 弹窗内容区 */
@@ -336,10 +393,10 @@ body[data-error="true"] #account {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 6px;
+  padding: 5px;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
@@ -361,47 +418,145 @@ body[data-error="true"] #account {
   background: var(--scrollbar-thumb-hover);
 }
 
-/* 选项菜单项 */
-.popup-item {
+/* 供应商列表共享 4 列轨道：所有卡片上下列竖直对齐，同时保留匀称的列间距 */
+.source-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, max-content));
+  justify-content: space-between;
+  row-gap: 2px;
+  column-gap: 8px;
+  width: 100%;
+}
+
+.source-list .group-title {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+/* 来源卡片列表项：包含名称头部与共享列轨道的4列实时具体信息 */
+.popup-source-item {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: 3px;
+  width: 100%;
+  padding: 6px 8px;
+  text-align: left;
+  border-radius: 6px;
+  color: var(--fg);
+  background: transparent;
+}
+
+.popup-source-item:hover {
+  background: var(--popup-item-hover);
+}
+
+.popup-source-item:active {
+  background: var(--popup-item-active);
+}
+
+.popup-source-item[aria-checked="true"] {
+  background: var(--accent-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.source-header {
+  grid-column: 1 / -1;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   width: 100%;
-  padding: 6px 8px;
-  text-align: left;
-  border-radius: 4px;
-  font-size: 12px;
-  color: var(--fg);
 }
 
-.popup-item:hover {
-  background: var(--popup-item-hover);
-}
-
-.popup-item:active {
-  background: var(--popup-item-active);
-}
-
-.popup-item[aria-checked="true"] {
-  color: var(--accent);
-  background: var(--accent-bg);
-  font-weight: 600;
+.source-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
 }
 
 .item-label {
-  flex: 1;
-  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.popup-source-item[aria-checked="true"] .item-label {
+  color: var(--accent);
+}
+
+.source-plan {
+  flex: 0 0 auto;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--popup-item-hover);
+  color: var(--muted);
+}
+
+.source-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.source-badge {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.source-badge[data-error="true"] {
+  color: var(--warning);
+}
+
 .item-check {
-  flex: 0 0 14px;
-  text-align: right;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
+  color: var(--accent);
+}
+
+.source-metrics {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  padding-top: 2px;
+}
+
+.source-metric {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.source-metric-label {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.source-metric-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.source-metric[data-warning="true"] .source-metric-value {
+  color: var(--warning);
 }
 
 /* 分组标题 */
@@ -409,11 +564,11 @@ body[data-error="true"] #account {
   color: var(--muted);
   font-size: 11px;
   font-weight: 600;
-  padding: 6px 8px 2px;
+  padding: 5px 8px 2px;
   user-select: none;
 }
 
-/* 详情指标项：紧凑精致，杜绝微溢出 */
+/* 详情指标项 */
 .detail-row {
   display: flex;
   flex-direction: column;
@@ -496,16 +651,16 @@ body.preview #taskbar > * {
 
 @media (max-width: 340px) {
   #taskbar {
-    gap: 4px;
+    gap: 3px;
   }
   .provider {
-    flex-basis: 74px;
+    flex-basis: 68px;
   }
   #metrics {
-    gap: 4px;
+    gap: 2px;
   }
   .value {
-    font-size: 12px;
+    font-size: 11px;
   }
 }
 

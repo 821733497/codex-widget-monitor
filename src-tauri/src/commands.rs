@@ -12,17 +12,13 @@ use crate::quota::{self, QuotaSnapshot, ResetCreditExpiries};
 use crate::settings::{AppSettings, SettingsService};
 use crate::tray::set_always_on_top_authoritative;
 
-#[tauri::command]
-pub(crate) async fn get_quota(
-    app: AppHandle,
-    state: State<'_, AppState>,
+async fn fetch_quota_for_target(
+    state: &AppState,
+    settings: &AppSettings,
+    target: &crate::settings::ActiveTarget,
+    fallback_missing_site: bool,
 ) -> Result<QuotaSnapshot, String> {
-    let settings = {
-        let _settings_guard = state.settings_lock.lock().await;
-        load_operational_settings(&app, &state, "backend.quota")
-    };
-
-    if let crate::settings::ActiveTarget::SiteKey { site_id, key_id } = &settings.active_target {
+    if let crate::settings::ActiveTarget::SiteKey { site_id, key_id } = target {
         if let Some(site) = settings.sites.iter().find(|s| s.id == *site_id) {
             if let Some(key) = site.keys.iter().find(|k| k.id == *key_id) {
                 return quota::fetch_sub2api_quota(
@@ -43,6 +39,9 @@ pub(crate) async fn get_quota(
                     message
                 });
             }
+        }
+        if !fallback_missing_site {
+            return Err("指定的第三方站点或密钥不存在".into());
         }
     }
 
@@ -76,6 +75,33 @@ pub(crate) async fn get_quota(
     }
 
     Ok(snapshot)
+}
+
+#[tauri::command]
+pub(crate) async fn get_quota(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> Result<QuotaSnapshot, String> {
+    let settings = {
+        let _settings_guard = state.settings_lock.lock().await;
+        load_operational_settings(&app, &state, "backend.quota")
+    };
+
+    fetch_quota_for_target(&state, &settings, &settings.active_target, true).await
+}
+
+#[tauri::command]
+pub(crate) async fn get_quota_for_target(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    target: crate::settings::ActiveTarget,
+) -> Result<QuotaSnapshot, String> {
+    let settings = {
+        let _settings_guard = state.settings_lock.lock().await;
+        load_operational_settings(&app, &state, "backend.quota.target")
+    };
+
+    fetch_quota_for_target(&state, &settings, &target, false).await
 }
 
 #[tauri::command]
