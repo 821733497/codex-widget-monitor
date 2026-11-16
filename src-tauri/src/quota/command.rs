@@ -231,7 +231,7 @@ pub(super) fn configure_codex_process_environment(command: &mut Command, codex_c
 #[cfg(not(target_os = "macos"))]
 pub(super) fn configure_codex_process_environment(_command: &mut Command, _codex_command: &Path) {}
 
-#[cfg(target_os = "macos")]
+#[cfg(all(target_os = "macos", test))]
 pub(super) fn configure_open_codex_process_environment(
     command: &mut std::process::Command,
     codex_command: &Path,

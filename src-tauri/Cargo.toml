@@ -1,6 +1,6 @@
 [package]
 name = "codex-taskbar-quota"
-version = "1.0.15"
+version = "1.0.16"
 description = "Codex 任务栏额度组件"
 authors = ["fengshi"]
 edition = "2021"
