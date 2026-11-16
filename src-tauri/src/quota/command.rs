@@ -231,6 +231,16 @@ pub(super) fn configure_codex_process_environment(command: &mut Command, codex_c
 #[cfg(not(target_os = "macos"))]
 pub(super) fn configure_codex_process_environment(_command: &mut Command, _codex_command: &Path) {}
 
+#[cfg(target_os = "macos")]
+pub(super) fn configure_open_codex_process_environment(
+    command: &mut std::process::Command,
+    codex_command: &Path,
+) {
+    if let Some(path) = codex_process_path(codex_command) {
+        command.env("PATH", path);
+    }
+}
+
 fn is_usable_command_file(path: &Path) -> bool {
     if !path.is_file() {
         return false;
@@ -387,7 +397,7 @@ mod tests {
         }
 
         let mut command = std::process::Command::new(&codex);
-        configure_codex_process_environment(&mut command, &codex);
+        configure_open_codex_process_environment(&mut command, &codex);
 
         assert!(command.status().unwrap().success());
     }
