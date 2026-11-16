@@ -54,5 +54,7 @@ export function buildTaskbarView(state, sources = []) {
     loading: state.loading,
     metrics: metricsFor(active, state.quota, en),
     sources: sourceViews,
+    glassOpacity:
+      typeof settings.glassOpacity === "number" ? settings.glassOpacity : 50,
   };
 }

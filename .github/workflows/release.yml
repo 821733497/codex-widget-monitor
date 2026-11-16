@@ -1,0 +1,150 @@
+name: 发布安装包
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    name: 构建 Windows x64
+    runs-on: windows-latest
+    env:
+      CARGO_TERM_COLOR: always
+
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.0"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: 安装 Rust 1.88
+        uses: dtolnay/rust-toolchain@1.88.0
+        with:
+          components: rustfmt, clippy
+
+      - name: 缓存 Rust 构建
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: 校验标签和密钥
+        shell: pwsh
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $package = Get-Content -LiteralPath "package.json" -Raw | ConvertFrom-Json
+          $expectedTag = "v$($package.version)"
+          if ($env:GITHUB_REF_NAME -ne $expectedTag) {
+            throw "发布标签必须和 package.json 版本一致：当前标签=$env:GITHUB_REF_NAME，期望标签=$expectedTag。"
+          }
+          if ([string]::IsNullOrWhiteSpace($env:TAURI_SIGNING_PRIVATE_KEY)) {
+            throw "缺少 Repository Secret：TAURI_SIGNING_PRIVATE_KEY。请把 certs/updater.key 的完整内容写入该 Secret。"
+          }
+
+      - name: 安装前端依赖
+        run: npm run ci:install
+
+      - name: 运行格式、Lint 和测试
+        run: npm run check
+
+      - name: 构建 Windows 安装包
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: npm run tauri:build:nsis:updater
+
+      - name: 整理 Windows 产物
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $version = (Get-Content -LiteralPath "package.json" -Raw | ConvertFrom-Json).version
+          $releaseDir = "dist-release"
+          New-Item -ItemType Directory -Path $releaseDir -Force | Out-Null
+          $installer = Get-ChildItem -LiteralPath "src-tauri/target/release/bundle/nsis" -Filter "*.exe" |
+            Sort-Object LastWriteTimeUtc -Descending |
+            Select-Object -First 1
+          if (-not $installer) {
+            throw "未找到 Windows NSIS 安装包。"
+          }
+          $signature = "$($installer.FullName).sig"
+          if (-not (Test-Path -LiteralPath $signature)) {
+            throw "未找到 Windows 安装包签名：$signature"
+          }
+          Copy-Item -LiteralPath $installer.FullName -Destination "$releaseDir/codex-widget_${version}_windows_x64-setup.exe" -Force
+          Copy-Item -LiteralPath $signature -Destination "$releaseDir/codex-widget_${version}_windows_x64-setup.exe.sig" -Force
+
+      - name: 上传 Windows 产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-windows-x64
+          path: dist-release/*
+          if-no-files-found: error
+
+  publish:
+    name: 发布到 GitHub Releases
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - build-windows
+
+    steps:
+      - name: 检出源码
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.19.0"
+
+      - name: 下载所有产物
+        uses: actions/download-artifact@v4
+        with:
+          path: src-tauri/target/release/github-release
+          merge-multiple: true
+
+      - name: 生成 latest.json
+        run: node scripts/create-latest-json.mjs --release-dir src-tauri/target/release/github-release
+
+      - name: 上传 Release 产物
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          release_dir="src-tauri/target/release/github-release"
+          mapfile -t assets < <(find "${release_dir}" -maxdepth 1 -type f -print | sort)
+          if [ "${#assets[@]}" -eq 0 ]; then
+            echo "Release 产物为空。"
+            exit 1
+          fi
+          if gh release view "${tag}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1; then
+            gh release upload "${tag}" "${assets[@]}" --repo "${GITHUB_REPOSITORY}" --clobber
+          else
+            version=$(node -p "require('./package.json').version")
+            notes_file="docs/releases/${tag}.md"
+            if [ -f "${notes_file}" ]; then
+              gh release create "${tag}" "${assets[@]}" --repo "${GITHUB_REPOSITORY}" --title "${tag}" --notes-file "${notes_file}"
+            else
+              gh release create "${tag}" "${assets[@]}" --repo "${GITHUB_REPOSITORY}" --title "${tag}" --notes "Codex 额度小组件 ${version}"
+            fi
+          fi

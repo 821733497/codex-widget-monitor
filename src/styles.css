@@ -12,6 +12,10 @@
   background: transparent;
   user-select: none;
 
+  /* 玻璃不透明度参数（默认 50% 对应 alpha: 0.44 与 0.50） */
+  --glass-tint-alpha-1: 0.44;
+  --glass-tint-alpha-2: 0.5;
+
   /* Open Glass UI 核心设计变量（高透透明水晶液态玻璃系统 Clear Liquid Glass） */
   --ogui-color-accent: #38bdf8;
   --ogui-color-accent-ink: #02121e;
@@ -45,8 +49,8 @@
     ),
     radial-gradient(
       120% 120% at 50% -10%,
-      rgba(24, 34, 48, 0.44) 0%,
-      rgba(12, 17, 26, 0.5) 100%
+      rgba(24, 34, 48, var(--glass-tint-alpha-1, 0.44)) 0%,
+      rgba(12, 17, 26, var(--glass-tint-alpha-2, 0.5)) 100%
     );
   --ogui-lg-sheet-border: rgba(255, 255, 255, 0.24);
   --ogui-lg-spec: rgba(255, 255, 255, 0.85);
@@ -251,6 +255,96 @@ section {
   justify-content: space-between;
   min-height: 36px;
   margin-bottom: 16px;
+}
+
+.opacity-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: auto;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.opacity-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.opacity-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ogui-ink);
+  text-shadow: var(--ogui-text-halo);
+}
+
+.opacity-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ogui-muted);
+  text-shadow: var(--ogui-text-halo);
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.ogui-range {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  outline: none;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.ogui-range:focus-visible {
+  outline: 2px solid var(--ogui-color-focus);
+  outline-offset: 2px;
+}
+
+.ogui-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.45),
+    0 0 8px rgba(56, 189, 248, 0.45);
+  cursor: grab;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.ogui-range::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.55),
+    0 0 12px rgba(56, 189, 248, 0.65);
+}
+
+.ogui-range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(0.95);
 }
 
 /* Open Glass UI 风格胶囊药丸 Badge（高透冰晶微胶囊） */
@@ -701,6 +795,25 @@ details[open] > summary::after {
   padding-bottom: 4px;
 }
 
+.update-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.update-status {
+  display: block;
+  margin-top: 8px;
+  color: var(--ogui-muted);
+  font-size: 12px;
+}
+
+.update-status:empty {
+  display: none;
+}
+
 .keys {
   display: grid;
   gap: 8px;
@@ -730,18 +843,14 @@ details[open] > summary::after {
 }
 
 footer {
+  display: none;
   flex: 0 0 auto;
   position: relative;
   z-index: 10;
-  min-height: 68px;
-  padding: 14px 24px;
+  padding: 10px 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   background: rgba(255, 255, 255, 0.02);
-}
-
-footer button {
-  flex-shrink: 0;
 }
 
 #message {

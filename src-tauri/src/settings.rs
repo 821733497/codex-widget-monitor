@@ -34,6 +34,18 @@ pub enum ActiveTarget {
     SiteKey { site_id: String, key_id: String },
 }
 
+fn default_glass_opacity() -> u32 {
+    50
+}
+
+fn default_auto_update_enabled() -> bool {
+    true
+}
+
+fn default_taskbar_enabled() -> bool {
+    true
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct AppSettings {
@@ -41,12 +53,16 @@ pub struct AppSettings {
     pub codex_cli_path: Option<String>,
     #[serde(default)]
     pub update_proxy: Option<String>,
-    #[serde(default)]
+    #[serde(default = "default_taskbar_enabled")]
     pub taskbar_enabled: bool,
     #[serde(default)]
     pub sites: Vec<SiteConfig>,
     #[serde(default)]
     pub active_target: ActiveTarget,
+    #[serde(default = "default_glass_opacity")]
+    pub glass_opacity: u32,
+    #[serde(default = "default_auto_update_enabled")]
+    pub auto_update_enabled: bool,
 }
 
 impl Default for AppSettings {
@@ -54,9 +70,11 @@ impl Default for AppSettings {
         Self {
             codex_cli_path: None,
             update_proxy: None,
-            taskbar_enabled: false,
+            taskbar_enabled: true,
             sites: Vec::new(),
             active_target: ActiveTarget::Official,
+            glass_opacity: 50,
+            auto_update_enabled: true,
         }
     }
 }
@@ -76,6 +94,7 @@ impl SettingsService {
     pub fn save(app: &AppHandle, mut settings: AppSettings) -> Result<AppSettings> {
         settings.codex_cli_path = trim_option(settings.codex_cli_path);
         settings.update_proxy = trim_option(settings.update_proxy);
+        settings.glass_opacity = settings.glass_opacity.clamp(10, 100);
         for site in &mut settings.sites {
             site.name = site.name.trim().to_string();
             site.base_url = site.base_url.trim().trim_end_matches('/').to_string();
@@ -139,5 +158,39 @@ mod tests {
         assert_eq!(existing["ballSize"], "medium");
         assert_eq!(existing["sites"][0]["id"], "new-site");
         assert_eq!(existing["taskbarEnabled"], true);
+    }
+
+    #[test]
+    fn 默认玻璃不透明度为50() {
+        let settings = AppSettings::default();
+        assert_eq!(settings.glass_opacity, 50);
+
+        let parsed: AppSettings = serde_json::from_str("{}").unwrap();
+        assert_eq!(parsed.glass_opacity, 50);
+    }
+
+    #[test]
+    fn 默认开启自动更新() {
+        assert!(AppSettings::default().auto_update_enabled);
+        assert!(
+            serde_json::from_str::<AppSettings>("{}")
+                .unwrap()
+                .auto_update_enabled
+        );
+    }
+
+    #[test]
+    fn 首次启动默认启用任务栏且保留用户关闭状态() {
+        assert!(AppSettings::default().taskbar_enabled);
+        assert!(
+            serde_json::from_str::<AppSettings>("{}")
+                .unwrap()
+                .taskbar_enabled
+        );
+        assert!(
+            !serde_json::from_str::<AppSettings>(r#"{"taskbarEnabled":false}"#)
+                .unwrap()
+                .taskbar_enabled
+        );
     }
 }

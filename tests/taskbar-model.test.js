@@ -60,4 +60,12 @@ describe("buildTaskbarView", () => {
     expect(view.status).toBe("缓存");
     expect(view.sources[0].error).toBe("temporarily unavailable");
   });
+
+  it("includes glassOpacity from settings or defaults to 50", () => {
+    const defaultView = buildTaskbarView({ settings: {} });
+    expect(defaultView.glassOpacity).toBe(50);
+
+    const customView = buildTaskbarView({ settings: { glassOpacity: 75 } });
+    expect(customView.glassOpacity).toBe(75);
+  });
 });

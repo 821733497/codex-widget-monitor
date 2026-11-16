@@ -1,7 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
-import { emitTo, listen } from "@tauri-apps/api/event";
+import { emit, emitTo, listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { check } from "@tauri-apps/plugin-updater";
 import { buildTaskbarView } from "./app/taskbar-model.js";
+import { createUpdateController } from "./app/update-controller.js";
+import { formatUpdateStatus } from "./app/update-status.js";
 import "./styles.css";
 
 const state = {
@@ -10,11 +13,31 @@ const state = {
   errors: {},
   sourceQuotas: {},
   loading: false,
+  updateTimer: null,
+  transientStatusTimer: null,
+  updateStatus: null,
+  updateChecking: false,
 };
 let refreshTimer;
+const updateService = {
+  isAvailable: () => Boolean(window.__TAURI_INTERNALS__),
+  updater: { check },
+};
+const updateController = createUpdateController({
+  state,
+  service: updateService,
+  render: () => renderUpdateStatus(),
+  logger: {
+    info: (...args) => console.info(...args),
+    error: (...args) => console.error(...args),
+  },
+});
 const id = () => crypto.randomUUID();
 const showMessage = (text) => {
-  document.querySelector("#message").textContent = text;
+  const msg = document.querySelector("#message");
+  if (msg) msg.textContent = text;
+  const footer = document.querySelector("#footer");
+  if (footer) footer.style.display = text ? "flex" : "none";
 };
 
 function targetKey(target) {
@@ -84,6 +107,7 @@ function renderSites(expandSiteId) {
         site.keys = site.keys.filter((entry) => entry.id !== key.id);
         renderSites();
         renderTargets();
+        void saveSettings().catch((error) => showMessage(String(error)));
       });
       keys.append(item);
     }
@@ -91,6 +115,7 @@ function renderSites(expandSiteId) {
       site.keys.push({ id: id(), name: "", key: "" });
       renderSites();
       renderTargets();
+      void saveSettings().catch((error) => showMessage(String(error)));
     });
     row.querySelector("[data-remove-site]").addEventListener("click", () => {
       state.settings.sites = state.settings.sites.filter(
@@ -98,6 +123,7 @@ function renderSites(expandSiteId) {
       );
       renderSites();
       renderTargets();
+      void saveSettings().catch((error) => showMessage(String(error)));
     });
     root.append(row);
   }
@@ -108,8 +134,14 @@ function renderSites(expandSiteId) {
         event.target.value.trim() || "未命名站点";
       renderTargets();
     });
+    row.querySelector("[data-name]").addEventListener("change", () => {
+      void saveSettings().catch((error) => showMessage(String(error)));
+    });
     row.querySelector("[data-url]").addEventListener("input", (event) => {
       state.settings.sites[index].baseUrl = event.target.value;
+    });
+    row.querySelector("[data-url]").addEventListener("change", () => {
+      void saveSettings().catch((error) => showMessage(String(error)));
     });
     row.querySelectorAll(".key-row").forEach((keyRow, keyIndex) => {
       keyRow
@@ -119,9 +151,19 @@ function renderSites(expandSiteId) {
           renderTargets();
         });
       keyRow
+        .querySelector("[data-key-name]")
+        .addEventListener("change", () => {
+          void saveSettings().catch((error) => showMessage(String(error)));
+        });
+      keyRow
         .querySelector("[data-key-value]")
         .addEventListener("input", (event) => {
           state.settings.sites[index].keys[keyIndex].key = event.target.value;
+        });
+      keyRow
+        .querySelector("[data-key-value]")
+        .addEventListener("change", () => {
+          void saveSettings().catch((error) => showMessage(String(error)));
         });
     });
   });
@@ -146,33 +188,92 @@ function renderTargets() {
   }
 }
 
+function applyGlassOpacity(opacity) {
+  const val = Math.max(10, Math.min(100, Number(opacity) || 50));
+  const alpha2 = (val / 100).toFixed(2);
+  const alpha1 = ((val * 0.88) / 100).toFixed(2);
+  document.documentElement.style.setProperty("--glass-tint-alpha-1", alpha1);
+  document.documentElement.style.setProperty("--glass-tint-alpha-2", alpha2);
+}
+
 function renderSettings() {
   document.querySelector("#enabled").checked = state.settings.taskbarEnabled;
+  document.querySelector("#autoUpdate").checked = state.settings.autoUpdateEnabled;
+  const opacity =
+    typeof state.settings.glassOpacity === "number"
+      ? state.settings.glassOpacity
+      : 50;
+  const opacitySlider = document.querySelector("#glassOpacity");
+  const opacityValue = document.querySelector("#opacityValue");
+  if (opacitySlider) {
+    opacitySlider.value = opacity;
+  }
+  if (opacityValue) {
+    opacityValue.textContent = `${opacity}%`;
+  }
+  applyGlassOpacity(opacity);
   document.querySelector("#codexPath").value =
     state.settings.codexCliPath || "";
   document.querySelector("#proxy").value = state.settings.updateProxy || "";
   renderSites();
   renderTargets();
+  renderUpdateStatus();
+}
+
+function renderUpdateStatus() {
+  const status = document.querySelector("#updateStatus");
+  if (!status) return;
+  status.textContent = formatUpdateStatus(
+    {
+      checkingUpdate: "正在检查更新...",
+      updateAvailable: "发现新版本",
+      updateDownloading: "正在下载更新",
+      updateInstalling: "正在安装更新",
+      updateReady: "更新已安装，重启后生效",
+      updateCheckFailed: "获取版本失败",
+      updateInstallFailed: "更新失败",
+      updateFailed: "更新检查失败",
+      updateLatest: "已是最新版本",
+      updateDevMode: "开发模式：已跳过安装",
+      settingsSaved: "设置已保存",
+    },
+    state.updateStatus,
+  );
 }
 
 async function saveSettings() {
+  const updateSettings = {
+    enabled: state.settings.autoUpdateEnabled,
+    proxy: state.settings.updateProxy,
+  };
   state.settings.taskbarEnabled = document.querySelector("#enabled").checked;
+  state.settings.autoUpdateEnabled = document.querySelector("#autoUpdate").checked;
+  const opacitySlider = document.querySelector("#glassOpacity");
+  if (opacitySlider) {
+    state.settings.glassOpacity = Number(opacitySlider.value) || 50;
+  }
   state.settings.codexCliPath =
     document.querySelector("#codexPath").value.trim() || null;
   state.settings.updateProxy =
     document.querySelector("#proxy").value.trim() || null;
-  state.settings.activeTarget = JSON.parse(
-    document.querySelector("#activeTarget").value,
-  );
+  const targetSelect = document.querySelector("#activeTarget");
+  if (targetSelect?.value) {
+    state.settings.activeTarget = JSON.parse(targetSelect.value);
+  }
   state.settings = await invoke("save_settings", { settings: state.settings });
   await invoke("set_taskbar_enabled", {
     enabled: state.settings.taskbarEnabled,
   });
+  await publishTaskbar();
   if (state.settings.taskbarEnabled) {
-    await getCurrentWindow().hide();
     void getCurrentQuota();
   }
-  showMessage("已保存");
+  if (
+    updateSettings.enabled !== state.settings.autoUpdateEnabled ||
+    updateSettings.proxy !== state.settings.updateProxy
+  ) {
+    updateController.scheduleUpdateChecks();
+  }
 }
 
 async function testConnection() {
@@ -282,6 +383,7 @@ async function handleTaskbarAction(event) {
 async function start() {
   state.settings = await invoke("get_settings");
   renderSettings();
+  showMessage("");
   document
     .querySelector("#closeWindow")
     ?.addEventListener("click", () => void getCurrentWindow().hide());
@@ -290,17 +392,12 @@ async function start() {
     state.settings.sites.push(site);
     renderSites(site.id);
     renderTargets();
+    void saveSettings().catch((error) => showMessage(String(error)));
     const row = [...document.querySelectorAll(".site")].find(
       (entry) => entry.dataset.siteId === site.id,
     );
     row?.querySelector("[data-name]").focus();
   });
-  document
-    .querySelector("#save")
-    .addEventListener(
-      "click",
-      () => void saveSettings().catch((error) => showMessage(String(error))),
-    );
   document
     .querySelector("#testConnection")
     .addEventListener(
@@ -316,11 +413,57 @@ async function start() {
       "change",
       () => void saveSettings().catch((error) => showMessage(String(error))),
     );
+  document.querySelector("#autoUpdate")?.addEventListener("change", () => {
+    void saveSettings().catch((error) => showMessage(String(error)));
+  });
+  document.querySelector("#checkUpdate")?.addEventListener("click", () => {
+    void updateController
+      .checkForUpdates({ manual: true })
+      .catch((error) => showMessage(String(error?.message || error)));
+  });
+  document
+    .querySelector("#activeTarget")
+    ?.addEventListener("change", () => {
+      void saveSettings()
+        .then(() => refresh())
+        .catch((error) => showMessage(String(error)));
+    });
+  for (const selector of ["#codexPath", "#proxy"]) {
+    document.querySelector(selector)?.addEventListener("change", () => {
+      void saveSettings().catch((error) => showMessage(String(error)));
+    });
+  }
+  const opacitySlider = document.querySelector("#glassOpacity");
+  const opacityValue = document.querySelector("#opacityValue");
+  if (opacitySlider) {
+    opacitySlider.addEventListener("input", (event) => {
+      const val = Number(event.target.value) || 50;
+      if (opacityValue) {
+        opacityValue.textContent = `${val}%`;
+      }
+      applyGlassOpacity(val);
+      void emit("taskbar:opacity", { opacity: val }).catch(() => {});
+      void emitTo("taskbar-popup", "taskbar:opacity", { opacity: val }).catch(
+        () => {},
+      );
+      void emitTo("taskbar", "taskbar:opacity", { opacity: val }).catch(
+        () => {},
+      );
+    });
+    opacitySlider.addEventListener(
+      "change",
+      () => void saveSettings().catch((error) => showMessage(String(error))),
+    );
+  }
   await listen("taskbar:ready", () => void publishTaskbar());
   await listen("taskbar:action", (event) => void handleTaskbarAction(event));
+  updateController.scheduleUpdateChecks();
   await getCurrentQuota();
   refreshTimer = setInterval(() => void getCurrentQuota(), 5 * 60 * 1000);
-  window.addEventListener("beforeunload", () => clearInterval(refreshTimer), {
+  window.addEventListener("beforeunload", () => {
+    clearInterval(refreshTimer);
+    updateController.dispose();
+  }, {
     once: true,
   });
 }

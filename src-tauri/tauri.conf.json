@@ -2,7 +2,7 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Codex Taskbar Quota",
   "mainBinaryName": "CodexTaskbarQuota",
-  "version": "0.1.0",
+  "version": "../package.json",
   "identifier": "cn.fengshi.codex-quota-widget",
   "build": {
     "beforeDevCommand": "npm run dev",
@@ -12,7 +12,7 @@
   },
   "app": {
     "windows": [
-      { "label": "main", "title": "Codex 任务栏额度设置", "width": 520, "height": 560, "resizable": true, "visible": true, "center": true, "transparent": true, "decorations": false, "shadow": false }
+      { "label": "main", "title": "Codex 任务栏额度设置", "width": 520, "height": 560, "resizable": true, "visible": false, "center": true, "transparent": true, "decorations": false, "shadow": false }
     ],
     "security": {
       "csp": {
@@ -33,5 +33,36 @@
       }
     }
   },
-  "bundle": { "active": false, "icon": ["icons/icon.ico", "icons/icon.png"] }
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "publisher": "fengshi",
+    "copyright": "Copyright (c) 2026 fengshi",
+    "category": "Utility",
+    "shortDescription": "通过 Codex CLI 读取 Codex 额度的任务栏小组件。",
+    "longDescription": "通过本机 Codex CLI 读取 Codex 额度状态的任务栏小组件。",
+    "icon": ["icons/icon.ico", "icons/icon.png"],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper", "silent": true },
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
+        "languages": ["SimpChinese", "English"],
+        "displayLanguageSelector": false,
+        "compression": "lzma"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJFN0M0MDkxNTQ4MTI3ODgKUldTSUo0RlVrVUI4TG93S2pvajl6a1FoNGZoV0J1YklNL3J5VUptWjB2QlZEMmFZOHQrdkNRSi8K",
+      "endpoints": [
+        "https://github.com/821733497/codex-widget-monitor/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
 }

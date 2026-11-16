@@ -270,8 +270,19 @@ async function togglePopup() {
   popup.focus({ preventScroll: true });
 }
 
+function applyGlassOpacity(opacity) {
+  const val = Math.max(10, Math.min(100, Number(opacity) || 50));
+  const alpha2 = (val / 100).toFixed(2);
+  const alpha1 = ((val * 0.88) / 100).toFixed(2);
+  document.documentElement.style.setProperty("--glass-tint-alpha-1", alpha1);
+  document.documentElement.style.setProperty("--glass-tint-alpha-2", alpha2);
+}
+
 function render(data) {
   view = data;
+  if (typeof data?.glassOpacity === "number") {
+    applyGlassOpacity(data.glassOpacity);
+  }
   document.documentElement.lang = data.locale === "en" ? "en" : "zh-CN";
   if (popupWindow) {
     if (popupKind && !popup.hidden) {
@@ -315,7 +326,19 @@ function startCountdownLoop() {
 async function startPopupWindow() {
   document.body.dataset.popupWindow = "true";
   startCountdownLoop();
+  void invoke("get_settings")
+    .then((settings) => {
+      if (typeof settings?.glassOpacity === "number") {
+        applyGlassOpacity(settings.glassOpacity);
+      }
+    })
+    .catch(() => {});
   await listen("taskbar:update", (event) => render(event.payload));
+  await listen("taskbar:opacity", (event) => {
+    if (typeof event.payload?.opacity === "number") {
+      applyGlassOpacity(event.payload.opacity);
+    }
+  });
   await listen("taskbar:popup-toggle", () => {
     void enqueuePopup(() => togglePopup()).catch(showError);
   });
@@ -359,7 +382,19 @@ async function start() {
   }
   document.body.dataset.docked = "true";
   startCountdownLoop();
+  void invoke("get_settings")
+    .then((settings) => {
+      if (typeof settings?.glassOpacity === "number") {
+        applyGlassOpacity(settings.glassOpacity);
+      }
+    })
+    .catch(() => {});
   await listen("taskbar:update", (event) => render(event.payload));
+  await listen("taskbar:opacity", (event) => {
+    if (typeof event.payload?.opacity === "number") {
+      applyGlassOpacity(event.payload.opacity);
+    }
+  });
   await listen("taskbar:placement", (event) => {
     document.body.dataset.docked = String(event.payload.docked);
     document.body.dataset.snap = String(event.payload.snap);

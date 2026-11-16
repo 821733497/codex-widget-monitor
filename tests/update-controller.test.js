@@ -1,0 +1,212 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { createUpdateController } from "../src/app/update-controller.js";
+
+describe("更新控制器", () => {
+  let originalWindow;
+
+  beforeEach(() => {
+    originalWindow = globalThis.window;
+    globalThis.window = globalThis;
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    if (originalWindow === undefined) {
+      delete globalThis.window;
+    } else {
+      globalThis.window = originalWindow;
+    }
+  });
+
+  it("检查保持单并发", async () => {
+    const pending = deferred();
+    const fixture = createFixture(() => pending.promise);
+
+    const first = fixture.controller.checkForUpdates({ manual: true });
+    const second = fixture.controller.checkForUpdates({ manual: true });
+    expect(fixture.service.updater.check).toHaveBeenCalledOnce();
+
+    pending.resolve(null);
+    await Promise.all([first, second]);
+    expect(fixture.state.updateChecking).toBe(false);
+  });
+
+  it("传入代理并正确汇总下载进度", async () => {
+    const statuses = [];
+    const update = {
+      version: "9.9.9",
+      async downloadAndInstall(onEvent) {
+        onEvent({ event: "Started", data: { contentLength: 100 } });
+        onEvent({ event: "Progress", data: { chunkLength: 40 } });
+        onEvent({ event: "Progress", data: { chunkLength: 60 } });
+        onEvent({ event: "Finished" });
+      },
+    };
+    const fixture = createFixture(
+      async () => update,
+      (status) => statuses.push(status && { ...status }),
+    );
+    fixture.state.settings.updateProxy = "http://127.0.0.1:7890";
+
+    await fixture.controller.checkForUpdates({ manual: true });
+
+    expect(fixture.service.updater.check).toHaveBeenCalledWith({
+      timeout: 15_000,
+      proxy: "http://127.0.0.1:7890",
+    });
+    expect(statuses).toContainEqual({ type: "downloading", percent: 40 });
+    expect(statuses).toContainEqual({ type: "downloading", percent: 100 });
+    expect(fixture.state.updateStatus).toEqual({ type: "ready" });
+  });
+
+  it("自动更新关闭时不发起后台检查", () => {
+    const fixture = createFixture(async () => null);
+    fixture.state.settings.autoUpdateEnabled = false;
+
+    fixture.controller.scheduleUpdateChecks();
+
+    expect(fixture.service.updater.check).not.toHaveBeenCalled();
+    expect(fixture.state.updateTimer).toBeNull();
+  });
+
+  it("启动检查一次并每六小时检查，关闭后停止定时检查", async () => {
+    vi.useFakeTimers();
+    const fixture = createFixture(async () => null);
+
+    fixture.controller.scheduleUpdateChecks();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fixture.service.updater.check).toHaveBeenCalledTimes(1);
+
+    await vi.advanceTimersByTimeAsync(6 * 60 * 60 * 1000);
+    expect(fixture.service.updater.check).toHaveBeenCalledTimes(2);
+
+    fixture.state.settings.autoUpdateEnabled = false;
+    fixture.controller.scheduleUpdateChecks();
+    await vi.advanceTimersByTimeAsync(6 * 60 * 60 * 1000);
+    expect(fixture.service.updater.check).toHaveBeenCalledTimes(2);
+    expect(fixture.state.updateTimer).toBeNull();
+
+    await fixture.controller.checkForUpdates({ manual: true });
+    expect(fixture.service.updater.check).toHaveBeenCalledTimes(3);
+  });
+
+  it("检查失败后释放检查状态，允许下次手动检查", async () => {
+    vi.useFakeTimers();
+    const fixture = createFixture(vi.fn()
+      .mockRejectedValueOnce(new Error("网络不可达"))
+      .mockResolvedValue(null));
+
+    await fixture.controller.checkForUpdates({ manual: true });
+    expect(fixture.state.updateStatus).toEqual({ type: "checkFailed" });
+    expect(fixture.state.updateChecking).toBe(false);
+
+    await fixture.controller.checkForUpdates({ manual: true });
+    expect(fixture.state.updateStatus).toEqual({ type: "latest" });
+    await vi.advanceTimersByTimeAsync(1800);
+    expect(fixture.state.updateStatus).toBeNull();
+  });
+
+  it("安装失败会结束本次更新并允许重试", async () => {
+    vi.useFakeTimers();
+    const fixture = createFixture(async () => ({
+      version: "9.9.9",
+      downloadAndInstall: vi.fn().mockRejectedValue(new Error("签名无效")),
+    }));
+
+    await fixture.controller.checkForUpdates({ manual: true });
+    expect(fixture.state.updateStatus).toEqual({ type: "updateFailed" });
+    expect(fixture.state.updateChecking).toBe(false);
+  });
+
+  it("页面卸载时清理更新检查和临时状态定时器", async () => {
+    vi.useFakeTimers();
+    const fixture = createFixture(async () => null);
+    fixture.controller.scheduleUpdateChecks();
+    await vi.advanceTimersByTimeAsync(0);
+    fixture.controller.setUpdateStatus({ type: "latest" });
+
+    fixture.controller.dispose();
+
+    expect(vi.getTimerCount()).toBe(0);
+    expect(fixture.state.updateTimer).toBeNull();
+    expect(fixture.state.transientStatusTimer).toBeNull();
+  });
+
+  it("开发模式下后台定时自动更新不发起检查", () => {
+    const fixture = createFixture(
+      async () => null,
+      () => {},
+      { isDev: true },
+    );
+    fixture.state.settings.autoUpdateEnabled = true;
+
+    fixture.controller.scheduleUpdateChecks();
+
+    expect(fixture.service.updater.check).not.toHaveBeenCalled();
+    expect(fixture.state.updateTimer).toBeNull();
+  });
+
+  it("开发模式下手动作检查发现新版本时设置 devMode 状态且不触发下载安装", async () => {
+    const downloadAndInstall = vi.fn();
+    const update = {
+      version: "9.9.9",
+      downloadAndInstall,
+    };
+    const fixture = createFixture(
+      async () => update,
+      () => {},
+      {
+        isDev: true,
+      },
+    );
+
+    await fixture.controller.checkForUpdates({ manual: true });
+
+    expect(fixture.service.updater.check).toHaveBeenCalledOnce();
+    expect(downloadAndInstall).not.toHaveBeenCalled();
+    expect(fixture.state.updateStatus).toEqual({
+      type: "devMode",
+      version: "9.9.9",
+    });
+  });
+
+  it("无代理时也为版本检查设置超时", async () => {
+    const fixture = createFixture(async () => null);
+
+    await fixture.controller.checkForUpdates({ manual: true });
+
+    expect(fixture.service.updater.check).toHaveBeenCalledWith({
+      timeout: 15_000,
+    });
+  });
+});
+
+function createFixture(check, onRender = () => {}, { isDev = false } = {}) {
+  const state = {
+    settings: { autoUpdateEnabled: true },
+    updateTimer: null,
+    updateStatus: null,
+    updateChecking: false,
+  };
+  const service = {
+    isAvailable: () => true,
+    updater: { check: vi.fn(check) },
+  };
+  const controller = createUpdateController({
+    state,
+    service,
+    render: () => onRender(state.updateStatus),
+    logger: { error: vi.fn(), info: vi.fn() },
+    isDev,
+  });
+  return { controller, service, state };
+}
+
+function deferred() {
+  let resolve;
+  const promise = new Promise((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}

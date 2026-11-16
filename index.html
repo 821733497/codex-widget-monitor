@@ -32,6 +32,26 @@
                   <span class="ogui-switch__thumb"></span>
                 </span>
               </label>
+              <div class="setting-row opacity-row" title="调整窗口背景的通透程度（15% ~ 95%）">
+                <div class="opacity-label-row">
+                  <span class="opacity-label">背景不透明度</span>
+                  <span id="opacityValue" class="count-badge">50%</span>
+                </div>
+                <div class="opacity-slider-wrap">
+                  <span class="range-hint">通透</span>
+                  <input
+                    id="glassOpacity"
+                    class="ogui-range"
+                    type="range"
+                    min="15"
+                    max="95"
+                    step="1"
+                    value="50"
+                    aria-label="背景不透明度"
+                  />
+                  <span class="range-hint">深色</span>
+                </div>
+              </div>
               <label class="ogui-field" for="activeTarget">
                 <span>当前数据源</span>
               </label>
@@ -58,7 +78,7 @@
             </section>
             <details class="advanced-settings">
               <summary>
-                <span class="summary-copy"><span class="summary-title">高级设置</span><span class="summary-meta">官方 CLI 路径、HTTP 代理</span></span>
+                <span class="summary-copy"><span class="summary-title">高级设置</span><span class="summary-meta">官方 CLI 路径、HTTP 代理、在线更新</span></span>
               </summary>
               <div class="advanced-content">
                 <label class="ogui-field">
@@ -69,18 +89,20 @@
                   <span>HTTP 代理</span>
                   <input id="proxy" placeholder="留空时不使用代理" />
                 </label>
+                <div class="update-row">
+                  <label class="ogui-switch">
+                    <span class="ogui-switch__label">自动更新</span>
+                    <input id="autoUpdate" type="checkbox" />
+                    <span class="ogui-switch__track" aria-hidden="true"><span class="ogui-switch__thumb"></span></span>
+                  </label>
+                  <button id="checkUpdate" class="ogui-button ogui-control--small" type="button">检查更新</button>
+                </div>
+                <span id="updateStatus" class="update-status" role="status"></span>
               </div>
             </details>
           </div>
-          <footer>
+          <footer id="footer">
             <span id="message" role="status"></span>
-            <button
-              id="save"
-              class="ogui-button ogui-button--primary"
-              type="button"
-            >
-              保存设置
-            </button>
           </footer>
         </div>
       </div>

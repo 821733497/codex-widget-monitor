@@ -1,6 +1,6 @@
 {
   "name": "codex-taskbar-quota",
-  "version": "0.1.0",
+  "version": "1.0.11",
   "description": "Codex 任务栏额度组件。",
   "author": "fengshi",
   "license": "MIT",
@@ -13,14 +13,20 @@
     "lint": "eslint src vite.config.js eslint.config.js",
     "test": "vitest run",
     "check:frontend": "npm run lint && npm run test && npm run build:frontend",
-    "check:rust": "cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check && cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings && cargo test --manifest-path src-tauri/Cargo.toml",
+    "check:rust": "cargo fmt --manifest-path src-tauri/Cargo.toml --all -- --check && cargo clippy --locked --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings && cargo test --locked --manifest-path src-tauri/Cargo.toml",
     "check": "npm run check:frontend && npm run check:rust",
     "ci:install": "npm ci --prefer-offline --no-audit --no-fund",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:check": "tauri build --no-bundle --ci -- --locked",
+    "tauri:build": "tauri build -- --locked",
+    "tauri:build:nsis": "tauri build --bundles nsis -- --locked",
+    "tauri:build:nsis:updater": "tauri build --bundles nsis --config src-tauri/tauri.updater.conf.json -- --locked",
+    "updater:latest": "node scripts/create-latest-json.mjs",
+    "release:github": "npm run tauri:build:nsis:updater && npm run updater:latest"
   },
   "dependencies": {
-    "@tauri-apps/api": "^2.0.0",
+    "@tauri-apps/api": "2.11.1",
+    "@tauri-apps/plugin-updater": "2.10.1",
     "liquid-gl": "3.0.0"
   },
   "devDependencies": {

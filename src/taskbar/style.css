@@ -23,6 +23,10 @@
   --floating-border: rgba(0, 0, 0, 0.12);
   --floating-shadow: 0 6px 18px rgba(0, 0, 0, 0.14);
 
+  /* 玻璃不透明度参数（默认 50% 对应 alpha: 0.44 与 0.50） */
+  --glass-tint-alpha-1: 0.44;
+  --glass-tint-alpha-2: 0.5;
+
   /* 弹窗 Flyout 液态玻璃质感 - 顶级液态石英玻璃规范 */
   --popup-bg:
     linear-gradient(
@@ -33,8 +37,8 @@
     ),
     radial-gradient(
       120% 120% at 50% -10%,
-      rgba(24, 34, 48, 0.44) 0%,
-      rgba(12, 17, 26, 0.5) 100%
+      rgba(24, 34, 48, var(--glass-tint-alpha-1, 0.44)) 0%,
+      rgba(12, 17, 26, var(--glass-tint-alpha-2, 0.5)) 100%
     );
   --popup-border: rgba(255, 255, 255, 0.22);
   --popup-shadow:
@@ -92,8 +96,8 @@
       ),
       radial-gradient(
         120% 120% at 50% -10%,
-        rgba(24, 34, 48, 0.44) 0%,
-        rgba(12, 17, 26, 0.5) 100%
+        rgba(24, 34, 48, var(--glass-tint-alpha-1, 0.44)) 0%,
+        rgba(12, 17, 26, var(--glass-tint-alpha-2, 0.5)) 100%
       );
     --popup-border: rgba(255, 255, 255, 0.22);
     --popup-shadow:
