@@ -12,39 +12,49 @@
   background: transparent;
   user-select: none;
 
-  /* Open Glass UI 核心设计变量（默认统一高级黑底液态玻璃系统） */
+  /* Open Glass UI 核心设计变量（高透透明水晶液态玻璃系统 Clear Liquid Glass） */
   --ogui-color-accent: #38bdf8;
-  --ogui-color-accent-ink: #04121d;
+  --ogui-color-accent-ink: #02121e;
   --ogui-color-focus: #38bdf8;
   --ogui-color-danger: #f87171;
   --ogui-color-danger-ink: #2b0404;
 
-  --ogui-ink: #f8fafc;
-  --ogui-muted: #94a3b8;
-  --ogui-hairline: rgba(255, 255, 255, 0.14);
+  --ogui-ink: #ffffff;
+  --ogui-muted: #e2e8f0;
+  --ogui-hairline: rgba(255, 255, 255, 0.16);
 
-  /* Liquid Fills & Wells (深色沉降与凸起) */
+  /* Liquid Fills & Wells (高透半透明控件) */
   --ogui-lg-fill: rgba(255, 255, 255, 0.08);
-  --ogui-lg-fill-hover: rgba(255, 255, 255, 0.14);
-  --ogui-lg-fill-active: rgba(255, 255, 255, 0.2);
-  --ogui-lg-well: rgba(0, 0, 0, 0.36);
+  --ogui-lg-fill-hover: rgba(255, 255, 255, 0.15);
+  --ogui-lg-fill-active: rgba(255, 255, 255, 0.22);
+  --ogui-lg-well: rgba(0, 0, 0, 0.2);
   --ogui-lg-well-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.45),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
-  --ogui-lg-knob: #f8fafc;
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --ogui-lg-knob: #ffffff;
   --ogui-lg-knob-shadow:
-    0 0 0 0.5px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.4);
+    0 1px 3px rgba(0, 0, 0, 0.35), 0 3px 8px rgba(0, 0, 0, 0.2);
 
-  /* Liquid Sheet 外层玻璃壳：在纯白或纯黑背景下均能完美透出背景且清晰立挺 */
-  --ogui-lg-sheet-bg: rgba(22, 27, 38, 0.82);
-  --ogui-lg-sheet-border: rgba(255, 255, 255, 0.18);
-  --ogui-lg-spec: rgba(255, 255, 255, 0.65);
-  --ogui-lg-spec-counter: rgba(255, 255, 255, 0.15);
-  --ogui-lg-rim: inset 0 0 18px rgba(255, 255, 255, 0.08);
+  /* Liquid Sheet：高透透明玻璃（兼顾水晶通透度与高对比可读性） */
+  --ogui-lg-sheet-bg:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.22) 0%,
+      rgba(255, 255, 255, 0.05) 28%,
+      transparent 65%
+    ),
+    radial-gradient(
+      120% 120% at 50% -10%,
+      rgba(24, 34, 48, 0.44) 0%,
+      rgba(12, 17, 26, 0.5) 100%
+    );
+  --ogui-lg-sheet-border: rgba(255, 255, 255, 0.24);
+  --ogui-lg-spec: rgba(255, 255, 255, 0.85);
+  --ogui-lg-spec-counter: rgba(255, 255, 255, 0.24);
+  --ogui-lg-rim: inset 0 0 28px rgba(255, 255, 255, 0.06);
 
-  /* 文字微光晕轮廓 */
-  --ogui-text-halo: 0 1px 2px rgba(0, 0, 0, 0.85);
+  /* 文字防吞底微光晕轮廓：保证在全透玻璃下无论背景是纯白还是深黑均清晰锐利 */
+  --ogui-text-halo: 0 1px 2px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.9);
 }
 
 * {
@@ -71,7 +81,7 @@ body {
   background: transparent;
 }
 
-/* 主卡片容器：Open Glass UI Liquid Sheet */
+/* 主卡片容器：真·高透清澈液态玻璃（Clear Liquid Glass Sheet） */
 .settings {
   color-scheme: dark;
   position: relative;
@@ -83,29 +93,40 @@ body {
   border-radius: 28px;
   clip-path: inset(0 round 28px);
   background: var(--ogui-lg-sheet-bg);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(36px) saturate(180%) contrast(104%);
+  -webkit-backdrop-filter: blur(36px) saturate(180%) contrast(104%);
   border: 1px solid var(--ogui-lg-sheet-border);
   box-shadow:
-    var(--ogui-lg-rim),
-    inset 0 1px 0 var(--ogui-lg-spec),
-    inset 0 -1px 0 var(--ogui-lg-spec-counter);
+    /* 1. 顶层纯白镜面光刃（Specular Light Edge） */
+    inset 0 1px 1px 0 var(--ogui-lg-spec),
+    /* 2. 模拟玻璃四周物理倒角的 1px 极细微光（Outer Bevel Edge） */ inset 0 0 0
+      1px rgba(255, 255, 255, 0.16),
+    /* 3. 内部边缘透镜光（Inner Edge Lensing） */ var(--ogui-lg-rim),
+    /* 4. 底边缘微弱次级环境反弹光（Counter Reflection） */ inset 0 -1px 1px 0
+      var(--ogui-lg-spec-counter),
+    /* 5. 悬浮玻璃外部光学投射阴影 */ 0 20px 48px -10px rgba(0, 0, 0, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
+/* 顶部镜面折射聚光刃（Specular Glint） */
 .settings::before {
   position: absolute;
-  inset: 0 auto auto 0;
-  width: 50%;
-  height: 1.5px;
+  top: 0;
+  left: 8%;
+  right: 8%;
+  height: 1.2px;
   background: linear-gradient(
     90deg,
-    transparent,
-    rgba(255, 255, 255, 0.85),
-    transparent
+    transparent 0%,
+    rgba(255, 255, 255, 0.25) 20%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.25) 80%,
+    transparent 100%
   );
   content: "";
   pointer-events: none;
   z-index: 10;
+  filter: drop-shadow(0 1px 4px rgba(255, 255, 255, 0.7));
 }
 
 .settings-content {
@@ -117,24 +138,21 @@ body {
   overflow: hidden;
 }
 
+/* 滚动区：平滑可滚动但完全隐藏滚动条，保持液态玻璃界面的通透美感 */
 .settings-scroll {
   flex: 1;
   min-height: 0;
   padding: 0 24px 20px;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: var(--ogui-hairline) transparent;
-  scrollbar-gutter: stable;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .settings-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.settings-scroll::-webkit-scrollbar-thumb {
-  border-radius: 4px;
-  background: var(--ogui-hairline);
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 header,
@@ -149,16 +167,17 @@ footer,
 
 header {
   flex: 0 0 auto;
-  padding: 22px 24px 18px;
-  border-bottom: 1px solid var(--ogui-hairline);
+  position: relative;
+  z-index: 10;
+  padding: 20px 24px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.03);
   cursor: default;
 }
 
 .close-btn {
   flex-shrink: 0;
-}
-
-.close-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -166,24 +185,27 @@ header {
   height: 28px;
   padding: 0;
   border-radius: 50%;
-  border: 1px solid var(--ogui-hairline);
-  background: var(--ogui-lg-fill);
-  color: var(--ogui-ink);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  color: var(--ogui-muted);
   font-size: 13px;
   line-height: 1;
   cursor: pointer;
   transition:
-    background 0.15s,
-    color 0.15s,
-    border-color 0.15s,
-    transform 0.12s;
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.12s ease;
 }
 
 .close-btn:hover {
-  background: var(--ogui-color-danger);
-  border-color: transparent;
-  color: #fff;
-  transform: scale(1.05);
+  background: rgba(239, 68, 68, 0.85);
+  border-color: rgba(248, 113, 113, 0.6);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(239, 68, 68, 0.5);
+  transform: scale(1.06);
 }
 
 .close-btn:active {
@@ -192,7 +214,7 @@ header {
 
 h1 {
   margin: 0;
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 650;
   letter-spacing: -0.015em;
   text-shadow: var(--ogui-text-halo);
@@ -214,9 +236,9 @@ p {
 }
 
 section {
-  margin-top: 18px;
-  padding-top: 16px;
-  border-top: 1px solid var(--ogui-hairline);
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .display-settings {
@@ -231,18 +253,24 @@ section {
   margin-bottom: 16px;
 }
 
+/* Open Glass UI 风格胶囊药丸 Badge（高透冰晶微胶囊） */
 .count-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 20px;
+  min-width: 20px;
+  height: 18px;
   margin-left: 6px;
-  padding: 0 6px;
-  border-radius: 6px;
-  background: var(--ogui-lg-fill);
-  color: var(--ogui-muted);
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.2);
+  color: #f1f5f9;
   font-size: 11px;
+  font-weight: 600;
   vertical-align: middle;
 }
 
@@ -270,45 +298,63 @@ section {
   text-shadow: var(--ogui-text-halo);
 }
 
+/* 深层沉降透光槽（Recessed Glass Wells） */
 input,
 select {
   min-width: 0;
   width: 100%;
   height: 38px;
   padding: 0 12px;
-  border: 1px solid var(--ogui-hairline);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
   color: var(--ogui-ink);
-  background: var(--ogui-lg-well);
-  box-shadow: var(--ogui-lg-well-shadow);
+  background-color: rgba(0, 0, 0, 0.22);
+  box-shadow:
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.32),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.04),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06);
   font: inherit;
+  font-size: 13px;
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,
-    background 160ms ease;
+    background-color 160ms ease;
 }
 
+/* 美化 Select：隐藏粗黑原生箭头，注入优雅内联半透明 Chevron 矢量箭头 */
 select {
-  color-scheme: dark;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.45)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px 14px;
+  cursor: pointer;
+}
+
+select:hover {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.75)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 select option,
 select optgroup {
   color: var(--ogui-ink);
-  background: #222936;
+  background: #181d26;
 }
 
 input:focus,
 select:focus {
   outline: none;
-  border-color: var(--ogui-color-focus);
-  background: var(--ogui-lg-fill-hover);
+  border-color: rgba(56, 189, 248, 0.75);
+  background-color: rgba(0, 0, 0, 0.3);
   box-shadow:
-    0 0 0 3px color-mix(in srgb, var(--ogui-color-focus), transparent 75%),
-    var(--ogui-lg-well-shadow);
+    0 0 0 3px rgba(56, 189, 248, 0.2),
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-/* Open Glass UI Button */
+/* Open Glass UI 晶体微透按钮 */
 .ogui-button,
 button {
   position: relative;
@@ -318,37 +364,51 @@ button {
   justify-content: center;
   gap: 6px;
   padding: 8px 16px;
-  border: 1px solid var(--ogui-hairline);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 12px;
   color: var(--ogui-ink);
-  background: var(--ogui-lg-fill);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
   box-shadow:
-    inset 0 1px rgba(255, 255, 255, 0.2),
-    0 2px 6px rgba(0, 0, 0, 0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.22);
   font: inherit;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.01em;
   cursor: pointer;
   user-select: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition:
     background 160ms ease,
     border-color 160ms ease,
     box-shadow 160ms ease,
-    transform 120ms ease;
+    transform 140ms cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 .ogui-button:hover,
 button:hover {
-  background: var(--ogui-lg-fill-hover);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  border-color: rgba(255, 255, 255, 0.26);
   box-shadow:
-    inset 0 1px rgba(255, 255, 255, 0.28),
-    0 4px 12px rgba(0, 0, 0, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 4px 14px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
 }
 
 .ogui-button:active,
 button:active {
-  transform: translateY(1px) scale(0.985);
-  background: var(--ogui-lg-fill-active);
+  transform: translateY(1px) scale(0.98);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .ogui-control--small {
@@ -357,42 +417,51 @@ button:active {
   border-radius: 9px;
 }
 
-/* 主要操作按钮：液态玻璃高光分层 */
+/* 主要操作按钮：液态蓝宝石（Liquid Sapphire Glass） */
 .ogui-button--primary {
-  border-color: color-mix(in srgb, var(--ogui-color-accent), white 22%);
-  color: var(--ogui-color-accent-ink);
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ogui-color-accent), white 20%),
-    var(--ogui-color-accent)
-  );
+  border-color: rgba(125, 211, 252, 0.7);
+  color: #031322;
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 50% 0%,
+      rgba(255, 255, 255, 0.45) 0%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, #67e8f9 0%, #38bdf8 38%, #0284c7 100%);
   box-shadow:
-    inset 0 1px rgba(255, 255, 255, 0.52),
-    0 6px 18px color-mix(in srgb, var(--ogui-color-accent), transparent 60%);
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    0 4px 18px rgba(56, 189, 248, 0.42);
+  font-weight: 650;
 }
 
 .ogui-button--primary:hover {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--ogui-color-accent), white 30%),
-    color-mix(in srgb, var(--ogui-color-accent), black 5%)
-  );
+  background:
+    radial-gradient(
+      ellipse 70% 50% at 50% 0%,
+      rgba(255, 255, 255, 0.55) 0%,
+      transparent 70%
+    ),
+    linear-gradient(180deg, #a5f3fc 0%, #38bdf8 42%, #0369a1 100%);
   box-shadow:
-    inset 0 1px rgba(255, 255, 255, 0.6),
-    0 8px 24px color-mix(in srgb, var(--ogui-color-accent), transparent 50%);
+    inset 0 1px 0 #ffffff,
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    0 6px 24px rgba(56, 189, 248, 0.58);
+  transform: translateY(-1px);
 }
 
 .ogui-button--danger {
-  border-color: color-mix(in srgb, var(--ogui-color-danger), transparent 55%);
-  color: var(--ogui-color-danger);
-  background: color-mix(in srgb, var(--ogui-color-danger), transparent 88%);
-  box-shadow: none;
+  border-color: rgba(248, 113, 113, 0.32);
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .ogui-button--danger:hover {
-  background: var(--ogui-color-danger);
-  color: var(--ogui-color-danger-ink);
+  background: rgba(239, 68, 68, 0.85);
+  color: #ffffff;
   border-color: transparent;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.42);
 }
 
 /* Open Glass UI Switch (胶囊弹簧开关) */
@@ -430,13 +499,16 @@ button:active {
   flex: 0 0 auto;
   width: 44px;
   height: 24px;
-  border: 1px solid var(--ogui-hairline);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
-  background: var(--ogui-lg-well);
-  box-shadow: var(--ogui-lg-well-shadow);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow:
+    inset 0 1.5px 3px rgba(0, 0, 0, 0.25),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.06);
   transition:
-    background 180ms ease,
-    border-color 180ms ease;
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
 }
 
 .ogui-switch__thumb {
@@ -446,14 +518,19 @@ button:active {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--ogui-lg-knob);
-  box-shadow: var(--ogui-lg-knob-shadow);
-  transition: transform 200ms cubic-bezier(0.34, 1.4, 0.64, 1);
+  background: #ffffff;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.4),
+    0 3px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 220ms cubic-bezier(0.34, 1.4, 0.64, 1);
 }
 
 .ogui-switch input:checked ~ .ogui-switch__track {
   background: var(--ogui-color-accent);
-  border-color: transparent;
+  border-color: rgba(125, 211, 252, 0.6);
+  box-shadow:
+    0 0 12px rgba(56, 189, 248, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .ogui-switch input:checked ~ .ogui-switch__track .ogui-switch__thumb {
@@ -465,15 +542,46 @@ button:active {
   outline-offset: 2px;
 }
 
-/* 站点平时保持紧凑摘要，编辑时再展开。 */
+/* 站点卡片（高透玻璃浮岛 Crystal Glass Floating Islands） */
 .site {
   position: relative;
-  margin-top: 8px;
+  margin-top: 10px;
   overflow: hidden;
-  border: 1px solid var(--ogui-hairline);
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
   color: var(--ogui-ink);
-  background: var(--ogui-lg-fill);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.02) 40%,
+      transparent 100%
+    ),
+    rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 2px 8px rgba(0, 0, 0, 0.14);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 160ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.site:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.04) 40%,
+      transparent 100%
+    ),
+    rgba(0, 0, 0, 0.26);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 4px 14px rgba(0, 0, 0, 0.18);
+  transform: translateY(-1.5px);
 }
 
 .site > summary,
@@ -485,6 +593,8 @@ button:active {
   padding: 12px 14px;
   list-style: none;
   cursor: pointer;
+  border-radius: 16px;
+  transition: background-color 150ms ease;
 }
 
 summary::-webkit-details-marker {
@@ -493,29 +603,34 @@ summary::-webkit-details-marker {
 
 .site > summary:hover,
 .advanced-settings > summary:hover {
-  background: var(--ogui-lg-fill-hover);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 summary:focus-visible {
   outline: 2px solid var(--ogui-color-focus);
   outline-offset: -3px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
+/* 精致微型折叠指示 Chevron 箭头 */
 .site > summary::after,
 .advanced-settings > summary::after {
   flex: 0 0 auto;
-  width: 7px;
-  height: 7px;
-  margin-right: 3px;
-  border-right: 1.5px solid var(--ogui-muted);
-  border-bottom: 1.5px solid var(--ogui-muted);
-  transform: rotate(45deg);
+  width: 6px;
+  height: 6px;
+  margin-right: 4px;
+  border-right: 2px solid var(--ogui-muted);
+  border-bottom: 2px solid var(--ogui-muted);
+  transform: rotate(-45deg);
+  transition:
+    transform 220ms cubic-bezier(0.34, 1.4, 0.64, 1),
+    border-color 160ms ease;
   content: "";
 }
 
 details[open] > summary::after {
-  transform: rotate(225deg);
+  transform: rotate(45deg);
+  border-color: var(--ogui-color-accent);
 }
 
 .summary-copy {
@@ -547,11 +662,14 @@ details[open] > summary::after {
   font-size: 11px;
 }
 
+/* 卡片展开内容区沉降景深 */
 .site-content {
   display: grid;
   gap: 12px;
-  padding: 14px;
-  border-top: 1px solid var(--ogui-hairline);
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .site-content .ogui-field {
@@ -560,21 +678,23 @@ details[open] > summary::after {
 
 .empty-sites {
   margin-top: 12px;
-  padding: 14px;
-  border: 1px dashed var(--ogui-hairline);
-  border-radius: 12px;
+  padding: 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
   font-size: 12px;
+  color: var(--ogui-muted);
+  background: rgba(0, 0, 0, 0.16);
 }
 
 .advanced-settings {
-  margin-top: 18px;
-  border-top: 1px solid var(--ogui-hairline);
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .advanced-settings > summary {
-  margin-top: 6px;
+  margin-top: 8px;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 .advanced-content {
@@ -590,6 +710,7 @@ details[open] > summary::after {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) auto;
   gap: 8px;
+  align-items: center;
 }
 
 .target-row {
@@ -605,16 +726,18 @@ details[open] > summary::after {
 
 .actions {
   justify-content: flex-start;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 footer {
   flex: 0 0 auto;
-  z-index: 4;
+  position: relative;
+  z-index: 10;
   min-height: 68px;
   padding: 14px 24px;
-  border-top: 1px solid var(--ogui-hairline);
-  background: transparent;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 footer button {
