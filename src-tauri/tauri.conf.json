@@ -52,6 +52,9 @@
         "displayLanguageSelector": false,
         "compression": "lzma"
       }
+    },
+    "macOS": {
+      "signingIdentity": "-"
     }
   },
   "plugins": {
