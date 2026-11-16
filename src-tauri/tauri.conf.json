@@ -41,7 +41,7 @@
     "category": "Utility",
     "shortDescription": "通过 Codex CLI 读取 Codex 额度的任务栏小组件。",
     "longDescription": "通过本机 Codex CLI 读取 Codex 额度状态的任务栏小组件。",
-    "icon": ["icons/icon.ico", "icons/icon.png"],
+    "icon": ["icons/icon.ico", "icons/icon.png", "icons/generated/icon.icns"],
     "windows": {
       "webviewInstallMode": { "type": "downloadBootstrapper", "silent": true },
       "nsis": {
