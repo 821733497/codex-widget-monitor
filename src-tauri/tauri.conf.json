@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "Codex Taskbar Quota",
-  "mainBinaryName": "CodexTaskbarQuota",
+  "productName": "CodexWidget",
+  "mainBinaryName": "CodexWidget",
   "version": "../package.json",
   "identifier": "cn.fengshi.codex-quota-widget",
   "build": {
