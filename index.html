@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Codex 任务栏额度设置</title>
+  </head>
+  <body>
+    <main class="settings-shell">
+      <div class="settings">
+        <div class="settings-content">
+          <header data-tauri-drag-region>
+            <div data-tauri-drag-region>
+              <h1 data-tauri-drag-region>Codex 任务栏额度</h1>
+            </div>
+            <button
+              id="closeWindow"
+              class="close-btn"
+              type="button"
+              aria-label="关闭设置"
+              title="关闭窗口"
+            >
+              ✕
+            </button>
+          </header>
+          <div class="settings-scroll">
+            <section class="display-settings" aria-label="任务栏显示与数据源">
+              <label class="ogui-switch setting-row" title="开启或关闭任务栏额度监控">
+                <span class="ogui-switch__label">启用任务栏显示</span>
+                <input id="enabled" type="checkbox" />
+                <span class="ogui-switch__track" aria-hidden="true">
+                  <span class="ogui-switch__thumb"></span>
+                </span>
+              </label>
+              <label class="ogui-field" for="activeTarget">
+                <span>当前数据源</span>
+              </label>
+              <div class="target-row">
+                <div class="ogui-select">
+                  <select id="activeTarget" aria-label="当前数据源"></select>
+                </div>
+                <button id="testConnection" class="ogui-button ogui-control--small" type="button">
+                  测试连接
+                </button>
+              </div>
+            </section>
+            <section aria-labelledby="sitesTitle">
+              <div class="section-title">
+                <div>
+                  <h2 id="sitesTitle">中转站管理 <span id="siteCount" class="count-badge">0</span></h2>
+                  <p>展开站点，编辑地址与 API Key</p>
+                </div>
+                <button id="addSite" class="ogui-button ogui-control--small" type="button">
+                  添加站点
+                </button>
+              </div>
+              <div id="sites"></div>
+            </section>
+            <details class="advanced-settings">
+              <summary>
+                <span class="summary-copy"><span class="summary-title">高级设置</span><span class="summary-meta">官方 CLI 路径、HTTP 代理</span></span>
+              </summary>
+              <div class="advanced-content">
+                <label class="ogui-field">
+                  <span>官方 Codex CLI 路径</span>
+                  <input id="codexPath" placeholder="留空时自动查找 codex.exe" />
+                </label>
+                <label class="ogui-field">
+                  <span>HTTP 代理</span>
+                  <input id="proxy" placeholder="留空时不使用代理" />
+                </label>
+              </div>
+            </details>
+          </div>
+          <footer>
+            <span id="message" role="status"></span>
+            <button
+              id="save"
+              class="ogui-button ogui-button--primary"
+              type="button"
+            >
+              保存设置
+            </button>
+          </footer>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+.desktop-glass-scene,
+.desktop-glass-scene video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.desktop-glass-scene video {
+  object-fit: fill;
+}
+
+.desktop-glass-surface {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+}
