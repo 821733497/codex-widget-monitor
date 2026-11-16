@@ -9,6 +9,7 @@ mod desktop_glass {
         Err("当前系统不支持桌面玻璃".into())
     }
 }
+#[cfg(windows)]
 mod logging;
 mod quota;
 mod settings;

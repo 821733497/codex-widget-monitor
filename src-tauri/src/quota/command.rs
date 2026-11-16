@@ -387,7 +387,7 @@ mod tests {
         }
 
         let mut command = std::process::Command::new(&codex);
-        configure_open_codex_process_environment(&mut command, &codex);
+        configure_codex_process_environment(&mut command, &codex);
 
         assert!(command.status().unwrap().success());
     }
