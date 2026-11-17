@@ -19,6 +19,7 @@ const state = {
   updateChecking: false,
 };
 let refreshTimer;
+let settingsWrite = Promise.resolve();
 const updateService = {
   isAvailable: () => Boolean(window.__TAURI_INTERNALS__),
   updater: { check },
@@ -241,6 +242,14 @@ function renderUpdateStatus() {
   );
 }
 
+function persistSettings() {
+  // 表单事件持有当前对象，保存时发送快照并按顺序写入。
+  const settings = structuredClone(state.settings);
+  const write = settingsWrite.then(() => invoke("save_settings", { settings }));
+  settingsWrite = write.catch(() => {});
+  return write;
+}
+
 async function saveSettings() {
   const updateSettings = {
     enabled: state.settings.autoUpdateEnabled,
@@ -260,7 +269,7 @@ async function saveSettings() {
   if (targetSelect?.value) {
     state.settings.activeTarget = JSON.parse(targetSelect.value);
   }
-  state.settings = await invoke("save_settings", { settings: state.settings });
+  await persistSettings();
   await invoke("set_taskbar_enabled", {
     enabled: state.settings.taskbarEnabled,
   });
@@ -351,9 +360,7 @@ async function handleTaskbarAction(event) {
   if (action === "disable") {
     state.settings.taskbarEnabled = false;
     document.querySelector("#enabled").checked = false;
-    state.settings = await invoke("save_settings", {
-      settings: state.settings,
-    });
+    await persistSettings();
     await invoke("set_taskbar_enabled", { enabled: false });
     await invoke("show_main_window");
     return;
@@ -362,16 +369,12 @@ async function handleTaskbarAction(event) {
     const items = sourceItems();
     const current = items.findIndex((item) => item.active);
     state.settings.activeTarget = items[(current + 1) % items.length].target;
-    state.settings = await invoke("save_settings", {
-      settings: state.settings,
-    });
+    await persistSettings();
     await refresh();
   }
   if (action === "source" && target) {
     state.settings.activeTarget = target;
-    state.settings = await invoke("save_settings", {
-      settings: state.settings,
-    });
+    await persistSettings();
     await refresh();
   }
   if (action === "refresh") await getCurrentQuota();

@@ -48,9 +48,7 @@ fn push_platform_candidates(candidates: &mut Vec<PathBuf>) {
             .join("OpenAI")
             .join("Codex")
             .join("bin");
-        candidates.push(codex_bin.join(CODEX_COMMAND_NAME));
-
-        if let Some(command) = find_codex_command_in_version_dirs(&codex_bin) {
+        if let Some(command) = find_newest_codex_command_in_bin(&codex_bin) {
             candidates.push(command);
         }
     }
@@ -94,29 +92,23 @@ fn push_command_lookup_candidates(candidates: &mut Vec<PathBuf>) {
 }
 
 #[cfg(windows)]
-fn find_codex_command_in_version_dirs(codex_bin: &PathBuf) -> Option<PathBuf> {
-    // Codex CLI Windows 版会把可执行文件放在 bin 下的哈希子目录中，不能只检查固定文件名。
-    let entries = fs::read_dir(codex_bin).ok()?;
-    let mut newest: Option<(SystemTime, PathBuf)> = None;
+fn find_newest_codex_command_in_bin(codex_bin: &Path) -> Option<PathBuf> {
+    // Codex Desktop 更新后可能同时保留固定路径和哈希目录里的 CLI。
+    let versioned_commands = fs::read_dir(codex_bin)
+        .into_iter()
+        .flatten()
+        .filter_map(Result::ok)
+        .map(|entry| entry.path().join(CODEX_COMMAND_NAME));
 
-    for entry in entries.flatten() {
-        let candidate = entry.path().join(CODEX_COMMAND_NAME);
-        if !is_usable_command_file(&candidate) {
-            continue;
-        }
-
-        let modified_at = candidate
-            .metadata()
-            .and_then(|metadata| metadata.modified())
-            .unwrap_or(SystemTime::UNIX_EPOCH);
-
-        match &newest {
-            Some((current_time, _)) if modified_at <= *current_time => {}
-            _ => newest = Some((modified_at, candidate)),
-        }
-    }
-
-    newest.map(|(_, path)| path)
+    std::iter::once(codex_bin.join(CODEX_COMMAND_NAME))
+        .chain(versioned_commands)
+        .filter(|candidate| is_usable_command_file(candidate))
+        .max_by_key(|candidate| {
+            candidate
+                .metadata()
+                .and_then(|metadata| metadata.modified())
+                .unwrap_or(SystemTime::UNIX_EPOCH)
+        })
 }
 
 fn find_command_in_path(command_name: &str) -> Option<PathBuf> {
@@ -280,6 +272,35 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
 
         assert!(!is_usable_command_file(dir.path()));
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_从固定路径和版本目录选择最新的_cli() {
+        use std::fs::{File, FileTimes};
+        use std::time::Duration;
+
+        let bin = tempfile::tempdir().unwrap();
+        let fixed = bin.path().join(CODEX_COMMAND_NAME);
+        let version_dir = bin.path().join("version-hash");
+        let versioned = version_dir.join(CODEX_COMMAND_NAME);
+        fs::create_dir(&version_dir).unwrap();
+        for (path, seconds) in [(&fixed, 1), (&versioned, 2)] {
+            File::create(path)
+                .unwrap()
+                .set_times(
+                    FileTimes::new()
+                        .set_modified(SystemTime::UNIX_EPOCH + Duration::from_secs(seconds)),
+                )
+                .unwrap();
+        }
+
+        assert_eq!(
+            find_newest_codex_command_in_bin(bin.path()),
+            Some(versioned.clone())
+        );
+        fs::remove_file(versioned).unwrap();
+        assert_eq!(find_newest_codex_command_in_bin(bin.path()), Some(fixed));
     }
 
     #[cfg(unix)]
