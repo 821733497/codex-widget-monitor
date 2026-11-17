@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 
 use anyhow::{anyhow, Context, Result};
 use serde_json::{json, Value};
@@ -98,6 +98,7 @@ impl std::fmt::Display for SessionRequestError {
 
 pub(super) struct CodexSession {
     codex_command: PathBuf,
+    auth_file_stamp: Option<(SystemTime, u64)>,
     child: Child,
     stdin: ChildStdin,
     lines: Lines<BufReader<ChildStdout>>,
@@ -110,6 +111,7 @@ impl CodexSession {
     pub(super) async fn start(
         codex_command: PathBuf,
     ) -> std::result::Result<Self, SessionRequestError> {
+        let auth_file_stamp = current_auth_file_stamp();
         let mut command = Command::new(&codex_command);
         command
             .args(["app-server", "--listen", "stdio://"])
@@ -139,6 +141,7 @@ impl CodexSession {
         let stderr_task = spawn_stderr_tail_task(stderr, Arc::clone(&stderr_tail));
         let mut session = Self {
             codex_command,
+            auth_file_stamp,
             child,
             stdin,
             lines: BufReader::new(stdout).lines(),
@@ -157,8 +160,9 @@ impl CodexSession {
         Ok(session)
     }
 
-    pub(super) fn codex_command(&self) -> &Path {
-        &self.codex_command
+    pub(super) fn can_reuse(&self, codex_command: &Path) -> bool {
+        // App Server 会缓存登录状态，外部切换账号后需要新建会话。
+        self.codex_command == codex_command && self.auth_file_stamp == current_auth_file_stamp()
     }
 
     async fn initialize(&mut self) -> std::result::Result<(), SessionRequestError> {
@@ -202,6 +206,19 @@ impl Drop for CodexSession {
             stderr_task.abort();
         }
     }
+}
+
+fn current_auth_file_stamp() -> Option<(SystemTime, u64)> {
+    let codex_dir = std::env::var_os("CODEX_HOME")
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| std::env::home_dir().map(|home| home.join(".codex")))?;
+    auth_file_stamp(&codex_dir.join("auth.json"))
+}
+
+fn auth_file_stamp(path: &Path) -> Option<(SystemTime, u64)> {
+    let metadata = std::fs::metadata(path).ok()?;
+    Some((metadata.modified().ok()?, metadata.len()))
 }
 
 fn spawn_stderr_tail_task(stderr: ChildStderr, stderr_tail: Arc<Mutex<String>>) -> JoinHandle<()> {
@@ -398,6 +415,31 @@ mod tests {
     use super::*;
     use std::io::Cursor;
     use tokio::io::AsyncReadExt;
+
+    #[test]
+    fn 认证文件创建更新和移除都会改变会话依据() {
+        use std::fs::{self, File, FileTimes};
+
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("auth.json");
+        assert_eq!(auth_file_stamp(&path), None);
+
+        let file = File::create(&path).unwrap();
+        file.set_times(
+            FileTimes::new().set_modified(SystemTime::UNIX_EPOCH + Duration::from_secs(1)),
+        )
+        .unwrap();
+        let before = auth_file_stamp(&path).unwrap();
+        file.set_times(
+            FileTimes::new().set_modified(SystemTime::UNIX_EPOCH + Duration::from_secs(2)),
+        )
+        .unwrap();
+        assert_ne!(auth_file_stamp(&path), Some(before));
+
+        drop(file);
+        fs::remove_file(&path).unwrap();
+        assert_eq!(auth_file_stamp(&path), None);
+    }
 
     #[test]
     fn 请求_id_会递增() {

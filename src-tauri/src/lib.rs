@@ -27,6 +27,25 @@ use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
 use tauri::{image::Image, Manager};
 
+#[cfg(windows)]
+fn acquire_single_instance() -> bool {
+    use windows::{
+        core::w,
+        Win32::Foundation::{GetLastError, ERROR_ALREADY_EXISTS},
+        Win32::System::Threading::CreateMutexW,
+    };
+
+    unsafe {
+        match CreateMutexW(None, false, w!("Local\\CodexWidgetMonitor.SingleInstance")) {
+            Ok(_) => GetLastError() != ERROR_ALREADY_EXISTS,
+            Err(error) => {
+                eprintln!("创建单实例互斥体失败，继续启动：{error}");
+                true
+            }
+        }
+    }
+}
+
 fn tray_icon() -> tauri::Result<Image<'static>> {
     #[cfg(windows)]
     {
@@ -59,6 +78,10 @@ fn tray_icon() -> tauri::Result<Image<'static>> {
 
 pub fn run() {
     let _ = rustls::crypto::ring::default_provider().install_default();
+    #[cfg(windows)]
+    if !acquire_single_instance() {
+        return;
+    }
     let builder = tauri::Builder::default();
     #[cfg(windows)]
     let builder = builder

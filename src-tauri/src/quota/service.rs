@@ -73,7 +73,7 @@ impl QuotaService {
         if self
             .session
             .as_ref()
-            .is_some_and(|session| session.codex_command() != codex_command.as_path())
+            .is_some_and(|session| !session.can_reuse(&codex_command))
         {
             self.invalidate_session().await;
         }

@@ -5,6 +5,7 @@ use windows::core::BOOL;
 use windows::Win32::Foundation::{
     GetLastError, SetLastError, HWND, LPARAM, POINT, RECT, WIN32_ERROR,
 };
+use windows::Win32::Graphics::Gdi::ClientToScreen;
 use windows::Win32::System::Com::{
     CoCreateInstance, CoInitializeEx, CoUninitialize, CLSCTX_INPROC_SERVER, COINIT_MULTITHREADED,
 };
@@ -336,6 +337,14 @@ fn choose_slot(
         .map(|(s, x, y, _)| (s, x, y))
 }
 
+fn needs_restack(docked: bool, current_owner: isize, target_owner: isize, visible: bool) -> bool {
+    !docked || current_owner != target_owner || !visible
+}
+
+fn should_float_after_missing_slot(docked: bool, shell_surface_active: bool) -> bool {
+    docked && !shell_surface_active
+}
+
 fn set_window_bounds(
     window: &tauri::WebviewWindow,
     position: (i32, i32),
@@ -411,8 +420,47 @@ fn attach(window: &tauri::WebviewWindow, owner: isize) -> Result<(), String> {
 fn is_shell_surface_class(class: &str) -> bool {
     matches!(
         class,
-        "Progman" | "WorkerW" | "Shell_TrayWnd" | "Shell_SecondaryTrayWnd"
+        "Progman"
+            | "WorkerW"
+            | "Shell_TrayWnd"
+            | "Shell_SecondaryTrayWnd"
+            | "Start"
+            | "Windows.UI.Core.CoreWindow"
+            | "XamlExplorerHostIslandWindow"
     )
+}
+
+fn foreground_is_shell_surface() -> bool {
+    unsafe {
+        let foreground = GetForegroundWindow();
+        !foreground.is_invalid() && is_shell_surface_class(class_name(foreground).as_str())
+    }
+}
+
+fn client_screen_rect(window: HWND) -> Option<RECT> {
+    unsafe {
+        let mut client = RECT::default();
+        GetClientRect(window, &mut client).ok()?;
+        let mut top_left = POINT {
+            x: client.left,
+            y: client.top,
+        };
+        let mut bottom_right = POINT {
+            x: client.right,
+            y: client.bottom,
+        };
+        if !ClientToScreen(window, &mut top_left).as_bool()
+            || !ClientToScreen(window, &mut bottom_right).as_bool()
+        {
+            return None;
+        }
+        Some(RECT {
+            left: top_left.x,
+            top: top_left.y,
+            right: bottom_right.x,
+            bottom: bottom_right.y,
+        })
+    }
 }
 
 fn covered_by_fullscreen(owner: isize) -> bool {
@@ -428,14 +476,14 @@ fn covered_by_fullscreen(owner: isize) -> bool {
         if pid == std::process::id() {
             return false;
         }
-        let mut front = RECT::default();
         let mut bar = RECT::default();
-        GetWindowRect(foreground, &mut front).is_ok()
-            && GetWindowRect(HWND(owner as *mut _), &mut bar).is_ok()
-            && front.left <= bar.left
-            && front.right >= bar.right
-            && front.top <= bar.top
-            && front.bottom >= bar.bottom
+        client_screen_rect(foreground).is_some_and(|front| {
+            GetWindowRect(HWND(owner as *mut _), &mut bar).is_ok()
+                && front.left <= bar.left
+                && front.right >= bar.right
+                && front.top <= bar.top
+                && front.bottom >= bar.bottom
+        })
     }
 }
 
@@ -493,8 +541,9 @@ fn dock(app: &AppHandle, state: &mut Placement) -> Result<bool, String> {
     let Some((slot, x, y)) = choose_slot(&state.slots, width, height, state.position) else {
         return Ok(false);
     };
+    let visible = window.is_visible().map_err(error)?;
     let changed = !state.docked || state.owner != slot.owner || state.position != Some((x, y));
-    if !state.docked || state.owner != slot.owner {
+    if needs_restack(state.docked, state.owner, slot.owner, visible) {
         // 任务栏自身位于 topmost 层；仅设置 owner 仍可能让鼠标落到下方的任务列表。
         window.set_always_on_top(true).map_err(error)?;
         attach(&window, slot.owner)?;
@@ -505,7 +554,7 @@ fn dock(app: &AppHandle, state: &mut Placement) -> Result<bool, String> {
     state.docked = true;
     state.owner = slot.owner;
     state.waiting_for_space = false;
-    if !window.is_visible().map_err(error)? {
+    if !visible {
         window.show().map_err(error)?;
     }
     if changed {
@@ -632,6 +681,7 @@ fn maintain(app: &AppHandle, automation: &IUIAutomation) -> Result<(), String> {
         }
     }
     let slots = discover_slots(automation, &exclude);
+    let shell_surface_active = foreground_is_shell_surface();
     let mut placement = state.0.lock().map_err(error)?;
     let discovery_error = slots.as_ref().err().cloned();
     // 瞬时 UIA 异常时保留上次已确认的任务栏空白区，防止误判空间缺失。
@@ -645,7 +695,7 @@ fn maintain(app: &AppHandle, automation: &IUIAutomation) -> Result<(), String> {
         if dock(app, &mut placement)? {
             placement.missing_slot_scans = 0;
         } else if confirm_missing_slot(&mut placement.missing_slot_scans) {
-            if placement.docked {
+            if should_float_after_missing_slot(placement.docked, shell_surface_active) {
                 float(app, &mut placement, true)?;
             }
             placement.waiting_for_space = true;
@@ -970,6 +1020,9 @@ mod tests {
     fn 主副屏任务栏都不应触发全屏隐藏() {
         assert!(is_shell_surface_class("Shell_TrayWnd"));
         assert!(is_shell_surface_class("Shell_SecondaryTrayWnd"));
+        assert!(is_shell_surface_class("Start"));
+        assert!(is_shell_surface_class("Windows.UI.Core.CoreWindow"));
+        assert!(is_shell_surface_class("XamlExplorerHostIslandWindow"));
         assert!(!is_shell_surface_class("Chrome_WidgetWin_1"));
     }
 
@@ -981,6 +1034,21 @@ mod tests {
         assert!(confirm_missing_slot(&mut scans));
         scans = 0;
         assert!(!confirm_missing_slot(&mut scans));
+    }
+
+    #[test]
+    fn 开始菜单打开时缺少空白不会把任务栏窗口抬起() {
+        assert!(!should_float_after_missing_slot(true, true));
+        assert!(should_float_after_missing_slot(true, false));
+        assert!(!should_float_after_missing_slot(false, false));
+    }
+
+    #[test]
+    fn 隐藏后重新吸附需要恢复窗口层级() {
+        assert!(needs_restack(true, 1, 1, false));
+        assert!(!needs_restack(true, 1, 1, true));
+        assert!(needs_restack(false, 1, 1, true));
+        assert!(needs_restack(true, 1, 2, true));
     }
 
     #[test]

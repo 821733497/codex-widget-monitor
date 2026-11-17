@@ -39,20 +39,30 @@ export function buildTaskbarView(state, sources = []) {
   const key = site?.keys?.find((item) => item.id === active.keyId);
   const en = settings.locale === "en";
   const cacheFor = (target) => state.sourceQuotas?.[targetKey(target)] || {};
+  const activeCache = cacheFor(active);
+  const activeQuota =
+    activeCache.quota ||
+    (state.quotaTarget
+      ? sameTarget(state.quotaTarget, active)
+        ? state.quota
+        : null
+      : state.quota);
+  const activeError = activeCache.error || state.errors?.quota;
+  const activeLoading = activeCache.loading || state.loading;
   const sourceViews = sources.map((source) => {
     const cached = cacheFor(source.target);
-    const quota = sameTarget(source.target, active) ? state.quota || cached.quota : cached.quota;
+    const quota = sameTarget(source.target, active) ? activeQuota : cached.quota;
     return { ...source, plan: source.target.type === "official" ? quota?.planType : "", error: cached.error || "", status: cached.error ? (quota ? "缓存" : "读取失败") : cached.loading ? "读取中" : "", metrics: metricsFor(source.target, quota, en) };
   });
   return {
     enabled: settings.taskbarEnabled === true,
     locale: en ? "en" : "zh",
     site: active.type === "official" ? (en ? "Official" : "官方") : site?.name || "中转站",
-    account: active.type === "official" ? state.quota?.planType || "Codex" : key?.name || "Key",
-    status: state.errors?.quota ? (state.quota ? "缓存" : "读取失败") : state.loading ? "读取中" : "",
-    error: state.errors?.quota || "",
-    loading: state.loading,
-    metrics: metricsFor(active, state.quota, en),
+    account: active.type === "official" ? activeQuota?.planType || "Codex" : key?.name || "Key",
+    status: activeError ? (activeQuota ? "缓存" : "读取失败") : activeLoading ? "读取中" : "",
+    error: activeError || "",
+    loading: activeLoading,
+    metrics: metricsFor(active, activeQuota, en),
     sources: sourceViews,
     glassOpacity:
       typeof settings.glassOpacity === "number" ? settings.glassOpacity : 50,

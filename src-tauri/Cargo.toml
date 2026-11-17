@@ -1,6 +1,6 @@
 [package]
 name = "codex-taskbar-quota"
-version = "1.0.19"
+version = "1.0.20"
 description = "Codex 任务栏额度组件"
 authors = ["fengshi"]
 edition = "2021"
@@ -38,6 +38,8 @@ windows = { version = "0.62.2", features = [
   "Win32_Graphics_Gdi",
   "Win32_System_Com",
   "Win32_System_Registry",
+  "Win32_System_Threading",
+  "Win32_Security",
   "Win32_System_WinRT_Direct3D11",
   "Win32_System_WinRT_Graphics_Capture",
   "Win32_UI_Accessibility",

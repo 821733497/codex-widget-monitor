@@ -10,6 +10,7 @@ import "./styles.css";
 const state = {
   settings: null,
   quota: null,
+  quotaTarget: null,
   errors: {},
   sourceQuotas: {},
   loading: false,
@@ -18,6 +19,7 @@ const state = {
   updateStatus: null,
   updateChecking: false,
 };
+const QUOTA_CACHE_STORAGE_KEY = "codex-widget.quota-cache.v1";
 let refreshTimer;
 let settingsWrite = Promise.resolve();
 const updateService = {
@@ -40,6 +42,41 @@ const showMessage = (text) => {
   const footer = document.querySelector("#footer");
   if (footer) footer.style.display = text ? "flex" : "none";
 };
+
+function loadQuotaCache() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(QUOTA_CACHE_STORAGE_KEY) || "{}");
+    if (!stored || typeof stored !== "object" || Array.isArray(stored)) return {};
+    return Object.fromEntries(
+      Object.entries(stored)
+        .filter(([, entry]) => entry?.quota && typeof entry.quota === "object")
+        .map(([key, entry]) => [
+          key,
+          {
+            quota: entry.quota,
+            updatedAt: Number.isFinite(entry.updatedAt) ? entry.updatedAt : 0,
+            loading: false,
+            error: "",
+          },
+        ]),
+    );
+  } catch {
+    return {};
+  }
+}
+
+function persistQuotaCache() {
+  try {
+    const stored = Object.fromEntries(
+      Object.entries(state.sourceQuotas)
+        .filter(([, entry]) => entry?.quota && typeof entry.quota === "object")
+        .map(([key, entry]) => [key, { quota: entry.quota, updatedAt: entry.updatedAt || 0 }]),
+    );
+    localStorage.setItem(QUOTA_CACHE_STORAGE_KEY, JSON.stringify(stored));
+  } catch {
+    // 缓存失败不影响当前额度查询和任务栏显示。
+  }
+}
 
 function targetKey(target) {
   return target?.type === "siteKey"
@@ -251,6 +288,7 @@ function persistSettings() {
 }
 
 async function saveSettings() {
+  const previousTarget = state.settings.activeTarget;
   const updateSettings = {
     enabled: state.settings.autoUpdateEnabled,
     proxy: state.settings.updateProxy,
@@ -267,7 +305,14 @@ async function saveSettings() {
     document.querySelector("#proxy").value.trim() || null;
   const targetSelect = document.querySelector("#activeTarget");
   if (targetSelect?.value) {
-    state.settings.activeTarget = JSON.parse(targetSelect.value);
+    const nextTarget = JSON.parse(targetSelect.value);
+    state.settings.activeTarget = nextTarget;
+    if (!sameTarget(previousTarget, nextTarget)) {
+      const cached = state.sourceQuotas[targetKey(nextTarget)];
+      state.quotaTarget = nextTarget;
+      state.quota = cached?.quota || null;
+      state.errors.quota = cached?.error || "";
+    }
   }
   await persistSettings();
   await invoke("set_taskbar_enabled", {
@@ -312,7 +357,18 @@ function getQuota(target) {
 
 async function refresh(target = state.settings.activeTarget) {
   const cacheKey = targetKey(target);
-  if (sameTarget(target, state.settings.activeTarget)) state.loading = true;
+  const cached = state.sourceQuotas[cacheKey];
+  if (sameTarget(target, state.settings.activeTarget)) {
+    state.quotaTarget = target;
+    state.quota = cached?.quota || null;
+    state.errors.quota = cached?.error || "";
+    state.loading = true;
+  }
+  state.sourceQuotas[cacheKey] = {
+    ...cached,
+    loading: true,
+  };
+  await publishTaskbar();
   try {
     const quota = await getQuota(target);
     state.sourceQuotas[cacheKey] = {
@@ -321,6 +377,7 @@ async function refresh(target = state.settings.activeTarget) {
       loading: false,
       updatedAt: Date.now(),
     };
+    persistQuotaCache();
     if (sameTarget(target, state.settings.activeTarget)) {
       state.quota = quota;
       state.errors.quota = "";
@@ -385,6 +442,7 @@ async function handleTaskbarAction(event) {
 
 async function start() {
   state.settings = await invoke("get_settings");
+  state.sourceQuotas = loadQuotaCache();
   renderSettings();
   showMessage("");
   document
