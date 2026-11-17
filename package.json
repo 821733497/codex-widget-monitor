@@ -1,6 +1,6 @@
 {
   "name": "codex-taskbar-quota",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "Codex 任务栏额度组件。",
   "author": "fengshi",
   "license": "MIT",
@@ -23,8 +23,8 @@
     "tauri:build:nsis:updater": "tauri build --bundles nsis --config src-tauri/tauri.updater.conf.json -- --locked",
     "updater:latest": "node scripts/create-latest-json.mjs",
     "release:github": "npm run tauri:build:nsis:updater && npm run updater:latest",
-    "tauri:build:mac:aarch64:updater": "tauri build --target aarch64-apple-darwin --bundles dmg,app --config src-tauri/tauri.updater.conf.json -- --locked",
-    "tauri:build:mac:x64:updater": "tauri build --target x86_64-apple-darwin --bundles dmg,app --config src-tauri/tauri.updater.conf.json -- --locked"
+    "tauri:build:mac:aarch64:updater": "tauri build --target aarch64-apple-darwin --bundles app --config src-tauri/tauri.updater.conf.json -- --locked",
+    "tauri:build:mac:x64:updater": "tauri build --target x86_64-apple-darwin --bundles app --config src-tauri/tauri.updater.conf.json -- --locked"
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.1",

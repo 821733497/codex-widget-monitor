@@ -168,6 +168,29 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         run: npm run ${{ matrix.npm_script }}
 
+      - name: 生成 macOS DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./package.json').version")
+          bundle_dir="src-tauri/target/${{ matrix.target }}/release/bundle"
+          app_dir="${bundle_dir}/macos/CodexWidget.app"
+          dmg_dir="${bundle_dir}/dmg"
+          staging_dir=$(mktemp -d)
+          if [ ! -d "${app_dir}" ]; then
+            echo "未找到 macOS 应用包：${app_dir}"
+            exit 1
+          fi
+          mkdir -p "${dmg_dir}"
+          cp -R "${app_dir}" "${staging_dir}/CodexWidget.app"
+          ln -s /Applications "${staging_dir}/Applications"
+          hdiutil create \
+            -volname "CodexWidget" \
+            -srcfolder "${staging_dir}" \
+            -ov \
+            -format UDZO \
+            "${dmg_dir}/CodexWidget_${version}_${{ matrix.asset_suffix }}.dmg"
+
       - name: 整理 macOS 产物
         shell: bash
         run: |
