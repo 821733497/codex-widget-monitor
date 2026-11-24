@@ -36,6 +36,7 @@ export function createUpdateController({
     if (
       !service.isAvailable() ||
       state.updateChecking ||
+      state.updateStatus?.type === "restarting" ||
       (!manual && (!state.settings.autoUpdateEnabled || isDev))
     )
       return;
@@ -71,6 +72,15 @@ export function createUpdateController({
         logger?.error("更新失败", error, "frontend.update");
         setUpdateStatus({ type: "updateFailed" });
         return;
+      }
+      if (typeof service.relaunch === "function") {
+        setUpdateStatus({ type: "restarting" });
+        try {
+          await service.relaunch();
+          return;
+        } catch (error) {
+          logger?.error("自动重启失败", error, "frontend.update");
+        }
       }
       setUpdateStatus({ type: "ready" });
     } catch (error) {

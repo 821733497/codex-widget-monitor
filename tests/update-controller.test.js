@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createUpdateController } from "../src/app/update-controller.js";
+import { formatUpdateStatus } from "../src/app/update-status.js";
 
 describe("更新控制器", () => {
   let originalWindow;
@@ -180,9 +181,71 @@ describe("更新控制器", () => {
       timeout: 15_000,
     });
   });
+
+  it("支持自动重启的平台在安装后自动重启并锁定后续检查", async () => {
+    const statuses = [];
+    const relaunch = vi.fn().mockResolvedValue(undefined);
+    const update = {
+      version: "9.9.9",
+      async downloadAndInstall(onEvent) {
+        onEvent({ event: "Finished" });
+      },
+    };
+    const fixture = createFixture(
+      async () => update,
+      (status) => statuses.push(status && { ...status }),
+      { relaunch },
+    );
+
+    await fixture.controller.checkForUpdates({ manual: true });
+
+    expect(relaunch).toHaveBeenCalledOnce();
+    expect(statuses).toContainEqual({ type: "restarting" });
+    expect(fixture.state.updateStatus).toEqual({ type: "restarting" });
+    expect(fixture.state.updateChecking).toBe(false);
+
+    await fixture.controller.checkForUpdates({ manual: true });
+    expect(fixture.service.updater.check).toHaveBeenCalledOnce();
+  });
+
+  it("自动重启失败时记录错误并回退为手动重启提示", async () => {
+    const relaunchError = new Error("重启失败");
+    const relaunch = vi.fn().mockRejectedValue(relaunchError);
+    const update = {
+      version: "9.9.9",
+      async downloadAndInstall(onEvent) {
+        onEvent({ event: "Finished" });
+      },
+    };
+    const fixture = createFixture(async () => update, () => {}, { relaunch });
+
+    await fixture.controller.checkForUpdates({ manual: true });
+
+    expect(relaunch).toHaveBeenCalledOnce();
+    expect(fixture.logger.error).toHaveBeenCalledWith(
+      "自动重启失败",
+      relaunchError,
+      "frontend.update",
+    );
+    expect(fixture.state.updateStatus).toEqual({ type: "ready" });
+    expect(fixture.state.updateChecking).toBe(false);
+  });
+
+  it("formatUpdateStatus 正确格式化正在重启状态", () => {
+    expect(
+      formatUpdateStatus(
+        { updateRestarting: "更新已安装，正在重启..." },
+        { type: "restarting" },
+      ),
+    ).toBe("更新已安装，正在重启...");
+  });
 });
 
-function createFixture(check, onRender = () => {}, { isDev = false } = {}) {
+function createFixture(
+  check,
+  onRender = () => {},
+  { isDev = false, relaunch } = {},
+) {
   const state = {
     settings: { autoUpdateEnabled: true },
     updateTimer: null,
@@ -192,15 +255,17 @@ function createFixture(check, onRender = () => {}, { isDev = false } = {}) {
   const service = {
     isAvailable: () => true,
     updater: { check: vi.fn(check) },
+    ...(relaunch ? { relaunch } : {}),
   };
+  const logger = { error: vi.fn(), info: vi.fn() };
   const controller = createUpdateController({
     state,
     service,
     render: () => onRender(state.updateStatus),
-    logger: { error: vi.fn(), info: vi.fn() },
+    logger,
     isDev,
   });
-  return { controller, service, state };
+  return { controller, service, state, logger };
 }
 
 function deferred() {

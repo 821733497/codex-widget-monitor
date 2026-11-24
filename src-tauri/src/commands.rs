@@ -108,6 +108,31 @@ pub(crate) fn quit_app(app: AppHandle) {
 }
 
 #[tauri::command]
+pub(crate) fn restart_app(app: AppHandle) -> Result<(), String> {
+    let binary = tauri::process::current_binary(&app.env())
+        .map_err(|error| format!("无法定位当前应用路径：{error}"))?;
+    if !binary.parent().is_some_and(Path::exists) {
+        return Err(format!("重启目标目录不存在：{}", binary.display()));
+    }
+    let handle = app.clone();
+    tauri::async_runtime::spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+        let _ = tokio::time::timeout(std::time::Duration::from_millis(500), async {
+            handle
+                .state::<AppState>()
+                .quota_service
+                .lock()
+                .await
+                .reset_session()
+                .await;
+        })
+        .await;
+        handle.request_restart();
+    });
+    Ok(())
+}
+
+#[tauri::command]
 pub(crate) fn set_menubar_title(app: AppHandle, title: String) -> Result<(), String> {
     #[cfg(target_os = "macos")]
     {

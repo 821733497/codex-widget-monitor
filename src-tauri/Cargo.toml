@@ -1,6 +1,6 @@
 [package]
 name = "codex-taskbar-quota"
-version = "1.0.21"
+version = "1.0.22"
 description = "Codex 任务栏额度组件"
 authors = ["fengshi"]
 edition = "2021"
@@ -19,7 +19,7 @@ anyhow = "1"
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "socks"] }
+reqwest = { version = "0.13", default-features = false, features = ["rustls-no-provider", "socks", "system-proxy"] }
 rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
 tauri = { version = "2", features = ["tray-icon", "image-png", "macos-private-api"] }
 tauri-plugin-updater = "=2.10.1"

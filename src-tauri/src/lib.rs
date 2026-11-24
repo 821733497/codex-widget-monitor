@@ -23,8 +23,8 @@ mod taskbar;
 mod taskbar;
 
 use commands::{
-    get_quota, get_quota_for_target, get_settings, quit_app, save_settings, set_menubar_title,
-    show_main_window, test_sub2api_connection,
+    get_quota, get_quota_for_target, get_settings, quit_app, restart_app, save_settings,
+    set_menubar_title, show_main_window, test_sub2api_connection,
 };
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
@@ -196,6 +196,7 @@ pub fn run() {
             save_settings,
             show_main_window,
             quit_app,
+            restart_app,
             set_menubar_title,
             test_sub2api_connection,
             desktop_glass::desktop_glass_frame,

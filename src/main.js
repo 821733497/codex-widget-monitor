@@ -29,6 +29,7 @@ let settingsWrite = Promise.resolve();
 const updateService = {
   isAvailable: () => Boolean(window.__TAURI_INTERNALS__),
   updater: { check },
+  ...(isMacOS ? { relaunch: () => invoke("restart_app") } : {}),
 };
 const updateController = createUpdateController({
   state,
@@ -271,6 +272,7 @@ function renderUpdateStatus() {
       updateAvailable: "发现新版本",
       updateDownloading: "正在下载更新",
       updateInstalling: "正在安装更新",
+      updateRestarting: "更新已安装，正在重启...",
       updateReady: "更新已安装，重启后生效",
       updateCheckFailed: "获取版本失败",
       updateInstallFailed: "更新失败",
