@@ -68,3 +68,36 @@ export function buildTaskbarView(state, sources = []) {
       typeof settings.glassOpacity === "number" ? settings.glassOpacity : 50,
   };
 }
+
+function truncateName(text, max = 12) {
+  const value = String(text || "");
+  return value.length > max ? `${value.slice(0, max - 1)}…` : value;
+}
+
+export function formatMenubarTitle(view) {
+  if (!view) return "";
+  const en = view.locale === "en";
+  const official = view.site === "官方" || view.site === "Official";
+  const name = official
+    ? view.site
+    : truncateName(view.account || view.site || "Key", 12);
+  const metrics = Array.isArray(view.metrics) ? view.metrics : [];
+  const hasValue = (metric) => Boolean(metric?.value && metric.value !== "--");
+  const parts = [];
+  if (official) {
+    if (hasValue(metrics[0])) parts.push(`5h ${metrics[0].value}`);
+    if (hasValue(metrics[1]))
+      parts.push(`${en ? "W" : "周"} ${metrics[1].value}`);
+  } else {
+    const [today, balance] = metrics;
+    const wallet =
+      balance?.label === "余额" || balance?.label === "Balance";
+    const prefix = wallet ? (en ? "Bal " : "余") : en ? "Left " : "剩";
+    if (hasValue(balance)) parts.push(`${prefix}${balance.value}`);
+    if (hasValue(today)) parts.push(`${en ? "Today " : "今"}${today.value}`);
+  }
+  if (parts.length > 0) return [name, ...parts].join(" · ");
+  if (view.loading) return `${name} · ${en ? "Loading" : "读取中"}`;
+  if (view.error) return `${name} · ${en ? "Error" : "读取失败"}`;
+  return `${name} · --`;
+}

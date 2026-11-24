@@ -6,6 +6,10 @@ import { formatResetCountdown } from "./format.js";
 const params = new URLSearchParams(location.search);
 const preview = params.has("preview");
 const popupWindow = params.has("popup");
+const isMacOS =
+  params.get("platform") === "macos" ||
+  (typeof navigator !== "undefined" &&
+    /mac/i.test(navigator.platform || navigator.userAgent || ""));
 const popup = document.getElementById("popup");
 const popupContent = popup.querySelector(".popup-content");
 const metrics = document.getElementById("metrics");
@@ -74,9 +78,16 @@ function measurePopupBounds() {
   popup.classList.add("measuring");
   const bodyEl = popup.querySelector(".popup-body");
   const actionsEl = popup.querySelector(".popup-actions");
+  const cs = getComputedStyle(popup);
+  const chromeY =
+    (parseFloat(cs.paddingTop) || 0) +
+    (parseFloat(cs.paddingBottom) || 0) +
+    (parseFloat(cs.borderTopWidth) || 0) +
+    (parseFloat(cs.borderBottomWidth) || 0);
   const partsSum =
     (bodyEl ? Math.max(bodyEl.scrollHeight, bodyEl.offsetHeight) : 0) +
-    (actionsEl ? actionsEl.offsetHeight : 0);
+    (actionsEl ? actionsEl.offsetHeight : 0) +
+    chromeY;
   const contentHeight = Math.max(popup.offsetHeight, partsSum);
   popup.classList.remove("measuring");
   const height =
@@ -194,6 +205,63 @@ function buildSourceItem(source) {
   return item;
 }
 
+function createSvgIcon(paths, viewBox = "0 0 16 16", strokeWidth = "1.5") {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", viewBox);
+  svg.setAttribute("width", "14");
+  svg.setAttribute("height", "14");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", strokeWidth);
+  svg.setAttribute("stroke-linecap", "round");
+  svg.setAttribute("stroke-linejoin", "round");
+  svg.setAttribute("aria-hidden", "true");
+  for (const spec of paths) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", spec.tag);
+    for (const [k, v] of Object.entries(spec.attrs)) {
+      el.setAttribute(k, v);
+    }
+    svg.append(el);
+  }
+  return svg;
+}
+
+function gearIcon() {
+  return createSvgIcon(
+    [
+      {
+        tag: "path",
+        attrs: {
+          d: "M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z",
+        },
+      },
+      { tag: "circle", attrs: { cx: "12", cy: "12", r: "3" } },
+    ],
+    "0 0 24 24",
+    "1.9",
+  );
+}
+
+function refreshIcon() {
+  return createSvgIcon([
+    {
+      tag: "path",
+      attrs: { d: "M13.5 8a5.5 5.5 0 1 1-1.5-3.8" },
+    },
+    { tag: "polyline", attrs: { points: "10.2 4.3 12.8 4.5 12.6 1.9" } },
+  ]);
+}
+
+function quitIcon() {
+  return createSvgIcon([
+    { tag: "path", attrs: { d: "M8 2.2v5.3" } },
+    {
+      tag: "path",
+      attrs: { d: "M4.4 4.2a5.3 5.3 0 1 0 7.2 0" },
+    },
+  ]);
+}
+
 function renderPopup() {
   popup.dataset.kind = popupKind || "";
   const en = view?.locale === "en";
@@ -225,18 +293,57 @@ function renderPopup() {
 
   const actions = document.createElement("div");
   actions.className = "popup-actions";
-  const actionItems = [
-    [en ? "Settings" : "设置", "settings"],
-    [en ? "Exit taskbar mode" : "退出任务栏模式", "disable"],
-  ];
-  actionItems.forEach(([label, name]) => {
-    const btn = button(label, async () => {
-      await enqueuePopup(closePopup);
-      await action(name);
+  if (isMacOS) {
+    const settingsBtn = document.createElement("button");
+    settingsBtn.type = "button";
+    settingsBtn.className = "mac-footer-settings";
+    const settingsLabel = document.createElement("span");
+    settingsLabel.textContent = en ? "Settings" : "设置";
+    settingsBtn.append(gearIcon(), settingsLabel);
+    settingsBtn.addEventListener("click", () => {
+      void enqueuePopup(closePopup).then(() => action("settings"));
     });
-    btn.className = "action-btn";
-    actions.append(btn);
-  });
+
+    const tools = document.createElement("div");
+    tools.className = "mac-footer-tools";
+
+    const refreshBtn = document.createElement("button");
+    refreshBtn.type = "button";
+    refreshBtn.className = "mac-footer-icon-btn mac-refresh-btn";
+    refreshBtn.disabled = Boolean(view?.loading);
+    refreshBtn.setAttribute("aria-label", en ? "Refresh" : "刷新");
+    refreshBtn.title = en ? "Refresh" : "刷新";
+    refreshBtn.append(refreshIcon());
+    refreshBtn.addEventListener("click", () => {
+      void action("refresh");
+    });
+
+    const quitBtn = document.createElement("button");
+    quitBtn.type = "button";
+    quitBtn.className = "mac-footer-icon-btn mac-quit-btn";
+    quitBtn.setAttribute("aria-label", en ? "Quit" : "退出");
+    quitBtn.title = en ? "Quit CodexWidget" : "退出 CodexWidget";
+    quitBtn.append(quitIcon());
+    quitBtn.addEventListener("click", () => {
+      void enqueuePopup(closePopup).then(() => action("quit"));
+    });
+
+    tools.append(refreshBtn, quitBtn);
+    actions.append(settingsBtn, tools);
+  } else {
+    const actionItems = [
+      [en ? "Settings" : "设置", "settings"],
+      [en ? "Exit taskbar mode" : "退出任务栏模式", "disable"],
+    ];
+    actionItems.forEach(([label, name]) => {
+      const btn = button(label, async () => {
+        await enqueuePopup(closePopup);
+        await action(name);
+      });
+      btn.className = "action-btn";
+      actions.append(btn);
+    });
+  }
   popupContent.replaceChildren(body, actions);
 }
 
@@ -285,6 +392,7 @@ function render(data) {
   }
   document.documentElement.lang = data.locale === "en" ? "en" : "zh-CN";
   if (popupWindow) {
+    document.body.dataset.loading = String(Boolean(data.loading));
     if (popupKind && !popup.hidden) {
       renderPopup();
       void enqueuePopup(() => syncPopupSize()).catch(showError);
@@ -325,6 +433,9 @@ function startCountdownLoop() {
 
 async function startPopupWindow() {
   document.body.dataset.popupWindow = "true";
+  if (isMacOS) {
+    document.body.dataset.platform = "macos";
+  }
   startCountdownLoop();
   void invoke("get_settings")
     .then((settings) => {

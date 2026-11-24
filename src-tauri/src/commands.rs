@@ -97,6 +97,23 @@ pub(crate) async fn test_sub2api_connection(
 #[tauri::command]
 pub(crate) fn show_main_window(app: AppHandle) -> Result<(), String> {
     let window = app.get_webview_window("main").ok_or("设置窗口不存在")?;
+    let _ = window.unminimize();
     window.show().map_err(|error| error.to_string())?;
     window.set_focus().map_err(|error| error.to_string())
+}
+
+#[tauri::command]
+pub(crate) fn quit_app(app: AppHandle) {
+    app.exit(0);
+}
+
+#[tauri::command]
+pub(crate) fn set_menubar_title(app: AppHandle, title: String) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        crate::taskbar::set_menubar_title(&app, &title)?;
+    }
+    #[cfg(not(target_os = "macos"))]
+    let _ = (app, title);
+    Ok(())
 }

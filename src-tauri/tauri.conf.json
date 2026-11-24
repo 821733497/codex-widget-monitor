@@ -11,6 +11,7 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       { "label": "main", "title": "Codex 任务栏额度设置", "width": 520, "height": 560, "resizable": true, "visible": false, "center": true, "transparent": true, "decorations": false, "shadow": false }
     ],

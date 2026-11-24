@@ -683,3 +683,167 @@ body.preview #taskbar > * {
     }
   }
 }
+
+/* macOS 菜单栏弹层：参考 Status Trio 的原生暗色磨砂悬浮风格，保持与 Windows 一致的数据结构 */
+body[data-platform="macos"] {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", sans-serif;
+}
+
+body[data-platform="macos"] #popup,
+body[data-platform="macos"] #popup * {
+  text-shadow: none;
+}
+
+body[data-platform="macos"][data-popup-window="true"] #popup,
+body[data-platform="macos"][data-popup-window="true"] #popup[data-kind="sources"] {
+  --fg: rgba(255, 255, 255, 0.94);
+  --muted: rgba(255, 255, 255, 0.54);
+  --accent: #38bdf8;
+  --accent-bg: rgba(10, 132, 255, 0.16);
+  --warning: #fb923c;
+  --divider: rgba(255, 255, 255, 0.09);
+  --popup-item-hover: rgba(255, 255, 255, 0.08);
+  --popup-item-active: rgba(255, 255, 255, 0.14);
+  width: 400px;
+  padding: 0;
+  border-radius: 16px;
+  clip-path: inset(0 round 16px);
+  background: linear-gradient(
+    180deg,
+    rgba(30, 33, 41, calc(var(--glass-tint-alpha-1, 0.44) * 0.85)) 0%,
+    rgba(20, 22, 28, calc(var(--glass-tint-alpha-2, 0.5) * 0.95)) 100%
+  );
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.09);
+}
+
+body[data-platform="macos"] #popup::before {
+  display: none;
+}
+
+body[data-platform="macos"] .popup-body {
+  padding: 8px 8px 6px;
+  gap: 4px;
+}
+
+body[data-platform="macos"] .source-list {
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.9fr) minmax(56px, max-content);
+  justify-content: stretch;
+  column-gap: 12px;
+  row-gap: 4px;
+}
+
+body[data-platform="macos"] .group-title {
+  margin-top: 4px;
+  padding: 8px 10px 3px;
+  border-top: 1px solid var(--divider);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.48);
+}
+
+body[data-platform="macos"] .group-title:first-child {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 4px;
+}
+
+body[data-platform="macos"] .popup-source-item {
+  padding: 8px 12px;
+  border-radius: 10px;
+  row-gap: 5px;
+}
+
+body[data-platform="macos"] .popup-source-item[aria-checked="true"] {
+  background: var(--accent-bg);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.28);
+}
+
+body[data-platform="macos"] .popup-source-item[aria-checked="true"] .item-label {
+  color: #ffffff;
+}
+
+body[data-platform="macos"] .item-check {
+  color: var(--accent);
+  font-size: 13px;
+}
+
+body[data-platform="macos"] .source-plan {
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+body[data-platform="macos"] .source-metric-label {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+body[data-platform="macos"] .source-metric-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+body[data-platform="macos"] .popup-actions {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  border-top: 1px solid var(--divider);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+body[data-platform="macos"] .mac-footer-settings {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+body[data-platform="macos"] .mac-footer-settings:hover,
+body[data-platform="macos"] .mac-footer-icon-btn:hover {
+  background: var(--popup-item-hover);
+  color: #ffffff;
+}
+
+body[data-platform="macos"] .mac-footer-settings:active,
+body[data-platform="macos"] .mac-footer-icon-btn:active {
+  background: var(--popup-item-active);
+}
+
+body[data-platform="macos"] .mac-footer-tools {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+body[data-platform="macos"] .mac-footer-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+body[data-platform="macos"] .mac-footer-icon-btn:disabled {
+  opacity: 0.45;
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body[data-platform="macos"][data-loading="true"] .mac-refresh-btn svg {
+    animation: spin 1.2s linear infinite;
+  }
+}

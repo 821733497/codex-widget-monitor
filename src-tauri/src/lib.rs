@@ -15,13 +15,16 @@ mod quota;
 mod settings;
 #[cfg(target_os = "windows")]
 mod taskbar;
-#[cfg(not(target_os = "windows"))]
+#[cfg(target_os = "macos")]
+#[path = "macos_menubar.rs"]
+mod taskbar;
+#[cfg(not(any(target_os = "windows", target_os = "macos")))]
 #[path = "taskbar_unsupported.rs"]
 mod taskbar;
 
 use commands::{
-    get_quota, get_quota_for_target, get_settings, save_settings, show_main_window,
-    test_sub2api_connection,
+    get_quota, get_quota_for_target, get_settings, quit_app, save_settings, set_menubar_title,
+    show_main_window, test_sub2api_connection,
 };
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, TrayIconBuilder, TrayIconEvent};
@@ -96,6 +99,15 @@ pub fn run() {
                 }
             }
         });
+    #[cfg(target_os = "macos")]
+    let builder = builder.on_window_event(|window, event| {
+        if window.label() == "main" {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = window.hide();
+            }
+        }
+    });
     builder
         .plugin(tauri_plugin_updater::Builder::new().build())
         .manage(app_state::AppState::new())
@@ -108,17 +120,24 @@ pub fn run() {
                 ))?)?;
                 #[cfg(target_os = "windows")]
                 taskbar::disable_dwm_border(&window);
+                #[cfg(target_os = "macos")]
+                taskbar::configure_main_window(&window);
             }
             let open_settings =
                 MenuItem::with_id(app, "open-settings", "打开设置", true, None::<&str>)?;
             let quit = MenuItem::with_id(app, "quit", "退出", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&open_settings, &quit])?;
-            TrayIconBuilder::with_id("quota")
+            let tray_builder = TrayIconBuilder::with_id("quota")
                 .icon(tray_icon()?)
                 .menu(&menu)
-                .show_menu_on_left_click(false)
+                .show_menu_on_left_click(false);
+            #[cfg(target_os = "macos")]
+            let tray_builder = tray_builder.icon_as_template(true);
+            tray_builder
                 .on_menu_event(|app, event| match event.id().as_ref() {
                     "open-settings" => {
+                        #[cfg(target_os = "macos")]
+                        taskbar::close_popup_if_open(app);
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.unminimize();
                             let _ = window.show();
@@ -129,6 +148,17 @@ pub fn run() {
                     _ => {}
                 })
                 .on_tray_icon_event(|tray, event| {
+                    #[cfg(target_os = "macos")]
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state,
+                        rect,
+                        ..
+                    } = event
+                    {
+                        taskbar::handle_tray_click(tray.app_handle(), button_state, rect);
+                    }
+                    #[cfg(not(target_os = "macos"))]
                     if let TrayIconEvent::DoubleClick {
                         button: MouseButton::Left,
                         ..
@@ -143,7 +173,7 @@ pub fn run() {
                     }
                 })
                 .build(app)?;
-            #[cfg(target_os = "windows")]
+            #[cfg(any(target_os = "windows", target_os = "macos"))]
             taskbar::setup(app.handle())?;
             let settings = settings::SettingsService::load(app.handle()).unwrap_or_default();
             if settings.taskbar_enabled {
@@ -165,6 +195,8 @@ pub fn run() {
             get_settings,
             save_settings,
             show_main_window,
+            quit_app,
+            set_menubar_title,
             test_sub2api_connection,
             desktop_glass::desktop_glass_frame,
             taskbar::set_taskbar_enabled,

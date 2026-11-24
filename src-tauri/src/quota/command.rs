@@ -59,6 +59,9 @@ fn push_platform_candidates(candidates: &mut Vec<PathBuf>) {
     for path in macos_common_codex_paths() {
         candidates.push(path);
     }
+    for path in macos_app_bundle_codex_paths() {
+        candidates.push(path);
+    }
     if let Some(path) = find_macos_nvm_codex_command() {
         candidates.push(path);
     }
@@ -130,9 +133,35 @@ fn macos_common_codex_paths() -> Vec<PathBuf> {
         PathBuf::from("/usr/bin/codex"),
     ];
     if let Some(home) = env::var_os("HOME") {
-        paths.push(PathBuf::from(home).join(".local").join("bin").join("codex"));
+        let home = PathBuf::from(home);
+        paths.push(home.join(".local").join("bin").join("codex"));
+        paths.push(home.join(".volta").join("bin").join("codex"));
+        paths.push(home.join(".bun").join("bin").join("codex"));
     }
     paths
+}
+
+#[cfg(target_os = "macos")]
+fn macos_app_bundle_codex_paths() -> Vec<PathBuf> {
+    let mut app_dirs = vec![PathBuf::from("/Applications")];
+    if let Some(home) = env::var_os("HOME") {
+        app_dirs.push(PathBuf::from(home).join("Applications"));
+    }
+    macos_app_bundle_codex_paths_in(&app_dirs)
+}
+
+#[cfg(target_os = "macos")]
+fn macos_app_bundle_codex_paths_in(app_dirs: &[PathBuf]) -> Vec<PathBuf> {
+    let relative_paths = [
+        "ChatGPT.app/Contents/Resources/codex-cli/bin/codex",
+        "ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex",
+        "Codex.app/Contents/Resources/codex",
+        "Codex.app/Contents/Resources/codex-cli/bin/codex",
+    ];
+    app_dirs
+        .iter()
+        .flat_map(|dir| relative_paths.iter().map(move |rel| dir.join(rel)))
+        .collect()
 }
 
 #[cfg(target_os = "macos")]
@@ -421,6 +450,33 @@ mod tests {
         configure_open_codex_process_environment(&mut command, &codex);
 
         assert!(command.status().unwrap().success());
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn macos_应用包内置_codex_路径可被发现() {
+        use std::fs;
+        use std::os::unix::fs::PermissionsExt;
+
+        let dir = tempfile::tempdir().unwrap();
+        let chatgpt_cli = dir
+            .path()
+            .join("ChatGPT.app/Contents/Resources/codex-cli/bin/codex");
+        let codex_app_cli = dir.path().join("Codex.app/Contents/Resources/codex");
+        for path in [&chatgpt_cli, &codex_app_cli] {
+            fs::create_dir_all(path.parent().unwrap()).unwrap();
+            fs::write(path, "#!/bin/sh\n").unwrap();
+            let mut permissions = fs::metadata(path).unwrap().permissions();
+            permissions.set_mode(0o755);
+            fs::set_permissions(path, permissions).unwrap();
+        }
+
+        let candidates = macos_app_bundle_codex_paths_in(&[dir.path().to_path_buf()]);
+        let usable = candidates
+            .into_iter()
+            .filter(|candidate| is_usable_command_file(candidate))
+            .collect::<Vec<_>>();
+        assert_eq!(usable, vec![chatgpt_cli, codex_app_cli]);
     }
 
     #[cfg(target_os = "macos")]

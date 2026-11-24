@@ -2,10 +2,14 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit, emitTo, listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { check } from "@tauri-apps/plugin-updater";
-import { buildTaskbarView } from "./app/taskbar-model.js";
+import { buildTaskbarView, formatMenubarTitle } from "./app/taskbar-model.js";
 import { createUpdateController } from "./app/update-controller.js";
 import { formatUpdateStatus } from "./app/update-status.js";
 import "./styles.css";
+
+const isMacOS =
+  typeof navigator !== "undefined" &&
+  /mac/i.test(navigator.platform || navigator.userAgent || "");
 
 const state = {
   settings: null,
@@ -406,10 +410,18 @@ async function publishTaskbar() {
   const view = buildTaskbarView(state, sourceItems());
   for (const label of ["taskbar", "taskbar-popup"])
     await emitTo(label, "taskbar:update", view).catch(() => {});
+  if (isMacOS) {
+    const title = state.settings?.taskbarEnabled ? formatMenubarTitle(view) : "";
+    await invoke("set_menubar_title", { title }).catch(() => {});
+  }
 }
 
 async function handleTaskbarAction(event) {
   const { action, target } = event.payload || {};
+  if (action === "quit") {
+    await invoke("quit_app");
+    return;
+  }
   if (action === "settings") {
     await invoke("show_main_window");
     return;
@@ -426,21 +438,45 @@ async function handleTaskbarAction(event) {
     const items = sourceItems();
     const current = items.findIndex((item) => item.active);
     state.settings.activeTarget = items[(current + 1) % items.length].target;
+    renderTargets();
     await persistSettings();
     await refresh();
   }
   if (action === "source" && target) {
     state.settings.activeTarget = target;
+    renderTargets();
     await persistSettings();
     await refresh();
   }
   if (action === "refresh") await getCurrentQuota();
-  if (action === "preloadSources")
+  if (action === "preloadSources") {
+    const activeEntry =
+      state.sourceQuotas[targetKey(state.settings.activeTarget)];
+    if (
+      !activeEntry?.loading &&
+      (!activeEntry?.quota || activeEntry?.error)
+    ) {
+      void refresh();
+    }
     for (const item of sourceItems())
       if (!item.active) void refresh(item.target);
+  }
 }
 
 async function start() {
+  if (isMacOS) {
+    document.documentElement.dataset.platform = "macos";
+    const heading = document.querySelector("header h1");
+    if (heading) heading.textContent = "Codex 额度设置";
+    const codexPath = document.querySelector("#codexPath");
+    if (codexPath) codexPath.placeholder = "留空时自动查找 codex";
+    const toggleRow = document.querySelector(".taskbar-toggle-row");
+    if (toggleRow) {
+      toggleRow.title = "在顶部菜单栏图标旁显示当前选中数据源的实时额度";
+      const toggleLabel = toggleRow.querySelector(".ogui-switch__label");
+      if (toggleLabel) toggleLabel.textContent = "菜单栏显示实时额度";
+    }
+  }
   state.settings = await invoke("get_settings");
   state.sourceQuotas = loadQuotaCache();
   renderSettings();

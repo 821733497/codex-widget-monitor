@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildTaskbarView } from "../src/app/taskbar-model.js";
+import { buildTaskbarView, formatMenubarTitle } from "../src/app/taskbar-model.js";
 
 describe("buildTaskbarView", () => {
   it("maps official windows into taskbar metrics", () => {
@@ -86,5 +86,67 @@ describe("buildTaskbarView", () => {
 
     const customView = buildTaskbarView({ settings: { glassOpacity: 75 } });
     expect(customView.glassOpacity).toBe(75);
+  });
+});
+
+describe("formatMenubarTitle", () => {
+  it("formats official, cycle relay, and wallet relay quotas concisely", () => {
+    const officialView = buildTaskbarView({
+      settings: { activeTarget: { type: "official" }, sites: [] },
+      quota: {
+        planType: "plus",
+        primary: { remainingPercent: 83, windowDurationMins: 300 },
+        secondary: { remainingPercent: 61, windowDurationMins: 10080 },
+      },
+    });
+    expect(formatMenubarTitle(officialView)).toBe("官方 · 5h 83% · 周 61%");
+
+    const cycleTarget = { type: "siteKey", siteId: "s1", keyId: "k1" };
+    const cycleView = buildTaskbarView({
+      settings: {
+        activeTarget: cycleTarget,
+        sites: [{ id: "s1", name: "fcodex", keys: [{ id: "k1", name: "公司自用" }] }],
+      },
+      quota: {
+        credits: { type: "sub2api", limit: 125, remaining: 119.08, todayCost: 0 },
+        secondary: { remainingPercent: 95, windowDurationMins: 10080 },
+      },
+    });
+    expect(formatMenubarTitle(cycleView)).toBe("公司自用 · 剩$119.08 · 今$0.00");
+
+    const walletTarget = { type: "siteKey", siteId: "s1", keyId: "k2" };
+    const walletView = buildTaskbarView({
+      settings: {
+        activeTarget: walletTarget,
+        sites: [{ id: "s1", name: "Relay", keys: [{ id: "k2", name: "Main" }] }],
+      },
+      quota: {
+        credits: { type: "sub2api", isUnrestricted: true, balance: 12.5, todayCost: 1.25, currency: "USD" },
+      },
+    });
+    expect(formatMenubarTitle(walletView)).toBe("Main · 余$12.50 · 今$1.25");
+  });
+
+  it("handles loading, errors, and long key name truncation", () => {
+    const loadingView = buildTaskbarView({
+      settings: { activeTarget: { type: "official" }, sites: [] },
+      loading: true,
+    });
+    expect(formatMenubarTitle(loadingView)).toBe("官方 · 读取中");
+
+    const errorView = buildTaskbarView({
+      settings: { activeTarget: { type: "official" }, sites: [] },
+      errors: { quota: "failed" },
+    });
+    expect(formatMenubarTitle(errorView)).toBe("官方 · 读取失败");
+
+    const longTarget = { type: "siteKey", siteId: "s1", keyId: "k1" };
+    const longView = buildTaskbarView({
+      settings: {
+        activeTarget: longTarget,
+        sites: [{ id: "s1", name: "Relay", keys: [{ id: "k1", name: "VeryLongApiKeyName" }] }],
+      },
+    });
+    expect(formatMenubarTitle(longView)).toBe("VeryLongApi… · --");
   });
 });
